@@ -4,11 +4,6 @@ services:
   db:
     ports:
       - "5432:5432"
-    volumes:
-      - talaia-db-dev:/home/postgres/pgdata/data
   api:
     ports:
       - "3000:3000"
-
-volumes:
-  talaia-db-dev:

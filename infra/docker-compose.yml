@@ -3,7 +3,7 @@
 # docker-compose.override.yml.
 #
 # Variables (UI de Dokploy → Environment, o .env en local):
-#   POSTGRES_PASSWORD (obligatoria), AEMET_API_KEY (obligatoria para AEMET),
+#   POSTGRES_PASSWORD (OBLIGATORIA: sin ella Postgres no arranca), AEMET_API_KEY (obligatoria para AEMET),
 #   POSTGRES_USER, POSTGRES_DB, OPEN_METEO_INTERVAL_MIN, AEMET_FORECAST_INTERVAL_MIN,
 #   AEMET_ALERTS_INTERVAL_MIN, LOG_LEVEL
 #
@@ -19,7 +19,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-talaia}
     volumes:
-      - ../files/db:/home/postgres/pgdata/data
+      - talaia-db:/home/postgres/pgdata/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-talaia} -d ${POSTGRES_DB:-talaia}"]
       interval: 10s
@@ -62,3 +62,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+volumes:
+  talaia-db:
