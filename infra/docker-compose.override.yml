@@ -1,0 +1,10 @@
+# Desarrollo local:
+#   docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build
+# Publica puertos (5432, 3000). Las variables se leen de .env en la raíz del repo (env_file ../.env).
+services:
+  db:
+    ports:
+      - "5432:5432"
+  api:
+    ports:
+      - "3000:3000"

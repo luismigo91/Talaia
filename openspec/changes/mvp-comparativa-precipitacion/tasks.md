@@ -32,7 +32,7 @@
 
 ## 6. Infra y CI
 - [x] `infra/Dockerfile` multi-stage con targets `api` y `collectors` podados con `pnpm deploy` (imágenes independientes).
-- [x] `docker-compose.yml` (raíz) (targets por servicio, `dokploy-network`, `expose`, `${VAR}`, volumen `../files/db`; migraciones al arrancar en `api` y `collectors`), `docker-compose.override.yml` (local) y `docker-compose.test.yml`.
+- [x] `infra/docker-compose.yml` (targets por servicio, `dokploy-network`, `expose`, `${VAR}`, volumen `../files/db`; migraciones al arrancar en `api` y `collectors`), `docker-compose.override.yml` (local) y `docker-compose.test.yml`.
 - [x] `infra/README.md`: alta del servicio Compose en Dokploy, variables a definir, dominio, auto-deploy.
 - [x] `.github/workflows/ci.yml` (tests).
 - [x] Prueba de humo: `docker compose up` en local → `/status` y `/compare` con datos reales.

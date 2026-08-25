@@ -107,7 +107,7 @@ pnpm db:migrate                      # aplica db/migrations (DATABASE_URL)
 pnpm --filter @talaia/collector-open-meteo run-once             # un ciclo del collector
 pnpm --filter @talaia/collector-aemet run-once                  # requiere AEMET_API_KEY
 pnpm --filter @talaia/api dev        # API en :3000 con recarga
-docker compose up --build  # stack completo local
+docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build  # stack completo local
 ```
 
 Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,scheduler}`, `api` (NestJS/Fastify). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.

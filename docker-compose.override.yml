@@ -1,9 +1,0 @@
-# Desarrollo local: docker compose up  (lee docker-compose.yml + docker-compose.override.yml y .env de la raíz)
-# Publica puertos.
-services:
-  db:
-    ports:
-      - "5432:5432"
-  api:
-    ports:
-      - "3000:3000"
