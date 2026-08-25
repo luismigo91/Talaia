@@ -101,6 +101,15 @@ importers:
         specifier: ^0.44.0
         version: 0.44.7(postgres@3.4.9)
 
+  collectors/saih:
+    dependencies:
+      '@talaia/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      drizzle-orm:
+        specifier: ^0.44.0
+        version: 0.44.7(postgres@3.4.9)
+
   collectors/scheduler:
     dependencies:
       '@talaia/collector-aemet':
@@ -109,6 +118,9 @@ importers:
       '@talaia/collector-open-meteo':
         specifier: workspace:*
         version: link:../open-meteo
+      '@talaia/collector-saih':
+        specifier: workspace:*
+        version: link:../saih
       '@talaia/db':
         specifier: workspace:*
         version: link:../../db

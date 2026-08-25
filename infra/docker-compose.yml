@@ -6,7 +6,8 @@
 # raíz del repo (copiar de .env.example). Se cargan con env_file (no con ${VAR}: Dokploy ejecuta
 # docker compose con `env -i`, sin entorno).
 #   POSTGRES_PASSWORD (OBLIGATORIA), AEMET_API_KEY (obligatoria para AEMET),
-#   OPEN_METEO_INTERVAL_MIN, AEMET_FORECAST_INTERVAL_MIN, AEMET_ALERTS_INTERVAL_MIN, LOG_LEVEL
+#   OPEN_METEO_INTERVAL_MIN, AEMET_FORECAST_INTERVAL_MIN, AEMET_ALERTS_INTERVAL_MIN,
+#   SAIH_INTERVAL_MIN, SAIH_BACKFILL_HOURS, LOG_LEVEL
 #
 # api y collectors aplican las migraciones al arrancar (idempotente, con advisory lock).
 # Dominio: asignarlo en Dokploy al servicio `api`, puerto 3000. Sin redes explícitas (Dokploy

@@ -11,6 +11,9 @@ const alias = {
   "@talaia/collector-open-meteo": fileURLToPath(
     new URL("./collectors/open-meteo/src/index.ts", import.meta.url),
   ),
+  "@talaia/collector-saih": fileURLToPath(
+    new URL("./collectors/saih/src/index.ts", import.meta.url),
+  ),
 };
 
 export default defineConfig({

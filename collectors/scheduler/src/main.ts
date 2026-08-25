@@ -3,6 +3,7 @@ import cron from "node-cron";
 import { migrate } from "@talaia/db";
 import { createDb, logger, waitForDb, type Db } from "@talaia/shared";
 import { run as runOpenMeteo } from "@talaia/collector-open-meteo";
+import { run as runSaih } from "@talaia/collector-saih";
 import {
   run as runAemet,
   AemetClient,
@@ -39,6 +40,7 @@ const jobs: Job[] = [
       return c ? runForecasts(db, c) : runAemet(db); // sin clave: runAemet registra el error
     },
   },
+  { name: "saih", intervalMin: minutes("SAIH_INTERVAL_MIN", 10), fn: runSaih },
   {
     name: "aemet-alerts",
     intervalMin: minutes("AEMET_ALERTS_INTERVAL_MIN", 10),

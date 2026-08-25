@@ -16,6 +16,7 @@ COPY packages/shared/package.json packages/shared/
 COPY db/package.json db/
 COPY collectors/open-meteo/package.json collectors/open-meteo/
 COPY collectors/aemet/package.json collectors/aemet/
+COPY collectors/saih/package.json collectors/saih/
 COPY collectors/scheduler/package.json collectors/scheduler/
 COPY api/package.json api/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
