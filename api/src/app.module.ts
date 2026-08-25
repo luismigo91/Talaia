@@ -7,6 +7,8 @@ import { CompareController } from "./compare/compare.controller.js";
 import { CompareService } from "./compare/compare.service.js";
 import { SensorsController } from "./sensors/sensors.controller.js";
 import { ObservationsController } from "./observations/observations.controller.js";
+import { RiskController } from "./risk/risk.controller.js";
+import { RiskService } from "./risk/risk.service.js";
 
 @Module({
   imports: [DbModule],
@@ -17,7 +19,8 @@ import { ObservationsController } from "./observations/observations.controller.j
     CompareController,
     SensorsController,
     ObservationsController,
+    RiskController,
   ],
-  providers: [CompareService],
+  providers: [CompareService, RiskService],
 })
 export class AppModule {}
