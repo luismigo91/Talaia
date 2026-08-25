@@ -29,4 +29,4 @@
 ## 6. Documentación
 - [x] `docs/fuentes.md` y `docs/cuencas.md`: `idVariable` de lluvia descubiertos, unidad de la intensidad, hora local en el request.
 - [x] `CLAUDE.md`: estado del proyecto y comando `run-once` del nuevo collector.
-- [ ] Archivar el cambio y fusionar en `openspec/specs/` (tras validación).
+- [x] Archivar el cambio y fusionar en `openspec/specs/` (25‑08‑2026).

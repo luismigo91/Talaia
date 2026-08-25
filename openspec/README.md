@@ -8,3 +8,5 @@
   - `tasks.md` — checklist de implementación.
 
 Flujo: propuesta → validación por el desarrollador → implementación (loop implementación → QA → tests en verde) → archivado en `changes/archive/` y fusión en `specs/`.
+
+Estado a 25‑08‑2026: los tres primeros cambios (MVP, collector SAIH Júcar y semáforo de riesgo) están implementados y archivados; `specs/` recoge ya once capacidades vigentes. La deuda conocida vive al final del spec de la capacidad afectada (ver `specs/collector-aemet/spec.md`).

@@ -20,4 +20,4 @@
 - [x] `docs/arquitectura.md` §7: sustituir el diseño preliminar por el implementado, con los umbrales y su procedencia.
 - [x] `CLAUDE.md`: estado y variables nuevas.
 - [x] Verificar la zona de avisos de Benaguasil: **es 774602**, confirmado contra el listado de municipios y el shapefile de AEMET. El seed era correcto.
-- [ ] Archivar el cambio y fusionar en `openspec/specs/` (tras validación).
+- [x] Archivar el cambio y fusionar en `openspec/specs/` (25‑08‑2026).

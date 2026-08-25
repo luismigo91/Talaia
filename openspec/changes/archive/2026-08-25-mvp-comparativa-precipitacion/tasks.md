@@ -41,4 +41,4 @@
 
 ## 7. Cierre
 - [x] Actualizar `CLAUDE.md` (comandos, estado) y `docs/`.
-- [ ] Archivar el cambio en `openspec/changes/archive/` y fusionar en `openspec/specs/`.
+- [x] Archivar el cambio en `openspec/changes/archive/` y fusionar en `openspec/specs/` (25‑08‑2026).
