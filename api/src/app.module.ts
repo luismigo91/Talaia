@@ -5,10 +5,19 @@ import { StatusController } from "./status/status.controller.js";
 import { StationsController } from "./stations/stations.controller.js";
 import { CompareController } from "./compare/compare.controller.js";
 import { CompareService } from "./compare/compare.service.js";
+import { SensorsController } from "./sensors/sensors.controller.js";
+import { ObservationsController } from "./observations/observations.controller.js";
 
 @Module({
   imports: [DbModule],
-  controllers: [HealthController, StatusController, StationsController, CompareController],
+  controllers: [
+    HealthController,
+    StatusController,
+    StationsController,
+    CompareController,
+    SensorsController,
+    ObservationsController,
+  ],
   providers: [CompareService],
 })
 export class AppModule {}

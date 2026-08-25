@@ -1,6 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { NestFastifyApplication } from "@nestjs/platform-fastify";
-import { createDb, upsertForecasts, type ForecastRow } from "@talaia/shared";
+import {
+  createDb,
+  upsertForecasts,
+  upsertObservations,
+  type ForecastRow,
+  type ObservationRow,
+} from "@talaia/shared";
 import { migrate } from "@talaia/db";
 import { resetDatabase } from "@talaia/db/testing";
 import { createApp } from "../src/app.js";
@@ -53,6 +59,31 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("API (integración)", () => {
     });
     await upsertForecasts(db, rows);
     await pg`insert into source_status (source, last_success_at, records_written) values ('open-meteo', now() - interval '600 seconds', 10)`;
+
+    // observaciones del SAIH: caudal del Poyo (umbrales 30/70/150) y lluvia del Tancat de la Pipa
+    const obs: ObservationRow[] = [];
+    const min5 = (n: number) => new Date(now.getTime() - n * 300_000);
+    [10, 25, 80].forEach((v, i) =>
+      obs.push({
+        source: "saih",
+        stationId: "saih:227",
+        variable: "river_flow_m3s",
+        ts: min5(3 - i),
+        value: v,
+        unit: "m³/s",
+        quality: 128,
+      }),
+    );
+    obs.push({
+      source: "saih",
+      stationId: "saih:802",
+      variable: "precip_rate_mmh",
+      ts: min5(1),
+      value: 4.8,
+      unit: "mm/h",
+      quality: 0,
+    });
+    await upsertObservations(db, obs);
     app = await createApp();
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
@@ -128,5 +159,81 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("API (integración)", () => {
     expect((await get("/api/v1/compare?hours=100")).statusCode).toBe(400);
     expect((await get("/api/v1/compare?variable=foo")).statusCode).toBe(400);
     expect((await get("/api/v1/compare?station=virtual:nada")).statusCode).toBe(404);
+  });
+
+  it("GET /sensors: catálogo con último valor y nivel calculado en servidor", async () => {
+    const r = await get("/api/v1/sensors?source=saih");
+    expect(r.statusCode).toBe(200);
+    const { sensors } = r.json() as {
+      sensors: {
+        id: string;
+        variable: string;
+        unit: string;
+        station: { id: string; name: string; lat: number; lon: number };
+        thresholds: { low: number | null; mid: number | null; high: number | null };
+        last_value: number | null;
+        age_seconds: number | null;
+        level: string | null;
+      }[];
+    };
+    expect(sensors.length).toBeGreaterThan(50);
+
+    const poyo = sensors.find((s) => s.id === "saih:13873")!;
+    expect(poyo.station.id).toBe("saih:227");
+    expect(poyo.station.lat).toBeCloseTo(39.47, 1);
+    expect(poyo.thresholds).toEqual({ low: 30, mid: 70, high: 150 });
+    expect(poyo.last_value).toBe(80);
+    expect(poyo.level).toBe("naranja"); // 80 ≥ 70 y < 150
+    expect(poyo.age_seconds).toBeGreaterThanOrEqual(0);
+
+    // sensor de lluvia: sin umbrales → sin nivel, pero con su último valor
+    const pipa = sensors.find(
+      (s) => s.station.id === "saih:802" && s.variable === "precip_rate_mmh",
+    )!;
+    expect(pipa.unit).toBe("mm/h");
+    expect(pipa.last_value).toBe(4.8);
+    expect(pipa.level).toBeNull();
+
+    // sensor sin observaciones: aparece igualmente, en blanco
+    const sinDatos = sensors.find((s) => s.last_value === null)!;
+    expect(sinDatos.level).toBeNull();
+    expect(sinDatos.age_seconds).toBeNull();
+  });
+
+  it("GET /sensors?variable= filtra por variable", async () => {
+    const r = await get("/api/v1/sensors?variable=river_flow_m3s");
+    const { sensors } = r.json() as { sensors: { variable: string }[] };
+    expect(sensors.length).toBeGreaterThan(10);
+    expect(sensors.every((s) => s.variable === "river_flow_m3s")).toBe(true);
+  });
+
+  it("GET /observations devuelve la serie del sensor con su resumen", async () => {
+    const r = await get("/api/v1/observations?sensor=saih:13873&hours=6");
+    expect(r.statusCode).toBe(200);
+    const body = r.json() as {
+      sensor: { id: string; unit: string; station: { id: string } };
+      hours: number;
+      summary: { points: number; last: number; max: number; level: string };
+      points: { ts: string; value: number; quality: number }[];
+    };
+    expect(body.sensor.id).toBe("saih:13873");
+    expect(body.sensor.unit).toBe("m³/s");
+    expect(body.sensor.station.id).toBe("saih:227");
+    expect(body.hours).toBe(6);
+    expect(body.summary).toMatchObject({ points: 3, last: 80, max: 80, level: "naranja" });
+    expect(body.points.map((p) => p.value)).toEqual([10, 25, 80]);
+    expect(body.points[0]!.quality).toBe(128);
+  });
+
+  it("GET /observations acepta estación + variable", async () => {
+    const r = await get("/api/v1/observations?station=saih:227&variable=river_flow_m3s");
+    expect(r.statusCode).toBe(200);
+    expect((r.json() as { summary: { last: number } }).summary.last).toBe(80);
+  });
+
+  it("GET /observations sin parámetros → 400; sensor inexistente → 404", async () => {
+    expect((await get("/api/v1/observations")).statusCode).toBe(400);
+    expect((await get("/api/v1/observations?sensor=saih:99999")).statusCode).toBe(404);
+    expect((await get("/api/v1/observations?sensor=saih:13873&hours=999")).statusCode).toBe(400);
   });
 });
