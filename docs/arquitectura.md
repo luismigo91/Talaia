@@ -209,7 +209,7 @@ Configuración por variables de entorno (`.env` en desarrollo; UI de Dokploy en 
 | Caudal / embalses | último valor de los `watch_points` de rol `flow_*` y `reservoir` | Oficiales de la CHJ, en `sensors` |
 | Lluvia observada | `precip_mm` de cada pluviómetro vigilado, **por separado** (el peor manda): hora más lluviosa de las últimas 6 h, y suma de 12 h | AEMET: 20/40/90 (1 h), 60/100/180 (12 h) |
 | Lluvia prevista | acumulado 12 h y 24 h por fuente, última emisión de cada una; nivel por **mediana** entre fuentes, máximo como contexto | 60/100/180 (12 h); 20 mm (24 h, regla propia) |
-| Aviso oficial | `alerts` vigentes de la zona AEMET, solo `PR`/`TO`/`IN` | El nivel del propio aviso |
+| Aviso oficial | `alerts` vigentes de la zona AEMET (de AEMET OpenData o de Meteoalarm, deduplicados), solo `PR`/`TO`/`IN` | El nivel del propio aviso |
 
 Umbrales de lluvia: Plan Meteoalerta de AEMET, Anexo 1 (v1, 31‑05‑2022), idénticos en las once zonas de la Comunitat Valenciana. Se siembran en la tabla `thresholds`, con su procedencia en `meta.source`, y una localización puede sobrescribirlos sin desplegar.
 

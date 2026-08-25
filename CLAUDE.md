@@ -18,9 +18,10 @@ Albal es la localización principal (el semáforo se calibra primero ahí). El M
 ## Estado actual
 
 - **MVP, collector SAIH Júcar y semáforo de riesgo implementados** (25‑08‑2026) y **archivados**: su comportamiento vigente vive en `openspec/specs/` (once capacidades) y las propuestas en `openspec/changes/archive/`. En producción: collectors de Open‑Meteo, AEMET y SAIH; TimescaleDB; API NestJS con `/compare`, `/sensors`, `/observations`, `/risk` y `/status`.
+- **Fase 5 implementada** (25‑08‑2026) según `openspec/changes/collector-meteoalarm/`: collector de Meteoalarm, que da los avisos de AEMET **sin clave** y cierra la cuarta señal del semáforo. Traduce `EMMA_ID`→zona AEMET (mapa de 128 zonas verificado) y `awareness_type`/`awareness_level` al vocabulario de AEMET; los duplicados entre fuentes se resuelven al leer, prefiriendo AEMET.
 - **Deuda conocida** (ver final de `openspec/specs/collector-aemet/spec.md`): faltan la `AEMET_API_KEY` real en Dokploy y las fixtures reales de AEMET (`46007`, `46054`, `46235`, `46051` y tar CAP del área `77`). Todo lo demás está verificado contra las fuentes reales.
 - **Fase 4 implementada** (25‑08‑2026) según `openspec/changes/notificaciones-riesgo/`: el cálculo del riesgo vive en `packages/shared` (`evaluateRisk`) para que scheduler y API no diverjan; tablas `risk_state` y `risk_events`; job `risk` cada 5 min con histéresis asimétrica; notificación por ntfy opcional; `GET /api/v1/risk/history`. Verificado con una crecida simulada de extremo a extremo. Pendiente: desplegar y archivar.
-- Siguiente incremento previsto: Meteoalarm, frontend (Next.js + MapLibre) y calibración de umbrales con episodios reales.
+- Siguiente incremento previsto: frontend (Next.js + MapLibre) y calibración de umbrales con episodios reales.
 
 ## Estructura del monorepo
 
@@ -40,7 +41,7 @@ openspec/     Especificaciones (OpenSpec): specs/ = comportamiento vigente; chan
 |---|---|---|---|
 | AEMET OpenData | Predicción municipal horaria/diaria, observación, radar, avisos CAP | REST con `api_key`; respuesta en 2 pasos (URL intermedia `datos`). Cuota → cachear siempre | MVP |
 | Open-Meteo | Predicción multi-modelo (ECMWF, GFS, ICON, AROME…) | REST sin clave. Uso no comercial | MVP |
-| Meteoalarm | Avisos AEMET republicados en CAP/Atom | Feed público | Fase 2 |
+| Meteoalarm | Avisos AEMET republicados en CAP (API v1 JSON) | Feed público sin clave | **Implementado** (fase 5) |
 | SAIH Júcar (CHJ) | Nivel/caudal de barrancos, embalses, pluviómetros en tiempo real | Sin API pública ni auth; endpoints internos `/admin/…` | **Implementado** (fase 2) |
 | MITECO / embalses.net | Estado de embalses | Boletín semanal / scraping | Fase 3 |
 | GVA Emergències / 112 CV | Avisos Protección Civil | RSS / scraping | Fase 3 |
@@ -111,9 +112,10 @@ pnpm db:migrate                      # aplica db/migrations (DATABASE_URL)
 pnpm --filter @talaia/collector-open-meteo run-once             # un ciclo del collector
 pnpm --filter @talaia/collector-aemet run-once                  # requiere AEMET_API_KEY
 pnpm --filter @talaia/collector-saih run-once                   # sin clave; SAIH_BACKFILL_HOURS ajusta la 1.ª ventana
+pnpm --filter @talaia/collector-meteoalarm run-once             # avisos oficiales sin clave
 pnpm --filter @talaia/scheduler risk-once                       # fuerza una evaluación del semáforo
 pnpm --filter @talaia/api dev        # API en :3000 con recarga
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build  # stack completo local
 ```
 
-Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,saih,scheduler}`, `api` (NestJS/Fastify). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.
+Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,saih,meteoalarm,scheduler}`, `api` (NestJS/Fastify). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.

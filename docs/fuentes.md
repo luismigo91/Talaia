@@ -270,12 +270,27 @@ Caudal → `river_flow_m3s`; cota de embalse → `reservoir_level_m`; volumen �
 
 | Campo | Valor |
 |---|---|
-| URL | Feeds CAP/Atom por país: https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-spain (formato legado) y API https://feeds.meteoalarm.org/api/v1/warnings/feeds-spain ❓ |
-| Formato | Atom + CAP 1.2 |
-| Autenticación | Ninguna |
-| Frecuencia | Continuo (republica AEMET) |
-| Interés | Mismo contenido que AEMET `avisos_cap` pero sin clave ni cuota; polígonos por zona (`774602`) |
-| Riesgo | Retraso respecto a AEMET; formato legado en transición ❓. Fase 2: validar URLs. |
+| URL | **API v1 (la que usa el collector)**: https://feeds.meteoalarm.org/api/v1/warnings/feeds-spain ✅ (JSON, ~2,2 MB, 512 avisos de toda España). Alternativa legada: https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-spain ✅ (Atom + CAP 1.2, ~225 KB) |
+| Formato | CAP 1.2 servido como JSON. Un bloque `info` por idioma (`es-ES`, `en-GB`) |
+| Autenticación | Ninguna, sin cuota ✅ |
+| Frecuencia | Continuo (republica AEMET). Collector cada 10 min |
+| Interés | Los avisos de AEMET **sin clave**: es la única forma de tener la señal de avisos del semáforo mientras no haya `AEMET_API_KEY` |
+| Riesgo | Retraso respecto a AEMET; **no publica polígonos** (`geom` queda a NULL) |
+
+### Diferencias con el CAP de AEMET ✅ (verificadas 25‑08‑2026)
+
+Meteoalarm **reetiqueta** los avisos, así que no se pueden leer con el mismo parser:
+
+| AEMET OpenData | Meteoalarm | Traducción del collector |
+|---|---|---|
+| `geocode` `AEMET-Meteoalerta zona` = `774602` | `geocode` `EMMA_ID` = `ES247` | Mapa de 128 zonas en `collectors/meteoalarm/src/zones.ts` |
+| `eventCode` = `PR;Lluvias` | `parameter` `awareness_type` = `10; Rain` | `10`→`PR`, `3`→`TO`, `11`/`12`→`IN`, `1`→`VI`, `7`→`CO` |
+| `parameter` `AEMET-Meteoalerta nivel` = `amarillo` | `parameter` `awareness_level` = `2; yellow; Moderate` | `yellow`→`amarillo`, … |
+| `polygon` con la geometría | — | `geom` a NULL |
+
+El mapa `EMMA_ID` → zona se generó del propio feed cruzando cada área con el código de seis dígitos que va dentro del `identifier`: **128 zonas, cero conflictos**. Las de la Comunitat Valenciana: `ES247`→`774602`, `ES249`→`774604`, `ES246`→`774601`, `ES248`→`774603`, y las costeras `ES864`→`774602`, `ES863`→`774604`.
+
+**Los `identifier` de las dos fuentes no coinciden en formato** (AEMET `…ES.20261025120000.774602PRP2251912`, Meteoalarm `…ES.260820093609.774602PRP1230889928`), así que la misma alerta cae en filas distintas: se deduplica **al leer**, por `(area_code, event_code, level, onset, expires)`, prefiriendo AEMET.
 
 ---
 
