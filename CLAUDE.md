@@ -19,7 +19,8 @@ Albal es la localización principal (el semáforo se calibra primero ahí). El M
 
 - **MVP implementado** (25‑08‑2026) según `openspec/changes/mvp-comparativa-precipitacion/`: collectors de Open-Meteo y AEMET, TimescaleDB, API NestJS con `/compare`, compose para Dokploy. Pendiente en `tasks.md`: desplegar en Dokploy con clave real de AEMET y sustituir las fixtures de AEMET por capturas reales; después archivar el cambio en `openspec/specs/`.
 - **Fase 2 implementada** (25‑08‑2026) según `openspec/changes/collector-saih-jucar/`: collector SAIH Júcar (29 estaciones y 57 sensores en la tabla `sensors`, series cincominutales en `observations`, `precip_mm` horario derivado de la intensidad) y endpoints `/api/v1/sensors` y `/api/v1/observations`. Verificado contra el portal real. Pendiente: desplegarlo y archivar el cambio.
-- Siguiente incremento previsto: `watch_points` + semáforo de riesgo (fase 3), Meteoalarm y frontend.
+- **Fase 3 implementada** (25‑08‑2026) según `openspec/changes/semaforo-riesgo/`: tablas `watch_points` y `thresholds`, `RiskService` y `GET /api/v1/risk` (nivel por localización con su desglose). Umbrales de lluvia oficiales de AEMET; los de caudal, de la CHJ. Verificado con datos reales de SAIH y Open‑Meteo. Pendiente: desplegar y archivar.
+- Siguiente incremento previsto: notificaciones (requieren histórico de cambios de nivel), Meteoalarm y frontend.
 
 ## Estructura del monorepo
 
@@ -48,7 +49,7 @@ openspec/     Especificaciones (OpenSpec): specs/ = comportamiento vigente; chan
 
 ## Identificadores clave (verificados 25‑08‑2026, detalle en `docs/fuentes.md`)
 
-- AEMET: municipios `46007`, `46054`, `46235`, `46051`; zonas de avisos `774602` (Litoral norte de Valencia) y `774604` (Litoral sur), área CCAA `77`; estaciones `8416` (València), `8414A` (Manises), `8337X` (Turís); radar `va`. Cuota 40 req/min; respuestas en ISO‑8859‑15; horas locales.
+- AEMET: municipios `46007`, `46054`, `46235`, `46051`; zonas de avisos `774602` (Litoral norte de Valencia: Albal, Benetússer y también **Benaguasil** pese a ser interior — no confundir con Benagéber `46050`, que sí es `774601`) y `774604` (Litoral sur: Sueca/Mareny), verificadas el 25‑08‑2026 contra el listado de municipios y el shapefile de zonas de AEMET; área CCAA `77`; estaciones `8416` (València), `8414A` (Manises), `8337X` (Turís); radar `va`. Cuota 40 req/min; respuestas en ISO‑8859‑15; horas locales.
 - Open-Meteo: modelos que cubren Albal: `meteofrance_arome_france_hd` (1,5 km), `icon_eu`, `ecmwf_ifs`, `gfs_seamless`, `arpege_europe`, `ukmo_global_deterministic_10km`. Hora de corrida vía `/data/{meta_id}/static/meta.json`.
 - SAIH Júcar: caudal del Poyo en Riba‑roja = variable `13873` (estación 227), umbrales CHJ 30/70/150 m³/s; lluvia (intensidad) Chiva `14079`, Turís `16922`, Azud de Sueca `2710`; Forata estación 303. Túria: Vilamarxant `12808`, salida Loriguilla `12905`, ramblas Castellana `13896` y Primera `13897`. Xúquer: Huerto Mulet `13070`, salida Tous `13080`, Magro en Guadassuar `14551`. Inventario completo por localidad en `docs/cuencas.md`; el catálogo vivo está en la tabla `sensors`. Endpoint `GET https://saih.chj.es/admin/variables/valor/{id}/{YYYY-MM-DD HH:MM}/{…}` (sin auth, cincominutal, sin datos de la DANA): **el rango va en hora local `Europe/Madrid` y la respuesta viene en UTC**.
 
@@ -58,7 +59,7 @@ Collector → Normalizador → TimescaleDB → API → Frontend.
 
 - Cada collector guarda su marca `last_success_at` en `source_status` para mostrar frescura por fuente.
 - El normalizador convierte cada fuente al esquema común. La comparativa entre fuentes es filtrar la misma `variable` por varias `source`.
-- Umbrales y semáforo de riesgo se calculan **en servidor** para que pantalla y notificaciones vean lo mismo.
+- Umbrales y semáforo de riesgo se calculan **en servidor** para que pantalla y notificaciones vean lo mismo. El semáforo combina cuatro señales por **máximo**, nunca por media, y cada componente explica su nivel en español (ver `docs/arquitectura.md` §7).
 
 ## Esquema común de datos
 
@@ -70,8 +71,9 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - `forecast_ts`: instante de emisión de la predicción (NULL en observaciones). Permite comparar a posteriori el error de cada modelo.
 - Variables canónicas: `precip_mm`, `precip_prob_pct`, `precip_rate_mmh`, `precip_24h_mm`, `temp_c`, `rh_pct`, `wind_ms`, `gust_ms`, `river_level_m`, `river_flow_m3s`, `reservoir_hm3`, `reservoir_level_m`, `reservoir_pct`.
 - Unidades canónicas: mm, mm/h, %, °C, m/s, m, m³/s, hm³. Se convierte en el normalizador, nunca en el frontend.
-- Tablas: `observations`, `forecasts` (hypertables), `stations`, `sensors`, `sources`, `source_status`, `alerts`.
-- `sensors` = catálogo de sensores externos (sensor de la fuente → variable canónica, unidad y umbrales oficiales). Añadir un sensor es una fila, no un despliegue.
+- Tablas: `observations`, `forecasts` (hypertables), `stations`, `sensors`, `watch_points`, `thresholds`, `sources`, `source_status`, `alerts`.
+- `sensors` = catálogo de sensores externos (sensor de la fuente → variable canónica, unidad y umbrales oficiales). Añadir un sensor es una fila, no un despliegue. Los sensores **derivados** (`meta.derived_from`) los calcula el collector y `loadSensors()` los excluye por defecto para no pedirlos al portal.
+- `watch_points` = qué sensores vigila cada localización objetivo y con qué rol; `thresholds` = umbrales de lluvia (los de caudal ya vienen de la CHJ en `sensors`).
 
 ## Convenciones
 

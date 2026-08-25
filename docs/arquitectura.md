@@ -176,9 +176,9 @@ alerts (
   - `GET /api/v1/observations?station=&variable=&from=&to=`
   - `GET /api/v1/forecasts?station=&variable=&source=&forecast_ts=` — permite pedir una emisión concreta (verificación a posteriori).
   - `GET /api/v1/alerts?active=true`
-  - `GET /api/v1/risk` — semáforo (fase 3).
+  - `GET /api/v1/risk` — semáforo por localización (§7). **Implementado.**
 - WebSocket `/ws` para empujar nuevos datos y cambios de semáforo (fase 3).
-- Umbrales configurables en tabla `thresholds` (fase 3), evaluados en servidor.
+- Umbrales de lluvia configurables en la tabla `thresholds`, evaluados en servidor. Los de caudal vienen de la CHJ en `sensors`.
 
 ## 5. Frontend (fases posteriores)
 
@@ -199,15 +199,25 @@ Desarrollo local con el mismo compose más `docker-compose.override.yml`. Servic
 
 Configuración por variables de entorno (`.env` en desarrollo; UI de Dokploy en producción).
 
-## 7. Semáforo de riesgo (diseño preliminar, fase 3)
+## 7. Semáforo de riesgo (implementado el 25‑08‑2026, fase 3)
 
-Entrada: precipitación prevista 6/12/24 h (máx. y mediana entre modelos), precipitación observada últimas 1/3/6 h en cuenca alta (Chiva/Turís/Buñol), nivel/caudal en el aforo del Poyo, aviso Meteoalert vigente.
+`GET /api/v1/risk` devuelve un nivel por localización y el desglose que lo justifica. Cuatro señales independientes; el nivel es el **máximo**, nunca una media: un caudal en rojo no se compensa con un cielo despejado.
 
-| Nivel | Condición orientativa |
-|---|---|
-| Verde | sin aviso y precip. prevista 24 h < 20 mm |
-| Amarillo | aviso amarillo **o** precip. prevista 24 h ≥ 20 mm **o** caudal Poyo > umbral 1 |
-| Naranja | aviso naranja **o** precip. prevista 12 h ≥ 60 mm **o** caudal > umbral 2 |
-| Rojo | aviso rojo **o** caudal > umbral 3 **o** precip. observada 3 h en cuenca alta ≥ 60 mm |
+| Señal | Qué mira | Umbrales |
+|---|---|---|
+| Caudal / embalses | último valor de los `watch_points` de rol `flow_*` y `reservoir` | Oficiales de la CHJ, en `sensors` |
+| Lluvia observada | `precip_mm` de cada pluviómetro vigilado, **por separado** (el peor manda): hora más lluviosa de las últimas 6 h, y suma de 12 h | AEMET: 20/40/90 (1 h), 60/100/180 (12 h) |
+| Lluvia prevista | acumulado 12 h y 24 h por fuente, última emisión de cada una; nivel por **mediana** entre fuentes, máximo como contexto | 60/100/180 (12 h); 20 mm (24 h, regla propia) |
+| Aviso oficial | `alerts` vigentes de la zona AEMET, solo `PR`/`TO`/`IN` | El nivel del propio aviso |
 
-Los umbrales se calibrarán con datos del SAIH; los sensores a vigilar por localización (futura tabla `watch_points`) están en `docs/cuencas.md`.
+Umbrales de lluvia: Plan Meteoalerta de AEMET, Anexo 1 (v1, 31‑05‑2022), idénticos en las once zonas de la Comunitat Valenciana. Se siembran en la tabla `thresholds`, con su procedencia en `meta.source`, y una localización puede sobrescribirlos sin desplegar.
+
+Reglas que evitan falsos verdes y falsas alarmas:
+
+- Un dato más viejo que `RISK_STALE_MINUTES` (30; 90 en estaciones de embalse, que publican cada media hora) **no cuenta** y genera advertencia. El silencio no es verde.
+- La lluvia observada no se promedia ni se suma entre estaciones: en la DANA, Turís marcó 771 mm mientras a 20 km apenas llovía.
+- La lluvia prevista la marca la mediana entre fuentes: un modelo desatado no enciende el semáforo, pero su máximo se muestra.
+- Un sensor sin umbrales (volumen de embalse) es contexto: ni eleva el nivel ni avisa de frescura.
+- AEMET pondera además la probabilidad al emitir sus avisos: **el semáforo no reproduce los avisos oficiales**, los complementa. Por eso el aviso vigente entra como señal propia.
+
+Los sensores vigilados por localización están en `watch_points` (semilla en `db/migrations/0007_watch_points.sql`, inventario razonado en `docs/cuencas.md`). Calibrar los umbrales con episodios reales queda pendiente: el portal del SAIH no publica la DANA del 29‑10‑2024.

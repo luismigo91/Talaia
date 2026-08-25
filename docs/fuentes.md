@@ -59,6 +59,21 @@ Las URLs caducan en ~5 min (`{"descripcion":"datos expirados","estado":404}`). C
 - Área `77`. Zonas de València: `774601` Interior norte, `774602` **Litoral norte** (← **Albal, Benetússer, Benaguasil**), `774603` Interior sur, `774604` **Litoral sur** (← **Sueca / Mareny de Barraquetes**). Fuente: https://www.aemet.es/documentos/es/eltiempo/prediccion/avisos/plan_meteoalerta/detalle_municipios_zonas_meteorologicas.pdf
 - El tar.gz contiene un XML por aviso `Z_CAP_C_LEMM_AAAAMMDDHHMMSS_AFAZ{zona}{FF}{PP}{DDHH}.xml` más mensajes "sin aviso" (`severity=Minor`, zona `77VV77`). Filtrar por `<geocode><valueName>AEMET-Meteoalerta zona</valueName><value>774602|774604</value>`.
 - Campos: `eventCode` (`PR;Lluvias`), `parameter` "AEMET-Meteoalerta nivel" (verde/amarillo/naranja/rojo), "AEMET-Meteoalerta parametro" (`P2;Precipitación acumulada en 12 horas;60 mm`), `onset`, `expires`, `polygon`. Anexo CAP: https://www.aemet.es/documentos/es/eltiempo/prediccion/avisos/plan_meteoalerta/METEOALERTA_ANX3_CAP.pdf · Shapes de zonas: http://www.aemet.es/documentos/es/eltiempo/prediccion/avisos/plan_meteoalerta/AEMET-meteoalerta-delimitacion-zonas.zip
+
+#### Umbrales de aviso por lluvia ✅ (verificados 25‑08‑2026)
+
+Zonas `774602` y `774604` — y de hecho **las once zonas de la Comunitat Valenciana**, que comparten cifras:
+
+| Acumulación | Amarillo | Naranja | Rojo |
+|---|---|---|---|
+| 1 hora | 20 mm | 40 mm | 90 mm |
+| 12 horas | 60 mm | 100 mm | 180 mm |
+
+Fuente: Plan Meteoalerta, **Anexo 1 — Umbrales y niveles de aviso** (versión 1, 31‑05‑2022), sección 3.17: https://www.aemet.es/documentos/es/eltiempo/prediccion/avisos/plan_meteoalerta/METEOALERTA_ANX1_Umbrales_y_niveles_de_aviso.pdf · Plan matriz v9 (10‑01‑2025): https://www.aemet.es/documentos/es/eltiempo/prediccion/avisos/plan_meteoalerta/PLAN_METEOALERTA_v9_web_externa.pdf
+
+Son los umbrales sembrados en la tabla `thresholds` para el semáforo. Dos matices que conviene no olvidar: el Anexo 1 sigue en su versión de 2022 (tras la DANA del 29‑10‑2024 se discutió públicamente el umbral rojo de 180 mm/12 h, pero **no** hay revisión oficial publicada ❓), y AEMET no emite el aviso solo por superar el umbral —pondera la probabilidad y en tormentas usa adjetivación cualitativa—, así que **el semáforo de Talaia no reproduce los avisos oficiales, los complementa**.
+
+Zonas de las localizaciones ✅ (verificado contra el listado de municipios **y** el shapefile de delimitación, por punto en polígono): Albal, Benetússer y Benaguasil → `774602`; Sueca y el punto del Mareny → `774604`. Benaguasil es litoral‑norte pese a estar en el Camp de Túria; no confundirlo con **Benagéber** (`46050`), que sí es `774601`.
 - Alternativa sin clave: RSS https://www.aemet.es/es/rss_info/avisos/val ✅
 
 ### Estructura de la predicción horaria 📄✅ (fixture real)
