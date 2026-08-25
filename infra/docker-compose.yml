@@ -14,10 +14,11 @@
 
 # Dokploy escribe el .env de la UI JUNTO a este fichero (infra/.env) si la opción
 # "Create .env file" del servicio está activada; en local se usa el .env de la raíz.
+# Orden: el último gana → el de Dokploy (infra/.env) tiene precedencia sobre el de la raíz.
 x-env-file: &env-file
-  - path: .env
-    required: false
   - path: ../.env
+    required: false
+  - path: .env
     required: false
 
 services:
