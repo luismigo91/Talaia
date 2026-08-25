@@ -12,7 +12,8 @@ collectors/scheduler/     proceso largo: node-cron → ejecuta run() de cada col
 api/                      NestJS (adaptador Fastify): módulos health, status, stations, compare
 db/migrations/            migraciones SQL generadas por drizzle-kit + SQL manual (extensiones, hypertables, políticas, seeds)
 db/migrate.ts             aplica migraciones pendientes (drizzle-orm/migrator)
-infra/docker-compose.yml  db, migrate (one-shot), collectors, api
+infra/stack.yml           stack para Docker Swarm (docker stack deploy): db, migrate, collectors, api
+infra/docker-compose.yml  desarrollo local (build, .env, sin Swarm)
 infra/Dockerfile.node     multi-stage, node:22-alpine, un target por servicio
 ```
 
@@ -206,9 +207,20 @@ Respuesta:
 
 Series sin datos en la ventana se omiten; `summary` se calcula en servidor.
 
-## Configuración y secretos
+## Despliegue en Docker Swarm
 
-- `.env` (ver `.env.example`) para DB, intervalos y puerto. La clave AEMET va como Docker secret: en compose, `secrets: aemet_api_key: {file: ./secrets/aemet_api_key}` y `AEMET_API_KEY_FILE=/run/secrets/aemet_api_key` en el servicio `collectors`. El código lee el fichero si existe y, si no, `AEMET_API_KEY` (desarrollo local). `infra/secrets/` está ignorado por git.
+Producción = `docker stack deploy -c infra/stack.yml talaia` en el homelab. Desarrollo = `docker compose -f infra/docker-compose.yml up` (con `build`).
+
+- **Imágenes**: `docker stack deploy` ignora `build`; las imágenes se publican en un registro (GHCR, `ghcr.io/<usuario>/talaia-{api,collectors,migrate}:<tag>`) desde GitHub Actions y el stack las referencia por tag. Alternativa sin registro: `docker build` en el nodo manager y `image:` local (solo válido en Swarm de un nodo).
+- **Secrets**: externos, creados una vez con `docker secret create aemet_api_key -` y `docker secret create postgres_password -`; en el stack `secrets: aemet_api_key: {external: true}`. Los servicios reciben `AEMET_API_KEY_FILE=/run/secrets/aemet_api_key` y `POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password` (la imagen oficial de Postgres/Timescale soporta `_FILE`). El código lee el fichero si existe y, si no, `AEMET_API_KEY` (desarrollo local con compose).
+- **Configuración no secreta**: variables `environment` en el stack (intervalos, puerto, `TZ=UTC`); opcionalmente `configs` de Swarm.
+- **DB**: servicio `db` con `deploy.replicas: 1`, `placement.constraints: [node.labels.talaia.db == true]` y volumen local en ese nodo (Timescale no se replica; un solo nodo). `stop_grace_period: 1m`.
+- **Sin `depends_on`**: Swarm no lo respeta. `migrate`, `collectors` y `api` esperan a la DB con reintentos (bucle de `select 1` hasta 60 s) al arrancar.
+- **Migraciones**: servicio `migrate` con `deploy.restart_policy.condition: on-failure` y `max_attempts: 5`; termina con exit 0 tras aplicar (Swarm no lo reinicia). Alternativa: `api` aplica migraciones al arrancar con lock advisory; se elige el servicio `migrate` para no acoplar.
+- **Redes**: red overlay `talaia` interna; `api` publica el puerto (`ports: ["3000:3000"]`, modo ingress) o se expone vía el proxy inverso ya existente en el homelab (Traefik/Caddy) con labels.
+- **Healthchecks**: `api` → `GET /api/v1/health`; `collectors` → fichero de heartbeat que el scheduler toca en cada ciclo; `db` → `pg_isready`.
+- **Logs**: stdout JSON (pino); `docker service logs`.
+- **Actualización**: `deploy.update_config: {order: start-first, failure_action: rollback}` en `api`; `collectors` con `order: stop-first` (evita dos schedulers concurrentes contra la cuota de AEMET) y `replicas: 1` siempre.
 
 ## Tests
 

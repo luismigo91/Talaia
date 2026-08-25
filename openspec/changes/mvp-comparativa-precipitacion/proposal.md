@@ -18,7 +18,7 @@ Antes de construir mapa, semáforo o integrar el SAIH, necesitamos el "esqueleto
 3. **Esquema de base de datos** (`db/migrations`): Postgres 16 + TimescaleDB + PostGIS; tablas `sources`, `stations`, `source_status`, `forecasts`, `observations`, `alerts`, `raw_payloads`; seeds de fuentes y estaciones.
 4. **API** (`api/`): `GET /api/v1/compare` (comparativa 24 h de `precip_mm`, parámetro `station`), `GET /api/v1/stations` (localizaciones objetivo), `GET /api/v1/status` (frescura), `GET /api/v1/health`.
 5. **Localizaciones objetivo** definidas como datos (semilla de `stations`, con `meta.ine` y `meta.aemet_zone`), no como variables de entorno: añadir una localidad es una fila, no un despliegue.
-6. **Infra**: `docker-compose.yml` (db, collectors, api), Dockerfiles, CI con tests.
+6. **Infra**: `stack.yml` para Swarm (db, migrate, collectors, api), `docker-compose.yml` de desarrollo, Dockerfiles, CI con tests y publicación de imágenes en GHCR.
 
 ## No-objetivos (explícitos)
 
@@ -36,7 +36,8 @@ Antes de construir mapa, semáforo o integrar el SAIH, necesitamos el "esqueleto
 | 2 | Framework API | **NestJS** (sobre adaptador Fastify) |
 | 3 | Acceso a DB | **Drizzle ORM** para tablas y queries; hypertables, políticas y PostGIS en SQL crudo dentro de las migraciones |
 | 4 | Ejecución de collectors | **`node-cron` interno** (o `@nestjs/schedule`) en el contenedor `collectors`, con aislamiento por job |
-| 5 | Clave AEMET | **Docker secret** montado en `/run/secrets/aemet_api_key`; variable `AEMET_API_KEY_FILE`. Fallback a `AEMET_API_KEY` en desarrollo local. Tests sin clave |
+| 5 | Clave AEMET | **Docker secret** externo de Swarm (`aemet_api_key`) montado en `/run/secrets/aemet_api_key`; variable `AEMET_API_KEY_FILE`. Fallback a `AEMET_API_KEY` en desarrollo local. Tests sin clave |
+| 10 | Despliegue | **Docker Swarm** en el homelab (`infra/stack.yml`, imágenes en GHCR, secrets externos). Compose solo para desarrollo |
 | 6 | Ventana de comparativa | **24 h móviles** desde la hora actual truncada; parámetro `hours` (1–48) |
 | 7 | Modelos Open-Meteo | **Los 6 verificados**, sin `best_match` |
 | 8 | Nombre | **Talaia** |

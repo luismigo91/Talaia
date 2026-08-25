@@ -30,9 +30,11 @@
 - [ ] Test de integración de `/compare` (última emisión, fuente sin datos, 400).
 
 ## 6. Infra y CI
-- [ ] `infra/Dockerfile.node` multi-stage; `infra/docker-compose.yml` (db, migrate, collectors, api, secret `aemet_api_key`); `docker-compose.test.yml`.
-- [ ] `.github/workflows/ci.yml`.
-- [ ] Prueba de humo manual: `docker compose up` → `/status` y `/compare` con datos reales.
+- [ ] `infra/Dockerfile.node` multi-stage (targets `api`, `collectors`, `migrate`).
+- [ ] `infra/docker-compose.yml` (desarrollo, `build`) y `docker-compose.test.yml`.
+- [ ] `infra/stack.yml` para Swarm: secrets externos, placement de `db`, `migrate` on-failure, espera activa a DB, `update_config`, healthchecks; `infra/README.md` con los comandos (`docker secret create`, `docker node update --label-add`, `docker stack deploy`).
+- [ ] `.github/workflows/ci.yml` (tests) y `publish.yml` (imágenes a GHCR).
+- [ ] Prueba de humo: `docker compose up` en local y `docker stack deploy` en el homelab → `/status` y `/compare` con datos reales.
 
 ## 7. Cierre
 - [ ] Actualizar `CLAUDE.md` (comandos, estado) y `docs/`.

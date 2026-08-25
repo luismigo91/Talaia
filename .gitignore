@@ -13,5 +13,3 @@ __pycache__/
 *.pyc
 .venv/
 infra/data/
-infra/secrets/*
-!infra/secrets/.gitignore

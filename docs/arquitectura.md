@@ -188,14 +188,16 @@ alerts (
 
 ## 6. Despliegue
 
-`infra/docker-compose.yml` con servicios:
+Producción en **Docker Swarm** en el homelab (`infra/stack.yml`, `docker stack deploy`): imágenes publicadas en GHCR, secrets externos, DB fijada a un nodo con volumen local, `migrate` one-shot, servicios que esperan a la DB con reintentos (Swarm ignora `depends_on`), `collectors` con una sola réplica. Detalles en `openspec/changes/mvp-comparativa-precipitacion/design.md` → "Despliegue en Docker Swarm".
+
+Desarrollo local con `infra/docker-compose.yml` (con `build`). Servicios en ambos casos:
 
 - `db`: `timescale/timescaledb:latest-pg16` (incluye PostGIS en la variante `-ha`; alternativa: instalar `postgis` en la imagen). Volumen persistente.
 - `collectors`: imagen Node alpine con scheduler interno.
 - `api`: imagen Node alpine.
 - `web` (futuro): Next.js standalone o estático servido por Caddy.
 
-Variables de entorno en `.env` (ver `.env.example`).
+Configuración por variables de entorno (`.env` en desarrollo; `environment` + secrets en el stack).
 
 ## 7. Semáforo de riesgo (diseño preliminar, fase 3)
 
