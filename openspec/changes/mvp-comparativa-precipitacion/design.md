@@ -12,7 +12,7 @@ collectors/scheduler/     proceso largo: node-cron → ejecuta run() de cada col
 api/                      NestJS (adaptador Fastify): módulos health, status, stations, compare
 db/migrations/            migraciones SQL generadas por drizzle-kit + SQL manual (extensiones, hypertables, políticas, seeds)
 db/migrate.ts             aplica migraciones pendientes (drizzle-orm/migrator)
-infra/docker-compose.yml  compose (targets api y collectors + db); alternativa a las Applications individuales
+docker-compose.yml        (raíz) compose (targets api y collectors + db); alternativa a las Applications individuales
 infra/docker-compose.override.yml  extras de desarrollo local (puertos publicados, watch)
 infra/Dockerfile          multi-stage, node:22-alpine, un target podado por servicio (pnpm deploy)
 ```
@@ -209,7 +209,7 @@ Series sin datos en la ventana se omiten; `summary` se calcula en servidor.
 
 ## Despliegue en Dokploy (un servicio por componente)
 
-Cada componente tiene su **propia imagen** (target del `infra/Dockerfile`: `api`, `collectors`), podada con `pnpm deploy` a su paquete y dependencias de producción, y se construye y despliega **de forma independiente** como *Application* de Dokploy (Build Type Dockerfile + *Docker Build Stage*), con auto-deploy por push. La base de datos es un servicio aparte (Compose solo con `db`, o Database de Dokploy con imagen `timescale/timescaledb-ha:pg16`). Alternativa: un único servicio Compose con `infra/docker-compose.yml`, que construye los mismos targets.
+Cada componente tiene su **propia imagen** (target del `infra/Dockerfile`: `api`, `collectors`), podada con `pnpm deploy` a su paquete y dependencias de producción, y se construye y despliega **de forma independiente** como *Application* de Dokploy (Build Type Dockerfile + *Docker Build Stage*), con auto-deploy por push. La base de datos es un servicio aparte (Compose solo con `db`, o Database de Dokploy con imagen `timescale/timescaledb-ha:pg16`). Alternativa: un único servicio Compose con `docker-compose.yml` (raíz), que construye los mismos targets.
 
 - **Migraciones**: no hay servicio `migrate`; `api` y `collectors` ejecutan `migrate()` al arrancar (idempotente, advisory lock `7419`), desactivable con `RUN_MIGRATIONS=false`. Así cada servicio es autónomo y el orden de arranque es indiferente.
 - **Variables**: por la UI de Dokploy (`DATABASE_URL`, `AEMET_API_KEY`, intervalos). Sin Docker secrets.

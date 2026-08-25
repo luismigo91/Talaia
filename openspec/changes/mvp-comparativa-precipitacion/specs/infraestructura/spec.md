@@ -19,7 +19,7 @@
 - **Entonces** `GET https://<dominio>/api/v1/health` devuelve `ok:true`, `/status` muestra `open-meteo` con `last_success_at` no nulo y `/compare?station=virtual:benetusser` devuelve series.
 
 ### Requirement: Desarrollo local con Compose
-`docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up` DEBE levantar `db`, `api` y `collectors` en local construyendo los mismos targets, con `.env` y puertos publicados.
+`docker compose up` (raíz) DEBE levantar `db`, `api` y `collectors` en local construyendo los mismos targets, con `.env` y puertos publicados.
 
 #### Scenario: Arranque en local
 - **Dado** un `.env` válido con `AEMET_API_KEY`

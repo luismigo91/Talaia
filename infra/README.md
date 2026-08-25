@@ -23,13 +23,13 @@ Cada Application se reconstruye y redespliega de forma independiente en cada pus
 
 ## Producción: Dokploy, todo en un Compose
 
-*Create Service → Compose*, *Compose Path* `infra/docker-compose.yml`, modo Docker Compose; variables `POSTGRES_PASSWORD` y `AEMET_API_KEY` en Environment; dominio al servicio `api`, puerto 3000. Construye ambos targets desde el repo.
+*Create Service → Compose*, *Compose Path* `./docker-compose.yml`, modo Docker Compose; variables `POSTGRES_PASSWORD` y `AEMET_API_KEY` en Environment; dominio al servicio `api`, puerto 3000. Construye ambos targets desde el repo.
 
 ## Desarrollo local
 
 ```bash
 cp .env.example .env            # rellenar POSTGRES_PASSWORD y AEMET_API_KEY
-docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build
+docker compose up --build
 curl localhost:3000/api/v1/compare
 ```
 

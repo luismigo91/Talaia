@@ -1,6 +1,6 @@
-# Compose de Talaia: cada servicio se construye por separado (target del Dockerfile) y puede
-# desplegarse individualmente en Dokploy (ver infra/README.md). En desarrollo se combina con
-# docker-compose.override.yml.
+# Compose de Talaia (en la raíz: Docker Compose y Dokploy leen el .env del directorio del compose).
+# Cada servicio se construye por separado (target de infra/Dockerfile) y puede desplegarse
+# individualmente en Dokploy (ver infra/README.md). En desarrollo se combina con docker-compose.override.yml.
 #
 # Variables (UI de Dokploy → Environment, o .env en local):
 #   POSTGRES_PASSWORD (OBLIGATORIA: sin ella Postgres no arranca), AEMET_API_KEY (obligatoria para AEMET),
@@ -30,7 +30,7 @@ services:
 
   api:
     build:
-      context: ..
+      context: .
       dockerfile: infra/Dockerfile
       target: api
     environment:
@@ -47,7 +47,7 @@ services:
 
   collectors:
     build:
-      context: ..
+      context: .
       dockerfile: infra/Dockerfile
       target: collectors
     environment:
