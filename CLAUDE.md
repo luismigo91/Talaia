@@ -77,9 +77,9 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - **Commits**: Conventional Commits en español (`feat(collectors): añade collector AEMET`).
 - **Especificación primero (OpenSpec)**: cambios de comportamiento nacen como propuesta en `openspec/changes/<nombre>/` (proposal + specs + tasks). Se implementa tras validación, con loop implementación → QA → tests en verde. Al terminar, se archiva y se fusiona en `openspec/specs/`.
 - **Tests**: cada collector con tests unitarios sobre fixtures reales guardadas en `collectors/<fuente>/fixtures/` (respuestas capturadas de la API, nunca llamar a la red en tests).
-- **Secretos**: nunca en el repo. Swarm secrets externos `aemet_api_key` y `postgres_password` (`AEMET_API_KEY_FILE`, `POSTGRES_PASSWORD_FILE`), con fallback a variables de entorno (`AEMET_API_KEY`) en desarrollo. `.env.example` documentado.
+- **Secretos**: nunca en el repo. `AEMET_API_KEY` y `POSTGRES_PASSWORD` como variables de entorno definidas en la UI de Dokploy (no soporta Docker secrets); en local, `.env` (ignorado) + `.env.example` documentado.
 - **Zona horaria**: todo en UTC en base de datos; convertir a `Europe/Madrid` solo al presentar.
-- **Docker**: imágenes ligeras (alpine/slim, multi-stage). Producción en **Swarm**: sin `build` ni `depends_on` en `stack.yml`, los servicios esperan a la DB con reintentos, `collectors` siempre 1 réplica (cuota AEMET), DB fijada a un nodo por etiqueta. `docker compose up` para desarrollo.
+- **Docker**: imágenes ligeras (alpine/slim, multi-stage). Compose compatible con **Dokploy**: red externa `dokploy-network`, sin `container_name`, `api` con `expose` (dominio por UI), variables referenciadas como `${VAR}`, volumen `../files/db`. `collectors` un solo contenedor (cuota AEMET). Override para desarrollo local.
 - **Errores en collectors**: nunca lanzar excepciones no controladas fuera del collector; registrar fallo en `source_status` y continuar.
 
 ## Stack (decidido el 25‑08‑2026)
@@ -89,7 +89,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - DB: **Postgres 16 + TimescaleDB + PostGIS** (`timescale/timescaledb-ha:pg16`). Acceso con **Drizzle ORM**; hypertables, políticas y PostGIS en migraciones SQL manuales.
 - Collectors: proceso scheduler con `node-cron`, un job por fuente aislado.
 - Tests: **Vitest** con fixtures reales; integración contra TimescaleDB en CI (GitHub Actions).
-- Docker multi-stage `node:22-alpine`. **Producción en Docker Swarm** (`docker stack deploy -c infra/stack.yml talaia`) con imágenes en GHCR y secrets externos; `docker compose` solo para desarrollo local.
+- Docker multi-stage `node:22-alpine`. **Producción en Dokploy** (homelab) como servicio *Compose* que construye desde el repo (`infra/docker-compose.yml`), con auto-deploy en push a `main`. Sin registro de imágenes.
 - Frontend (futuro): Next.js + MapLibre.
 
 ## Comandos útiles

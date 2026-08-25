@@ -12,8 +12,8 @@ collectors/scheduler/     proceso largo: node-cron → ejecuta run() de cada col
 api/                      NestJS (adaptador Fastify): módulos health, status, stations, compare
 db/migrations/            migraciones SQL generadas por drizzle-kit + SQL manual (extensiones, hypertables, políticas, seeds)
 db/migrate.ts             aplica migraciones pendientes (drizzle-orm/migrator)
-infra/stack.yml           stack para Docker Swarm (docker stack deploy): db, migrate, collectors, api
-infra/docker-compose.yml  desarrollo local (build, .env, sin Swarm)
+infra/docker-compose.yml  compose único (Dokploy lo despliega en modo Docker Compose): db, migrate, collectors, api
+infra/docker-compose.override.yml  extras de desarrollo local (puertos publicados, watch)
 infra/Dockerfile.node     multi-stage, node:22-alpine, un target por servicio
 ```
 
@@ -207,20 +207,21 @@ Respuesta:
 
 Series sin datos en la ventana se omiten; `summary` se calcula en servidor.
 
-## Despliegue en Docker Swarm
+## Despliegue en Dokploy
 
-Producción = `docker stack deploy -c infra/stack.yml talaia` en el homelab. Desarrollo = `docker compose -f infra/docker-compose.yml up` (con `build`).
+Producción = servicio de tipo **Compose** en Dokploy (homelab), en modo *Docker Compose* (no *Stack*, que no permite `build`), apuntando al repo Git y al fichero `infra/docker-compose.yml`. Dokploy clona el repo y construye las imágenes en el servidor en cada despliegue (auto-deploy por push a `main` vía webhook/GitHub App): **no hace falta registro de imágenes**.
 
-- **Imágenes**: `docker stack deploy` ignora `build`; las imágenes se publican en un registro (GHCR, `ghcr.io/<usuario>/talaia-{api,collectors,migrate}:<tag>`) desde GitHub Actions y el stack las referencia por tag. Alternativa sin registro: `docker build` en el nodo manager y `image:` local (solo válido en Swarm de un nodo).
-- **Secrets**: externos, creados una vez con `docker secret create aemet_api_key -` y `docker secret create postgres_password -`; en el stack `secrets: aemet_api_key: {external: true}`. Los servicios reciben `AEMET_API_KEY_FILE=/run/secrets/aemet_api_key` y `POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password` (la imagen oficial de Postgres/Timescale soporta `_FILE`). El código lee el fichero si existe y, si no, `AEMET_API_KEY` (desarrollo local con compose).
-- **Configuración no secreta**: variables `environment` en el stack (intervalos, puerto, `TZ=UTC`); opcionalmente `configs` de Swarm.
-- **DB**: servicio `db` con `deploy.replicas: 1`, `placement.constraints: [node.labels.talaia.db == true]` y volumen local en ese nodo (Timescale no se replica; un solo nodo). `stop_grace_period: 1m`.
-- **Sin `depends_on`**: Swarm no lo respeta. `migrate`, `collectors` y `api` esperan a la DB con reintentos (bucle de `select 1` hasta 60 s) al arrancar.
-- **Migraciones**: servicio `migrate` con `deploy.restart_policy.condition: on-failure` y `max_attempts: 5`; termina con exit 0 tras aplicar (Swarm no lo reinicia). Alternativa: `api` aplica migraciones al arrancar con lock advisory; se elige el servicio `migrate` para no acoplar.
-- **Redes**: red overlay `talaia` interna; `api` publica el puerto (`ports: ["3000:3000"]`, modo ingress) o se expone vía el proxy inverso ya existente en el homelab (Traefik/Caddy) con labels.
-- **Healthchecks**: `api` → `GET /api/v1/health`; `collectors` → fichero de heartbeat que el scheduler toca en cada ciclo; `db` → `pg_isready`.
-- **Logs**: stdout JSON (pino); `docker service logs`.
-- **Actualización**: `deploy.update_config: {order: start-first, failure_action: rollback}` en `api`; `collectors` con `order: stop-first` (evita dos schedulers concurrentes contra la cuota de AEMET) y `replicas: 1` siempre.
+- **Un solo compose** para desarrollo y producción, con las diferencias controladas por variables: `infra/docker-compose.yml` + `infra/docker-compose.override.yml` para desarrollo local (puertos publicados, hot reload). Dokploy usa solo el fichero base.
+- **Variables de entorno**: se definen en la UI de Dokploy (pestaña *Environment*); Dokploy las escribe en un `.env` junto al compose y hay que **referenciarlas explícitamente** (`environment: AEMET_API_KEY: ${AEMET_API_KEY}` o `env_file: [.env]`), porque no se inyectan solas.
+- **Clave AEMET y contraseña de Postgres**: Dokploy no gestiona Docker secrets → van como **variables de entorno** (`AEMET_API_KEY`, `POSTGRES_PASSWORD`) en la UI. El código mantiene el soporte `AEMET_API_KEY_FILE` como opción, pero el camino por defecto es la variable.
+- **Red**: red externa `dokploy-network` en todos los servicios (`networks: {dokploy-network: {external: true}}`) para que Traefik llegue a `api`. No usar `container_name` (rompe logs/métricas de Dokploy).
+- **Dominio**: se asigna en la UI (*Domains* → servicio `api`, puerto 3000); Dokploy añade las labels de Traefik. En el compose `api` usa `expose: ["3000"]`, **no** `ports`.
+- **DB**: TimescaleDB dentro del compose (el Postgres gestionado de Dokploy no trae la extensión `timescaledb`). Volumen bind `../files/db:/home/postgres/pgdata/data` (convención de Dokploy para persistencia y backups) o volumen con nombre si se quiere backup a S3 desde la UI.
+- **Orden de arranque**: en modo Compose sí funciona `depends_on: {db: {condition: service_healthy}}` con `healthcheck: pg_isready`. Se mantiene además la espera activa a la DB en el código (robustez ante reinicios).
+- **Migraciones**: servicio `migrate` con `restart: "no"` que termina con exit 0; `collectors` y `api` con `depends_on: {migrate: {condition: service_completed_successfully}}`.
+- **`collectors`**: un solo contenedor, `restart: unless-stopped`. Healthcheck por fichero de heartbeat.
+- **Logs**: stdout JSON (pino), visibles en la UI de Dokploy.
+- **Backups**: volumen con nombre `talaia-db` + backup programado a S3 desde Dokploy (opcional, fase posterior).
 
 ## Tests
 

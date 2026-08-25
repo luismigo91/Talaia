@@ -31,10 +31,10 @@
 
 ## 6. Infra y CI
 - [ ] `infra/Dockerfile.node` multi-stage (targets `api`, `collectors`, `migrate`).
-- [ ] `infra/docker-compose.yml` (desarrollo, `build`) y `docker-compose.test.yml`.
-- [ ] `infra/stack.yml` para Swarm: secrets externos, placement de `db`, `migrate` on-failure, espera activa a DB, `update_config`, healthchecks; `infra/README.md` con los comandos (`docker secret create`, `docker node update --label-add`, `docker stack deploy`).
-- [ ] `.github/workflows/ci.yml` (tests) y `publish.yml` (imágenes a GHCR).
-- [ ] Prueba de humo: `docker compose up` en local y `docker stack deploy` en el homelab → `/status` y `/compare` con datos reales.
+- [ ] `infra/docker-compose.yml` (compatible con Dokploy: `dokploy-network`, `expose`, `${VAR}`, volumen `../files/db`, healthchecks, `migrate` one-shot con `service_completed_successfully`), `docker-compose.override.yml` (local) y `docker-compose.test.yml`.
+- [ ] `infra/README.md`: alta del servicio Compose en Dokploy, variables a definir, dominio, auto-deploy.
+- [ ] `.github/workflows/ci.yml` (tests).
+- [ ] Prueba de humo: `docker compose up` en local y *Deploy* en Dokploy → `/status` y `/compare` con datos reales.
 
 ## 7. Cierre
 - [ ] Actualizar `CLAUDE.md` (comandos, estado) y `docs/`.
