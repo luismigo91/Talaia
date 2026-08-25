@@ -177,7 +177,8 @@ alerts (
   - `GET /api/v1/forecasts?station=&variable=&source=&forecast_ts=` — permite pedir una emisión concreta (verificación a posteriori).
   - `GET /api/v1/alerts?active=true`
   - `GET /api/v1/risk` — semáforo por localización (§7). **Implementado.**
-- WebSocket `/ws` para empujar nuevos datos y cambios de semáforo (fase 3).
+- `GET /api/v1/risk/history` — transiciones de nivel registradas. **Implementado.**
+- WebSocket `/ws` para empujar nuevos datos y cambios de semáforo (pendiente; hoy la vía de aviso es ntfy).
 - Umbrales de lluvia configurables en la tabla `thresholds`, evaluados en servidor. Los de caudal vienen de la CHJ en `sensors`.
 
 ## 5. Frontend (fases posteriores)
@@ -221,3 +222,12 @@ Reglas que evitan falsos verdes y falsas alarmas:
 - AEMET pondera además la probabilidad al emitir sus avisos: **el semáforo no reproduce los avisos oficiales**, los complementa. Por eso el aviso vigente entra como señal propia.
 
 Los sensores vigilados por localización están en `watch_points` (semilla en `db/migrations/0007_watch_points.sql`, inventario razonado en `docs/cuencas.md`). Calibrar los umbrales con episodios reales queda pendiente: el portal del SAIH no publica la DANA del 29‑10‑2024.
+
+### Notificaciones (fase 4)
+
+El scheduler evalúa el semáforo cada `RISK_INTERVAL_MIN` (5 min) con **la misma función** que la API (`evaluateRisk`, en `packages/shared`), de modo que el aviso que llega al móvil y lo que enseña `/api/v1/risk` no pueden divergir. Lo que se notifica es un **cambio** de nivel, no un nivel: `risk_state` guarda el actual y `risk_events` el histórico, con el desglose del momento de la transición.
+
+- **Histéresis asimétrica**: las subidas se aplican y notifican en el acto (en una crecida del Poyo, cinco minutos son la mitad del margen de aviso); las bajadas exigen `RISK_FALL_CONFIRMATIONS` evaluaciones seguidas (3 ≈ 15 min). Un semáforo que parpadea deja de leerse.
+- **El silencio no baja el nivel**: si una evaluación se queda sin componentes (sensores mudos u obsoletos), se conserva el nivel anterior y se anota la advertencia.
+- **Canal**: ntfy por HTTP (`NTFY_URL`, `NTFY_TOKEN`), con prioridad según el nivel. Sin configurar, la transición se registra y no se envía nada: el sistema nunca falla por no tener canal. Si el envío falla, el evento queda con `notified=false` y el error en `notify_error`.
+- `GET /api/v1/risk/history` devuelve las transiciones; `pnpm --filter @talaia/scheduler risk-once` fuerza una evaluación.

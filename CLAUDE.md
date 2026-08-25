@@ -19,13 +19,14 @@ Albal es la localización principal (el semáforo se calibra primero ahí). El M
 
 - **MVP, collector SAIH Júcar y semáforo de riesgo implementados** (25‑08‑2026) y **archivados**: su comportamiento vigente vive en `openspec/specs/` (once capacidades) y las propuestas en `openspec/changes/archive/`. En producción: collectors de Open‑Meteo, AEMET y SAIH; TimescaleDB; API NestJS con `/compare`, `/sensors`, `/observations`, `/risk` y `/status`.
 - **Deuda conocida** (ver final de `openspec/specs/collector-aemet/spec.md`): faltan la `AEMET_API_KEY` real en Dokploy y las fixtures reales de AEMET (`46007`, `46054`, `46235`, `46051` y tar CAP del área `77`). Todo lo demás está verificado contra las fuentes reales.
-- Siguiente incremento previsto: notificaciones (requieren histórico de cambios de nivel), Meteoalarm y frontend.
+- **Fase 4 implementada** (25‑08‑2026) según `openspec/changes/notificaciones-riesgo/`: el cálculo del riesgo vive en `packages/shared` (`evaluateRisk`) para que scheduler y API no diverjan; tablas `risk_state` y `risk_events`; job `risk` cada 5 min con histéresis asimétrica; notificación por ntfy opcional; `GET /api/v1/risk/history`. Verificado con una crecida simulada de extremo a extremo. Pendiente: desplegar y archivar.
+- Siguiente incremento previsto: Meteoalarm, frontend (Next.js + MapLibre) y calibración de umbrales con episodios reales.
 
 ## Estructura del monorepo
 
 ```
 collectors/   Un paquete por fuente (aemet, open-meteo, saih, meteoalarm…). Cron cada 5–15 min. Desacoplados: uno puede fallar sin afectar al resto.
-api/          REST + WebSocket. Calcula umbrales y semáforo de riesgo en servidor.
+api/          REST. Calcula umbrales y semáforo de riesgo en servidor (el cálculo vive en packages/shared para que el scheduler notifique exactamente lo mismo).
 web/          Frontend (Mapa, Comparativa, Alertas). No existe todavía.
 db/           Migraciones SQL de Postgres + TimescaleDB, seeds (estaciones, umbrales).
 docs/         Documentación técnica en español. Contexto para sesiones futuras.
@@ -70,7 +71,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - `forecast_ts`: instante de emisión de la predicción (NULL en observaciones). Permite comparar a posteriori el error de cada modelo.
 - Variables canónicas: `precip_mm`, `precip_prob_pct`, `precip_rate_mmh`, `precip_24h_mm`, `temp_c`, `rh_pct`, `wind_ms`, `gust_ms`, `river_level_m`, `river_flow_m3s`, `reservoir_hm3`, `reservoir_level_m`, `reservoir_pct`.
 - Unidades canónicas: mm, mm/h, %, °C, m/s, m, m³/s, hm³. Se convierte en el normalizador, nunca en el frontend.
-- Tablas: `observations`, `forecasts` (hypertables), `stations`, `sensors`, `watch_points`, `thresholds`, `sources`, `source_status`, `alerts`.
+- Tablas: `observations`, `forecasts` (hypertables), `stations`, `sensors`, `watch_points`, `thresholds`, `risk_state`, `risk_events`, `sources`, `source_status`, `alerts`.
 - `sensors` = catálogo de sensores externos (sensor de la fuente → variable canónica, unidad y umbrales oficiales). Añadir un sensor es una fila, no un despliegue. Los sensores **derivados** (`meta.derived_from`) los calcula el collector y `loadSensors()` los excluye por defecto para no pedirlos al portal.
 - `watch_points` = qué sensores vigila cada localización objetivo y con qué rol; `thresholds` = umbrales de lluvia (los de caudal ya vienen de la CHJ en `sensors`).
 
@@ -110,6 +111,7 @@ pnpm db:migrate                      # aplica db/migrations (DATABASE_URL)
 pnpm --filter @talaia/collector-open-meteo run-once             # un ciclo del collector
 pnpm --filter @talaia/collector-aemet run-once                  # requiere AEMET_API_KEY
 pnpm --filter @talaia/collector-saih run-once                   # sin clave; SAIH_BACKFILL_HOURS ajusta la 1.ª ventana
+pnpm --filter @talaia/scheduler risk-once                       # fuerza una evaluación del semáforo
 pnpm --filter @talaia/api dev        # API en :3000 con recarga
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build  # stack completo local
 ```
