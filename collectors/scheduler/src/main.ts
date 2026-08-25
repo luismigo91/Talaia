@@ -12,7 +12,7 @@ import {
   collectAlerts,
   ALERTS_SOURCE,
 } from "@talaia/collector-aemet";
-import { runWithStatus } from "@talaia/shared";
+import { runWithStatus, runRiskCycle } from "@talaia/shared";
 
 interface Job {
   name: string;
@@ -52,6 +52,12 @@ const jobs: Job[] = [
         );
       return runWithStatus(db, ALERTS_SOURCE, () => collectAlerts(db, c, "77"));
     },
+  },
+  {
+    name: "risk",
+    intervalMin: minutes("RISK_INTERVAL_MIN", 5),
+    // El semáforo se evalúa después de los collectors, sobre los datos recién escritos.
+    fn: (db) => runWithStatus(db, "risk", () => runRiskCycle(db)),
   },
 ];
 
