@@ -36,7 +36,8 @@
 - [x] `infra/README.md`: alta del servicio Compose en Dokploy, variables a definir, dominio, auto-deploy.
 - [x] `.github/workflows/ci.yml` (tests).
 - [x] Prueba de humo: `docker compose up` en local → `/status` y `/compare` con datos reales.
-- [ ] Prueba de humo: *Deploy* en Dokploy (Applications `api` y `collectors` + DB) con dominio y clave de AEMET reales.
+- [x] Prueba de humo: *Deploy* en Dokploy (servicio Compose `infra/docker-compose.yml`, opción "Create .env file") — funcionando el 25‑08‑2026.
+- [ ] Añadir `AEMET_API_KEY` real en Dokploy y comprobar `aemet:*` en `/api/v1/status`.
 
 ## 7. Cierre
 - [x] Actualizar `CLAUDE.md` (comandos, estado) y `docs/`.
