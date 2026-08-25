@@ -14,3 +14,4 @@ __pycache__/
 .venv/
 infra/data/
 **/dist/**
+infra/.env

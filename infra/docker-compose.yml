@@ -2,9 +2,9 @@
 # desplegarse individualmente en Dokploy (ver infra/README.md). En desarrollo se combina con
 # infra/docker-compose.override.yml.
 #
-# Variables: Dokploy escribe las de la UI en `.env` en la raíz del código; en local, `.env` en la
-# raíz del repo (copiar de .env.example). Se cargan con env_file (no con ${VAR}), así que las
-# rutas funcionan aunque el compose esté en infra/.
+# Variables: Dokploy escribe las de la UI en infra/.env (junto al compose); en local, `.env` en la
+# raíz del repo (copiar de .env.example). Se cargan con env_file (no con ${VAR}: Dokploy ejecuta
+# docker compose con `env -i`, sin entorno).
 #   POSTGRES_PASSWORD (OBLIGATORIA), AEMET_API_KEY (obligatoria para AEMET),
 #   OPEN_METEO_INTERVAL_MIN, AEMET_FORECAST_INTERVAL_MIN, AEMET_ALERTS_INTERVAL_MIN, LOG_LEVEL
 #
@@ -12,7 +12,11 @@
 # Dominio: asignarlo en Dokploy al servicio `api`, puerto 3000. Sin redes explícitas (Dokploy
 # conecta Traefik al asignar el dominio).
 
+# Dokploy escribe el .env de la UI JUNTO a este fichero (infra/.env) si la opción
+# "Create .env file" del servicio está activada; en local se usa el .env de la raíz.
 x-env-file: &env-file
+  - path: .env
+    required: false
   - path: ../.env
     required: false
 
