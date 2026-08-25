@@ -12,7 +12,7 @@ Las migraciones son idempotentes y usan un advisory lock, así que da igual qué
 
 ## Producción: Dokploy, un servicio por componente (recomendado)
 
-1. **Base de datos**: *Create Service → Compose* con solo `db` (o *Database → PostgreSQL* con imagen personalizada `timescale/timescaledb-ha:pg16`, si tu versión de Dokploy lo permite). Anota el nombre de host interno del contenedor en `dokploy-network`.
+1. **Base de datos**: *Create Service → Compose* con solo `db` (o *Database → PostgreSQL* con imagen personalizada `timescale/timescaledb-ha:pg16`, si tu versión de Dokploy lo permite). Anota el nombre de host interno del contenedor de la DB (Dokploy lo muestra en la ficha del servicio).
 2. **api**: *Create Service → Application*, proveedor Git (este repo, rama `main`), *Build Type* **Dockerfile**, *Docker File* `infra/Dockerfile`, *Docker Build Stage* `api`, *Docker Context Path* `.`.
    - Environment: `DATABASE_URL=postgres://talaia:<pass>@<host-db>:5432/talaia`, `LOG_LEVEL=info`.
    - Domains: puerto `3000`, HTTPS.

@@ -1,5 +1,5 @@
 # Desarrollo local: docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up
-# Publica puertos y usa una red local en lugar de dokploy-network.
+# Publica puertos.
 services:
   db:
     ports:
@@ -12,8 +12,3 @@ services:
 
 volumes:
   talaia-db-dev:
-
-networks:
-  dokploy-network:
-    external: false
-    name: talaia-dev

@@ -213,7 +213,7 @@ Cada componente tiene su **propia imagen** (target del `infra/Dockerfile`: `api`
 
 - **Migraciones**: no hay servicio `migrate`; `api` y `collectors` ejecutan `migrate()` al arrancar (idempotente, advisory lock `7419`), desactivable con `RUN_MIGRATIONS=false`. Así cada servicio es autónomo y el orden de arranque es indiferente.
 - **Variables**: por la UI de Dokploy (`DATABASE_URL`, `AEMET_API_KEY`, intervalos). Sin Docker secrets.
-- **Red**: `dokploy-network`; `api` con `expose 3000` y dominio por UI; sin `container_name`.
+- **Red**: sin redes explícitas (la `dokploy-network` de Swarm no es adjuntable desde Compose; Dokploy conecta Traefik al asignar el dominio por UI); `api` con `expose 3000`; sin `container_name`.
 - **DB**: volumen persistente (`../files/db` en Compose, o el gestionado por Dokploy).
 - **`collectors`**: siempre una réplica (cuota de AEMET). Healthcheck por heartbeat en la imagen; `api` con healthcheck `/api/v1/health`.
 - Detalle operativo en `infra/README.md`.

@@ -9,6 +9,7 @@
 #
 # api y collectors aplican las migraciones al arrancar (idempotente, con advisory lock),
 # así que no hay servicio migrate. Dominio: asignarlo en Dokploy al servicio `api`, puerto 3000.
+# Redes: no se declaran; Dokploy gestiona la red (y conecta Traefik) al asignar el dominio por UI.
 
 services:
   db:
@@ -26,8 +27,6 @@ services:
       retries: 12
       start_period: 30s
     restart: unless-stopped
-    networks:
-      - dokploy-network
 
   api:
     build:
@@ -45,8 +44,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - dokploy-network
 
   collectors:
     build:
@@ -65,9 +62,3 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    networks:
-      - dokploy-network
-
-networks:
-  dokploy-network:
-    external: true

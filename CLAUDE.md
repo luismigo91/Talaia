@@ -81,7 +81,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - **Zona horaria**: todo en UTC en base de datos; convertir a `Europe/Madrid` solo al presentar.
 - **SQL crudo con Drizzle (`sql\`…\``)**: pasar fechas como `${d.toISOString()}::timestamptz`, nunca objetos `Date` (el cliente `postgres` va con `fetch_types: false` y no los serializa). Las tablas de filas de `db.execute<T>` deben ser `type`, no `interface`.
 - **NestJS + Vitest**: esbuild no emite metadatos de decoradores; usar `@Inject(Token)` explícito y `ValidationPipe({ expectedType })` en lugar de confiar en el tipo del parámetro.
-- **Docker**: imágenes ligeras e **independientes por servicio** (cada target solo lleva su paquete). Compatible con **Dokploy**: red `dokploy-network`, sin `container_name`, `api` con `expose` (dominio por UI), variables `${VAR}`. `collectors` un solo contenedor (cuota AEMET). Nuevos servicios = nuevo target en el Dockerfile + nueva Application.
+- **Docker**: imágenes ligeras e **independientes por servicio** (cada target solo lleva su paquete). Compatible con **Dokploy**: sin redes explícitas (Dokploy gestiona la red al asignar dominio), sin `container_name`, `api` con `expose` (dominio por UI), variables `${VAR}`. `collectors` un solo contenedor (cuota AEMET). Nuevos servicios = nuevo target en el Dockerfile + nueva Application.
 - **Errores en collectors**: nunca lanzar excepciones no controladas fuera del collector; registrar fallo en `source_status` y continuar.
 
 ## Stack (decidido el 25‑08‑2026)
