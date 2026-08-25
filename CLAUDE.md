@@ -18,7 +18,8 @@ Albal es la localización principal (el semáforo se calibra primero ahí). El M
 ## Estado actual
 
 - **MVP implementado** (25‑08‑2026) según `openspec/changes/mvp-comparativa-precipitacion/`: collectors de Open-Meteo y AEMET, TimescaleDB, API NestJS con `/compare`, compose para Dokploy. Pendiente en `tasks.md`: desplegar en Dokploy con clave real de AEMET y sustituir las fixtures de AEMET por capturas reales; después archivar el cambio en `openspec/specs/`.
-- Siguiente incremento previsto: collector SAIH Júcar (fase 2; sensores en `docs/cuencas.md`), luego Meteoalarm, semáforo y frontend.
+- **Fase 2 implementada** (25‑08‑2026) según `openspec/changes/collector-saih-jucar/`: collector SAIH Júcar (29 estaciones y 57 sensores en la tabla `sensors`, series cincominutales en `observations`, `precip_mm` horario derivado de la intensidad) y endpoints `/api/v1/sensors` y `/api/v1/observations`. Verificado contra el portal real. Pendiente: desplegarlo y archivar el cambio.
+- Siguiente incremento previsto: `watch_points` + semáforo de riesgo (fase 3), Meteoalarm y frontend.
 
 ## Estructura del monorepo
 
@@ -39,7 +40,7 @@ openspec/     Especificaciones (OpenSpec): specs/ = comportamiento vigente; chan
 | AEMET OpenData | Predicción municipal horaria/diaria, observación, radar, avisos CAP | REST con `api_key`; respuesta en 2 pasos (URL intermedia `datos`). Cuota → cachear siempre | MVP |
 | Open-Meteo | Predicción multi-modelo (ECMWF, GFS, ICON, AROME…) | REST sin clave. Uso no comercial | MVP |
 | Meteoalarm | Avisos AEMET republicados en CAP/Atom | Feed público | Fase 2 |
-| SAIH Júcar (CHJ) | Nivel/caudal de barrancos, embalses, pluviómetros en tiempo real | Sin API pública; scraping / exports internos | Fase 2 (clave para el Poyo) |
+| SAIH Júcar (CHJ) | Nivel/caudal de barrancos, embalses, pluviómetros en tiempo real | Sin API pública ni auth; endpoints internos `/admin/…` | **Implementado** (fase 2) |
 | MITECO / embalses.net | Estado de embalses | Boletín semanal / scraping | Fase 3 |
 | GVA Emergències / 112 CV | Avisos Protección Civil | RSS / scraping | Fase 3 |
 | Copernicus EFAS | Alerta europea de inundación | GRIB/NetCDF pesados | Fase 4 |
@@ -49,7 +50,7 @@ openspec/     Especificaciones (OpenSpec): specs/ = comportamiento vigente; chan
 
 - AEMET: municipios `46007`, `46054`, `46235`, `46051`; zonas de avisos `774602` (Litoral norte de Valencia) y `774604` (Litoral sur), área CCAA `77`; estaciones `8416` (València), `8414A` (Manises), `8337X` (Turís); radar `va`. Cuota 40 req/min; respuestas en ISO‑8859‑15; horas locales.
 - Open-Meteo: modelos que cubren Albal: `meteofrance_arome_france_hd` (1,5 km), `icon_eu`, `ecmwf_ifs`, `gfs_seamless`, `arpege_europe`, `ukmo_global_deterministic_10km`. Hora de corrida vía `/data/{meta_id}/static/meta.json`.
-- SAIH Júcar: caudal del Poyo en Riba‑roja = variable `13873` (estación 227), umbrales CHJ 30/70/150 m³/s; lluvia 24 h Chiva `15311`, Turís `16927`; Forata estación 303. Túria: Vilamarxant `12808`, salida Loriguilla `12905`, ramblas Castellana `13896` y Primera `13897`. Xúquer: Huerto Mulet `13070`, salida Tous `13080`, Magro en Guadassuar `14551`; lluvia Azud de Sueca est. 306. Inventario completo por localidad en `docs/cuencas.md`. Endpoint `GET https://saih.chj.es/admin/variables/valor/{id}/{YYYY-MM-DD HH:MM}/{…}` (sin auth, cincominutal, sin datos de la DANA).
+- SAIH Júcar: caudal del Poyo en Riba‑roja = variable `13873` (estación 227), umbrales CHJ 30/70/150 m³/s; lluvia (intensidad) Chiva `14079`, Turís `16922`, Azud de Sueca `2710`; Forata estación 303. Túria: Vilamarxant `12808`, salida Loriguilla `12905`, ramblas Castellana `13896` y Primera `13897`. Xúquer: Huerto Mulet `13070`, salida Tous `13080`, Magro en Guadassuar `14551`. Inventario completo por localidad en `docs/cuencas.md`; el catálogo vivo está en la tabla `sensors`. Endpoint `GET https://saih.chj.es/admin/variables/valor/{id}/{YYYY-MM-DD HH:MM}/{…}` (sin auth, cincominutal, sin datos de la DANA): **el rango va en hora local `Europe/Madrid` y la respuesta viene en UTC**.
 
 ## Arquitectura (pipeline vertical; ver `docs/arquitectura.md`)
 
@@ -67,9 +68,10 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 
 - `ts`: instante para el que vale el dato (UTC, `timestamptz`).
 - `forecast_ts`: instante de emisión de la predicción (NULL en observaciones). Permite comparar a posteriori el error de cada modelo.
-- Variables canónicas: `precip_mm`, `precip_prob_pct`, `temp_c`, `rh_pct`, `wind_ms`, `gust_ms`, `river_level_m`, `river_flow_m3s`, `reservoir_hm3`, `reservoir_pct`.
-- Unidades canónicas: mm, %, °C, m/s, m, m³/s, hm³. Se convierte en el normalizador, nunca en el frontend.
-- Tablas: `observations`, `forecasts` (hypertables), `stations`, `sources`, `source_status`, `alerts`.
+- Variables canónicas: `precip_mm`, `precip_prob_pct`, `precip_rate_mmh`, `precip_24h_mm`, `temp_c`, `rh_pct`, `wind_ms`, `gust_ms`, `river_level_m`, `river_flow_m3s`, `reservoir_hm3`, `reservoir_level_m`, `reservoir_pct`.
+- Unidades canónicas: mm, mm/h, %, °C, m/s, m, m³/s, hm³. Se convierte en el normalizador, nunca en el frontend.
+- Tablas: `observations`, `forecasts` (hypertables), `stations`, `sensors`, `sources`, `source_status`, `alerts`.
+- `sensors` = catálogo de sensores externos (sensor de la fuente → variable canónica, unidad y umbrales oficiales). Añadir un sensor es una fila, no un despliegue.
 
 ## Convenciones
 
@@ -82,7 +84,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - **SQL crudo con Drizzle (`sql\`…\``)**: pasar fechas como `${d.toISOString()}::timestamptz`, nunca objetos `Date` (el cliente `postgres` va con `fetch_types: false` y no los serializa). Las tablas de filas de `db.execute<T>` deben ser `type`, no `interface`.
 - **NestJS + Vitest**: esbuild no emite metadatos de decoradores; usar `@Inject(Token)` explícito y `ValidationPipe({ expectedType })` en lugar de confiar en el tipo del parámetro.
 - **Docker**: imágenes ligeras e **independientes por servicio** (cada target solo lleva su paquete). Compatible con **Dokploy**: sin redes explícitas (Dokploy gestiona la red al asignar dominio), sin `container_name`, `api` con `expose` (dominio por UI), variables `${VAR}`. `collectors` un solo contenedor (cuota AEMET). Nuevos servicios = nuevo target en el Dockerfile + nueva Application.
-- **Errores en collectors**: nunca lanzar excepciones no controladas fuera del collector; registrar fallo en `source_status` y continuar.
+- **Errores en collectors**: nunca lanzar excepciones no controladas fuera del collector; registrar fallo en `source_status` y continuar. Si un ciclo escribe datos pero pierde parte de la fuente (p. ej. un sensor SAIH caído), devolver `warning` en el `RunResult`: se registra en `last_error` conservando el éxito.
 
 ## Stack (decidido el 25‑08‑2026)
 
@@ -106,8 +108,9 @@ pnpm test:integration                # integración (secuencial) contra esa DB
 pnpm db:migrate                      # aplica db/migrations (DATABASE_URL)
 pnpm --filter @talaia/collector-open-meteo run-once             # un ciclo del collector
 pnpm --filter @talaia/collector-aemet run-once                  # requiere AEMET_API_KEY
+pnpm --filter @talaia/collector-saih run-once                   # sin clave; SAIH_BACKFILL_HOURS ajusta la 1.ª ventana
 pnpm --filter @talaia/api dev        # API en :3000 con recarga
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build  # stack completo local
 ```
 
-Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,scheduler}`, `api` (NestJS/Fastify). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.
+Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,saih,scheduler}`, `api` (NestJS/Fastify). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.

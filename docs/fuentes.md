@@ -205,11 +205,14 @@ Usar `last_run_initialisation_time` como `forecast_ts`. Los ids `*_seamless` y `
 | Endpoint | Devuelve |
 |---|---|
 | `GET /admin/variables/valor/{idVariable}/{YYYY-MM-DD HH:MM}/{YYYY-MM-DD HH:MM}` (fechas URL‑encoded, `%20`) | `[{"valor":0,"fecha":"2026-08-23T22:00:00.000Z","estado":128},…]` cada 5 min. Con formato de fecha distinto devuelve `[]` sin error. Sin límite de rango observado (55 días → 15.760 puntos) |
-| `GET /api/variables/{idVariable}/propiedades` | Definición de la variable y **umbrales** (`fldFUmbralBajo/Medio/Alto`) |
-| `GET /lluviasIntervalo/{YYYY-MM-DD}/{YYYY-MM-DD}` | Todas las estaciones con `lluvia_int` (mm), `idEstacionRemota`, `fldTCodigo`, `fldTNombre`, coords UTM 25830 |
-| `/aforos`, `/lluvias`, `/mapa-embalses` (HTML) | JSON inline con `lastValue`, `lastValueFecha`, `lluvia_1h/4h/12h/24h`, umbrales, estado |
+| `GET /api/variables/{idVariable}/propiedades` | Definición de la variable y **umbrales** (`fldFUmbralBajo/Medio/Alto`). **Devuelve `[]` para las variables de lluvia** ✅ |
+| `GET /lluviasIntervalo/{YYYY-MM-DD}/{YYYY-MM-DD}` | Todas las estaciones con `lluvia_int` (mm), `idEstacionRemota`, `fldTCodigo`, `fldTNombre`, coords UTM 25830. Solo acumulados diarios: **no lo usa el collector** |
+| `GET /chart-lluvia/{idEstacionRemota}` (HTML) | Variables JS `varLluvia` (intensidad, `fkNFuncion=12`) y `varLluvia24` (acumulado 24 h, `fkNFuncion=91`) con su `idVariable`: es la única forma de descubrir los sensores de lluvia ✅ |
+| `/aforos`, `/lluvias`, `/mapa-aforos`, `/mapa-embalses` (HTML) | JSON inline (`let aforos = […]`, `let embalses = […]`) con `lastValue`, umbrales, coords y, en embalses, `idCotaEmbalse`, `idVolumenEmbalse`, `idCaudalSalidaRio` y `fldFVolumenNMN` ✅ |
 
-Timestamps en UTC. `estado`: 0 normal; 128 frecuente en el Poyo (¿dato provisional/sin validar? ❓). La exportación CSV/XLSX del portal se genera en cliente a partir de este JSON: no hay descarga directa.
+**El rango de la URL se interpreta en hora local `Europe/Madrid`; los `fecha` de la respuesta vienen en UTC** ✅ (verificado 25‑08‑2026: pedir `00:00–02:00` del 24‑08 devuelve muestras desde `2026-08-23T22:00:00.000Z`). `estado`: 0 normal; 128 frecuente en el Poyo (dato provisional/sin validar ❓); el collector lo guarda en `observations.quality` y no descarta muestras. La exportación CSV/XLSX del portal se genera en cliente a partir de este JSON: no hay descarga directa.
+
+**Unidades de lluvia** ✅: la intensidad cincominutal está en **mm/h**, cuantizada en múltiplos de 2,4 (cazoleta de 0,2 mm por 5 min). Σ(v·5/60) sobre 24 h dio 27,8 mm frente a los 29,2 mm del acumulado publicado en el episodio del 5‑6‑03‑2026 (−5 %, por el desfase de la ventana móvil): suficiente para derivar `precip_mm` horario, que es lo que hace el collector.
 
 ### Estaciones relevantes ✅
 
@@ -238,8 +241,8 @@ URLs: `https://saih.chj.es/aforos/13873`, `/aforos/13873/chart`, `/chart-lluvia/
 - DANA 29‑10‑2024: último dato del sensor **2.282,9 m³/s y 4,9 m a las 18:55** (informe CHJ); aviso CHJ con 1.686 m³/s a las 18:43; pico estimado ~2.800 m³/s ❓; subida de ~0 a ~2.230 m³/s entre las 16:00 y las 18:50.
 - Lluvia AEMET 29‑10‑2024: **Turís 771,8 mm/24 h, 184,6 mm/1 h (récord nacional), 102,8 mm/30 min; Chiva 445,4 mm**. Informe: https://www.aemet.es/documentos/es/conocermas/recursos_en_linea/publicaciones_y_estudios/estudios/informe_episodio_dana_29_oct_2024_.pdf
 
-### Mapeo a variables canónicas
-`13873`→`river_flow_m3s` (station `saih:227`); resto de aforos según `docs/cuencas.md` (no hay aforo en Sueca/Cullera ni nivel de la Albufera: el último del Xúquer es Huerto Mulet `13070`); acumulados 24 h → `precip_mm` con intervalo 24 h (o mejor derivar horario de la intensidad cincominutal); Forata volumen → `reservoir_hm3`, salida → `river_flow_m3s`.
+### Mapeo a variables canónicas (implementado el 25‑08‑2026)
+Caudal → `river_flow_m3s`; cota de embalse → `reservoir_level_m`; volumen → `reservoir_hm3`; intensidad de lluvia → `precip_rate_mmh`; acumulado 24 h → `precip_24h_mm`; y **`precip_mm` horario derivado** de la intensidad (Σ v·5/60, mínimo 10 de 12 muestras, solo horas completas, `ts` = inicio de la hora como en Open‑Meteo). El catálogo completo —29 estaciones y 57 sensores, todos verificados— vive en la tabla `sensors` (`db/migrations/0006_saih.sql`), no en el código.
 
 ### Riesgos
 - Endpoints no documentados con prefijo `/admin/`: pueden cambiar o cerrarse sin aviso. Guardar fixtures y monitorizar errores.
