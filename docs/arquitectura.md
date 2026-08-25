@@ -188,7 +188,7 @@ alerts (
 
 ## 6. Despliegue
 
-Producción en **Dokploy** (homelab): servicio *Compose* en modo Docker Compose que construye las imágenes desde el repo y redespliega en cada push a `main`. Variables de entorno y dominio (Traefik) por la UI de Dokploy; DB con volumen persistente. Detalles en `openspec/changes/mvp-comparativa-precipitacion/design.md` → "Despliegue en Dokploy".
+Producción en **Dokploy** (homelab): servicio *Compose* en modo Docker Compose que construye las imágenes desde el repo y redespliega en cada push a `main`. Variables de entorno y dominio (Traefik) por la UI de Dokploy; DB con volumen persistente. Detalles en `openspec/changes/archive/2026-08-25-mvp-comparativa-precipitacion/design.md` → "Despliegue en Dokploy".
 
 Desarrollo local con el mismo compose más `docker-compose.override.yml`. Servicios:
 

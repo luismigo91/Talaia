@@ -17,9 +17,8 @@ Albal es la localización principal (el semáforo se calibra primero ahí). El M
 
 ## Estado actual
 
-- **MVP implementado** (25‑08‑2026) según `openspec/changes/mvp-comparativa-precipitacion/`: collectors de Open-Meteo y AEMET, TimescaleDB, API NestJS con `/compare`, compose para Dokploy. Pendiente en `tasks.md`: desplegar en Dokploy con clave real de AEMET y sustituir las fixtures de AEMET por capturas reales; después archivar el cambio en `openspec/specs/`.
-- **Fase 2 implementada** (25‑08‑2026) según `openspec/changes/collector-saih-jucar/`: collector SAIH Júcar (29 estaciones y 57 sensores en la tabla `sensors`, series cincominutales en `observations`, `precip_mm` horario derivado de la intensidad) y endpoints `/api/v1/sensors` y `/api/v1/observations`. Verificado contra el portal real. Pendiente: desplegarlo y archivar el cambio.
-- **Fase 3 implementada** (25‑08‑2026) según `openspec/changes/semaforo-riesgo/`: tablas `watch_points` y `thresholds`, `RiskService` y `GET /api/v1/risk` (nivel por localización con su desglose). Umbrales de lluvia oficiales de AEMET; los de caudal, de la CHJ. Verificado con datos reales de SAIH y Open‑Meteo. Pendiente: desplegar y archivar.
+- **MVP, collector SAIH Júcar y semáforo de riesgo implementados** (25‑08‑2026) y **archivados**: su comportamiento vigente vive en `openspec/specs/` (once capacidades) y las propuestas en `openspec/changes/archive/`. En producción: collectors de Open‑Meteo, AEMET y SAIH; TimescaleDB; API NestJS con `/compare`, `/sensors`, `/observations`, `/risk` y `/status`.
+- **Deuda conocida** (ver final de `openspec/specs/collector-aemet/spec.md`): faltan la `AEMET_API_KEY` real en Dokploy y las fixtures reales de AEMET (`46007`, `46054`, `46235`, `46051` y tar CAP del área `77`). Todo lo demás está verificado contra las fuentes reales.
 - Siguiente incremento previsto: notificaciones (requieren histórico de cambios de nivel), Meteoalarm y frontend.
 
 ## Estructura del monorepo
@@ -79,7 +78,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 
 - **Idioma**: español en docs, commits, comentarios y specs. Código e identificadores en inglés.
 - **Commits**: Conventional Commits en español (`feat(collectors): añade collector AEMET`).
-- **Especificación primero (OpenSpec)**: cambios de comportamiento nacen como propuesta en `openspec/changes/<nombre>/` (proposal + specs + tasks). Se implementa tras validación, con loop implementación → QA → tests en verde. Al terminar, se archiva y se fusiona en `openspec/specs/`.
+- **Especificación primero (OpenSpec)**: cambios de comportamiento nacen como propuesta en `openspec/changes/<nombre>/` (proposal + specs + tasks). Se implementa tras validación, con loop implementación → QA → tests en verde. Al terminar se archiva en `openspec/changes/archive/AAAA-MM-DD-<nombre>/` y sus specs se fusionan en `openspec/specs/<capacidad>/`, que es el comportamiento vigente.
 - **Tests**: cada collector con tests unitarios sobre fixtures reales guardadas en `collectors/<fuente>/fixtures/` (respuestas capturadas de la API, nunca llamar a la red en tests).
 - **Secretos**: nunca en el repo. `AEMET_API_KEY` y `POSTGRES_PASSWORD` como variables de entorno definidas en la UI de Dokploy (no soporta Docker secrets); en local, `.env` (ignorado) + `.env.example` documentado.
 - **Zona horaria**: todo en UTC en base de datos; convertir a `Europe/Madrid` solo al presentar.
