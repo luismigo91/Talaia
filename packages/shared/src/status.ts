@@ -5,6 +5,11 @@ import { sourceStatus } from "./db/schema.js";
 export interface RunResult {
   recordsWritten: number;
   payloadHash?: string;
+  /**
+   * Problema parcial: el ciclo escribió datos pero perdió parte de la fuente.
+   * Se registra en `last_error` conservando el éxito, para no mostrar un verde falso.
+   */
+  warning?: string;
 }
 
 /** Ejecuta un collector con aislamiento: nunca lanza; registra el resultado en `source_status`. */
@@ -25,7 +30,7 @@ export async function runWithStatus(
       .update(sourceStatus)
       .set({
         lastSuccessAt: new Date(),
-        lastError: null,
+        lastError: result.warning ? result.warning.slice(0, 2000) : null,
         recordsWritten: result.recordsWritten,
         ...(result.payloadHash !== undefined ? { payloadHash: result.payloadHash } : {}),
       })

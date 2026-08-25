@@ -1,5 +1,6 @@
 import {
   bigserial,
+  boolean,
   customType,
   doublePrecision,
   index,
@@ -11,6 +12,7 @@ import {
   smallint,
   text,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 
 /** Columna PostGIS. Drizzle no la modela nativamente con SRID en todas las versiones. */
@@ -61,6 +63,42 @@ export const sourceStatus = pgTable("source_status", {
   recordsWritten: integer("records_written"),
   payloadHash: text("payload_hash"),
 });
+
+/** Catálogo de sensores externos: sensor de la fuente → variable canónica, unidad y umbrales. */
+export const sensors = pgTable(
+  "sensors",
+  {
+    id: text("id").primaryKey(),
+    source: text("source")
+      .notNull()
+      .references(() => sources.id),
+    stationId: text("station_id")
+      .notNull()
+      .references(() => stations.id),
+    externalId: text("external_id").notNull(),
+    variable: text("variable").notNull(),
+    unit: text("unit").notNull(),
+    enabled: boolean("enabled").notNull().default(true),
+    thresholdLow: doublePrecision("threshold_low"),
+    thresholdMid: doublePrecision("threshold_mid"),
+    thresholdHigh: doublePrecision("threshold_high"),
+    meta: jsonb("meta").$type<SensorMeta>().notNull().default({}),
+  },
+  (t) => [
+    unique("sensors_source_external_variable_key").on(t.source, t.externalId, t.variable),
+    index("sensors_station_idx").on(t.stationId, t.variable),
+  ],
+);
+
+export interface SensorMeta {
+  /** idEstacionRemota del SAIH. */
+  saih_station?: string;
+  saih_name?: string;
+  note?: string;
+  /** Sensor del que se deriva (p. ej. precip_mm derivado de la intensidad). */
+  derived_from?: string;
+  [k: string]: unknown;
+}
 
 export const forecasts = pgTable(
   "forecasts",
@@ -135,6 +173,7 @@ export const alerts = pgTable(
 );
 
 export type Station = typeof stations.$inferSelect;
+export type Sensor = typeof sensors.$inferSelect;
 export type ForecastRow = typeof forecasts.$inferInsert;
 export type ObservationRow = typeof observations.$inferInsert;
 export type AlertRow = typeof alerts.$inferInsert;

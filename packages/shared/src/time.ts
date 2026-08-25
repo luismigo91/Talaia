@@ -67,6 +67,16 @@ export function parseLocalIso(iso: string, tz = "Europe/Madrid"): Date {
   return localToUtc(+m[1]!, +m[2]!, +m[3]!, +(m[4] ?? 0), +(m[5] ?? 0), +(m[6] ?? 0), tz);
 }
 
+/**
+ * Formatea un instante como fecha-hora "de pared" en `tz` (`YYYY-MM-DD HH:MM`).
+ * Inverso de `localToUtc`. Lo usa el SAIH, que interpreta el rango de la URL en hora local.
+ */
+export function formatLocal(date: Date, tz = "Europe/Madrid"): string {
+  const parts = formatter(tz).formatToParts(date);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "00";
+  return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}`;
+}
+
 export function truncToHour(date: Date): Date {
   return new Date(Math.floor(date.getTime() / 3_600_000) * 3_600_000);
 }

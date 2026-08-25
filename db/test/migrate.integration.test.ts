@@ -16,7 +16,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
     beforeAll(async () => {
       await resetDatabase(pg);
       const applied = await migrate(URL_);
-      expect(applied.length).toBe(5);
+      expect(applied.length).toBe(6);
     });
     afterAll(close);
 

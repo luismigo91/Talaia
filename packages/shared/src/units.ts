@@ -2,6 +2,8 @@
 export const VARIABLES = {
   precip_mm: "mm",
   precip_prob_pct: "%",
+  precip_rate_mmh: "mm/h",
+  precip_24h_mm: "mm",
   temp_c: "°C",
   rh_pct: "%",
   wind_ms: "m/s",
@@ -12,6 +14,7 @@ export const VARIABLES = {
   river_level_m: "m",
   river_flow_m3s: "m³/s",
   reservoir_hm3: "hm³",
+  reservoir_level_m: "m",
   reservoir_pct: "%",
 } as const;
 
