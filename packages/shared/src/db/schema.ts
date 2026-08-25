@@ -100,6 +100,45 @@ export interface SensorMeta {
   [k: string]: unknown;
 }
 
+/** Localización objetivo → sensores que la amenazan (semilla del semáforo). */
+export const watchPoints = pgTable(
+  "watch_points",
+  {
+    stationId: text("station_id")
+      .notNull()
+      .references(() => stations.id),
+    sensorId: text("sensor_id")
+      .notNull()
+      .references(() => sensors.id),
+    role: text("role", {
+      enum: ["flow_primary", "flow_secondary", "reservoir", "rain_upstream", "rain_local"],
+    }).notNull(),
+    lagMinutes: integer("lag_minutes"),
+    note: text("note"),
+  },
+  (t) => [
+    primaryKey({ columns: [t.stationId, t.sensorId] }),
+    index("watch_points_sensor_idx").on(t.sensorId),
+  ],
+);
+
+/** Umbrales de lluvia (prevista y observada). Los de caudal viven en `sensors`. */
+export const thresholds = pgTable(
+  "thresholds",
+  {
+    id: text("id").primaryKey(),
+    /** NULL = regla global; una fila con estación tiene prioridad. */
+    stationId: text("station_id").references(() => stations.id),
+    signal: text("signal").notNull(),
+    levelYellow: doublePrecision("level_yellow"),
+    levelOrange: doublePrecision("level_orange"),
+    levelRed: doublePrecision("level_red"),
+    enabled: boolean("enabled").notNull().default(true),
+    meta: jsonb("meta").$type<Record<string, unknown>>().notNull().default({}),
+  },
+  (t) => [unique("thresholds_station_signal_key").on(t.stationId, t.signal)],
+);
+
 export const forecasts = pgTable(
   "forecasts",
   {
@@ -174,6 +213,8 @@ export const alerts = pgTable(
 
 export type Station = typeof stations.$inferSelect;
 export type Sensor = typeof sensors.$inferSelect;
+export type WatchPoint = typeof watchPoints.$inferSelect;
+export type Threshold = typeof thresholds.$inferSelect;
 export type ForecastRow = typeof forecasts.$inferInsert;
 export type ObservationRow = typeof observations.$inferInsert;
 export type AlertRow = typeof alerts.$inferInsert;

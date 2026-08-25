@@ -15,8 +15,18 @@ export interface SensorSpec {
   meta: Record<string, unknown>;
 }
 
-/** Catálogo de sensores habilitados de una fuente, con el nombre de su estación. */
-export async function loadSensors(db: Db, source: string): Promise<SensorSpec[]> {
+/**
+ * Catálogo de sensores habilitados de una fuente, con el nombre de su estación.
+ *
+ * Los sensores **derivados** (`meta.derived_from`, p. ej. la precipitación horaria calculada a
+ * partir de la intensidad) no existen en el portal de origen: se excluyen salvo que se pidan,
+ * para que un collector no intente descargarlos.
+ */
+export async function loadSensors(
+  db: Db,
+  source: string,
+  opts: { includeDerived?: boolean } = {},
+): Promise<SensorSpec[]> {
   const rows = await db.execute<{
     id: string;
     source: string;
@@ -35,6 +45,7 @@ export async function loadSensors(db: Db, source: string): Promise<SensorSpec[]>
     from sensors s
     join stations st on st.id = s.station_id
     where s.source = ${source} and s.enabled
+      ${opts.includeDerived ? sql`` : sql`and s.meta->>'derived_from' is null`}
     order by s.station_id, s.variable
   `);
   return rows.map((r) => ({
