@@ -1,0 +1,307 @@
+# Fuentes de datos
+
+Fichas por fuente. Verificado el **25‑08‑2026** (marcas: ✅ verificado con llamadas reales, 📄 según documentación, ❓ no verificado).
+
+## Localizaciones objetivo ✅
+
+| id | Localidad | INE (AEMET) | Lat, lon | Elev. | Zona avisos | Notas |
+|---|---|---|---|---|---|---|
+| `virtual:albal` | Albal | `46007` | 39.397, −0.415 | 14 m | `774602` | Principal. Barranc del Poyo |
+| `virtual:benetusser` | Benetússer | `46054` | 39.4227, −0.3969 | 15 m | `774602` | Contiguo a Albal; zona según PDF de AEMET (misma columna que Albal) |
+| `virtual:mareny-barraquetes` | Mareny de Barraquetes | `46235` (Sueca) | 39.2458, −0.2646 | ~2 m | `774604` | Pedanía costera de Sueca; sin municipio propio en AEMET. Coordenadas de Nominatim/OSM |
+| `virtual:benaguasil` | Benaguasil | `46051` | 39.6, −0.583 | 103 m | `774602` | Camp de Túria, margen derecha del Túria. Zona según PDF de AEMET (misma columna que Albal) |
+
+Fuentes: geocoder de Open-Meteo, https://www.aemet.es/es/eltiempo/prediccion/municipios/benetusser-id46054 y `sueca-id46235` (200; un id falso da 404), PDF de zonas de AEMET.
+
+---
+
+## 1. AEMET OpenData
+
+| Campo | Valor |
+|---|---|
+| URL base | `https://opendata.aemet.es/opendata` ✅ |
+| Docs | Swagger: https://opendata.aemet.es/dist/index.html · Spec OpenAPI: https://opendata.aemet.es/AEMET_OpenData_specification.json · FAQ: https://opendata.aemet.es/centrodedescargas/docs/FAQs170621.pdf |
+| Formato | JSON (predicción, observación), tar.gz de XML CAP 1.2 (avisos), GIF (radar) |
+| Autenticación | Header `api_key: <JWT>` (también acepta `?api_key=`). Clave gratuita, validez indefinida: https://opendata.aemet.es/centrodedescargas/altaUsuario |
+| Cuota | **40 peticiones/min por usuario** (FAQ 3.5). Cada consulta son 2 peticiones (endpoint + URL `datos`). Sin cuota diaria documentada ❓ |
+| Frecuencia | Predicción horaria: 4 veces/día 📄. Observación: horaria, ~1 h de retraso ❓. Avisos: continuo. Radar regional: 10 min |
+| Codificación | Primer paso UTF‑8; URLs `datos`/`metadatos` en **ISO‑8859‑15** ✅ (leer bytes y decodificar según header `charset`, fallback latin‑9). CAP XML en UTF‑8 |
+
+### Mecanismo de dos pasos ✅
+
+```json
+{ "descripcion": "exito", "estado": 200,
+  "datos": "https://opendata.aemet.es/opendata/sh/ec5cff98",
+  "metadatos": "https://opendata.aemet.es/opendata/sh/b3aa9d28" }
+```
+
+Las URLs caducan en ~5 min (`{"descripcion":"datos expirados","estado":404}`). Códigos: 401 clave inválida, 404 sin datos, 429 cuota excedida. Sin clave el servidor puede devolver **200 con cuerpo vacío** → tratar cuerpo vacío como error. El `estado` del cuerpo puede diferir del status HTTP: parsear siempre el JSON.
+
+### Endpoints
+
+| Producto | Path | Parámetros para Talaia |
+|---|---|---|
+| Predicción horaria municipio (48 h) | `/api/prediccion/especifica/municipio/horaria/{municipio}` | `46007`, `46054`, `46235`, `46051` |
+| Predicción diaria municipio | `/api/prediccion/especifica/municipio/diaria/{municipio}` | ídem |
+| Observación estación (últimas 12 h) | `/api/observacion/convencional/datos/estacion/{idema}` | `8416`, `8414A` |
+| Observación todas las estaciones | `/api/observacion/convencional/todas` | — |
+| Avisos CAP vigentes | `/api/avisos_cap/ultimoelaborado/area/{area}` | `77` (C. Valenciana) |
+| Avisos CAP archivo | `/api/avisos_cap/archivo/fechaini/{AAAA-MM-DDTHH:MM:SSUTC}/fechafin/{…}` | desde 2018 |
+| Radar regional | `/api/red/radar/regional/{radar}` | `va` (València) |
+| Inventario estaciones | `/api/valores/climatologicos/inventarioestaciones/todasestaciones` | — |
+
+### Estaciones cercanas (idema) ✅
+
+`8416` València ciudad · `8414A` València Aeroport (Manises) · `8337X` Turís · `8328X` Sollana · `8325X` Polinyà de Xúquer · `8300X` Carcaixent · `8293X` Xàtiva · `8409X` Llíria · `8446Y` Sagunt. **No hay estación AEMET en Picassent ni Silla.**
+
+### Avisos Meteoalert ✅
+
+- Área `77`. Zonas de València: `774601` Interior norte, `774602` **Litoral norte** (← **Albal, Benetússer, Benaguasil**), `774603` Interior sur, `774604` **Litoral sur** (← **Sueca / Mareny de Barraquetes**). Fuente: https://www.aemet.es/documentos/es/eltiempo/prediccion/avisos/plan_meteoalerta/detalle_municipios_zonas_meteorologicas.pdf
+- El tar.gz contiene un XML por aviso `Z_CAP_C_LEMM_AAAAMMDDHHMMSS_AFAZ{zona}{FF}{PP}{DDHH}.xml` más mensajes "sin aviso" (`severity=Minor`, zona `77VV77`). Filtrar por `<geocode><valueName>AEMET-Meteoalerta zona</valueName><value>774602|774604</value>`.
+- Campos: `eventCode` (`PR;Lluvias`), `parameter` "AEMET-Meteoalerta nivel" (verde/amarillo/naranja/rojo), "AEMET-Meteoalerta parametro" (`P2;Precipitación acumulada en 12 horas;60 mm`), `onset`, `expires`, `polygon`. Anexo CAP: https://www.aemet.es/documentos/es/eltiempo/prediccion/avisos/plan_meteoalerta/METEOALERTA_ANX3_CAP.pdf · Shapes de zonas: http://www.aemet.es/documentos/es/eltiempo/prediccion/avisos/plan_meteoalerta/AEMET-meteoalerta-delimitacion-zonas.zip
+- Alternativa sin clave: RSS https://www.aemet.es/es/rss_info/avisos/val ✅
+
+### Estructura de la predicción horaria 📄✅ (fixture real)
+
+```json
+[{"elaborado":"2021-01-09T11:47:45","nombre":"Getafe","id":"28065",
+  "prediccion":{"dia":[{"fecha":"2021-01-09T00:00:00",
+    "precipitacion":[{"value":"1.4","periodo":"07"},{"value":"2.1","periodo":"08"}],
+    "probPrecipitacion":[{"value":"","periodo":"0107"},{"value":"100","periodo":"0713"}],
+    "temperatura":[{"value":"-1","periodo":"07"}],
+    "humedadRelativa":[{"value":"96","periodo":"07"}],
+    "vientoAndRachaMax":[{"direccion":["NE"],"velocidad":["28"],"periodo":"07"},{"value":"41","periodo":"07"}],
+    "estadoCielo":[{"value":"36n","periodo":"07","descripcion":"Cubierto con nieve"}]
+  }]}}]
+```
+
+Peculiaridades que el normalizador debe tratar:
+- Array con un solo objeto. `dia` tiene 3 entradas; el primer día empieza en la hora actual.
+- `periodo` "07" = hora **local** (`Europe/Madrid`); `precipitacion.value` = mm en la hora anterior (06–07).
+- **Todos los `value` son strings**; `""` = sin dato.
+- `probPrecipitacion` en tramos de 6 h (`0107`, `0713`, `1319`, `1901`).
+- Viento en km/h; `vientoAndRachaMax` mezcla objetos de viento y de racha.
+- `elaborado` = hora local de emisión → `forecast_ts`.
+
+### Observación de estaciones 📄
+
+Array de filas horarias (12 h): `idema`, `fint` (fin del período, **UTC** sin sufijo Z), `prec` (mm en 60 min anteriores), `ta` (°C), `hr` (%), `vv` (m/s), `dv` (°), `pres` (hPa), `vmax`, `lat`, `lon`, `alt`. Valores numéricos.
+
+### Mapeo a variables canónicas
+
+| AEMET | canónica | conversión |
+|---|---|---|
+| `precipitacion.value` | `precip_mm` | string → float |
+| `probPrecipitacion.value` | `precip_prob_pct` | tramo 6 h → replicar a cada hora del tramo |
+| `temperatura.value` | `temp_c` | |
+| `humedadRelativa.value` | `rh_pct` | |
+| `vientoAndRachaMax.velocidad` | `wind_ms` | km/h ÷ 3.6 |
+| `vientoAndRachaMax.value` (racha) | `gust_ms` | km/h ÷ 3.6 |
+| obs `prec` | `precip_mm` | |
+| obs `ta`, `hr`, `vv`, `pres` | `temp_c`, `rh_pct`, `wind_ms`, `pressure_hpa` | |
+
+### Riesgos
+- Cuota estricta (40/min) → nunca lanzar collectors en paralelo contra AEMET; cachear y espaciar.
+- Charset latin‑9; strings numéricos; horas locales con DST.
+- Servicio con caídas frecuentes (reputación) → tolerar fallos, mostrar frescura.
+
+---
+
+## 2. Open-Meteo
+
+| Campo | Valor |
+|---|---|
+| URL | `https://api.open-meteo.com/v1/forecast` ✅ |
+| Docs | https://open-meteo.com/en/docs · modelos: `/docs/ecmwf-api`, `/docs/dwd-api`, `/docs/meteofrance-api`, `/docs/gfs-api`, `/docs/ukmo-api` · actualizaciones: https://open-meteo.com/en/docs/model-updates |
+| Formato | JSON |
+| Autenticación | Ninguna (plan gratuito, **uso no comercial**, licencia CC BY 4.0 → atribuir) |
+| Cuota | 600/min, 5.000/h, 10.000/día, 300.000/mes 📄. Las llamadas con muchos modelos/variables ponderan más ❓ |
+| Frecuencia | Depende del modelo (ver tabla). Sin campo de corrida en la respuesta; usar `meta.json` |
+
+### Llamada de referencia ✅
+
+Varias localizaciones en una petición: `latitude=39.397,39.4227,39.2458,39.6&longitude=-0.415,-0.3969,-0.2646,-0.583` → la respuesta pasa a ser un **array** de objetos en el mismo orden ✅.
+
+```
+GET https://api.open-meteo.com/v1/forecast?latitude=39.397&longitude=-0.415
+  &hourly=precipitation,precipitation_probability,temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,cape,weather_code
+  &models=meteofrance_arome_france_hd,icon_eu,ecmwf_ifs,ecmwf_ifs025,gfs_seamless,arpege_europe,ukmo_global_deterministic_10km,best_match
+  &timezone=UTC&forecast_days=3&past_days=1
+```
+
+### Modelos que cubren Albal ✅
+
+| id `models` | Modelo | Resolución | Horizonte | Ciclo | id `meta.json` | Notas |
+|---|---|---|---|---|---|---|
+| `meteofrance_arome_france_hd` | AROME France HD | 1,5 km | ~51 h | 3 h | mismo | bbox lat 37,5–55,4, lon −12–16 ✅. Sin `precipitation_probability`, `rain`, `showers`, `weather_code` (null) |
+| `meteofrance_arome_france` | AROME France | 2,5 km | 2 días | 3 h | `meteofrance_arome_france0025` | Sí devuelve `rain`/`showers`/`weather_code` |
+| `icon_eu` | DWD ICON EU | 7 km | 5 días | 3 h | `dwd_icon_eu` | `icon_seamless` y `best_match` = ICON EU en Albal ✅ |
+| `ecmwf_ifs` | ECMWF IFS HRES | 9 km | 15 días | 6 h | mismo | horario hasta 90 h |
+| `ecmwf_ifs025` | ECMWF IFS | 25 km | 15 días | 6 h | mismo | paso 3 h; celda 39.5/−0.5 |
+| `gfs_seamless` / `gfs_global` / `gfs013` | NCEP GFS | 13 km | 16 días | 6 h | `ncep_gfs013` | `gfs025` devuelve null en Albal ✅ |
+| `arpege_europe` | ARPEGE Europe | 11 km | 4 días | 6 h | `meteofrance_arpege_europe` | |
+| `ukmo_global_deterministic_10km` | UKMO Global | 10 km | 7 días | 6 h | mismo | |
+| `gem_global` | CMC GEM | 15 km | 10 días | 12 h | `cmc_gem_gdps` | meta.json parecía estancado (mayo 2026) ❓ |
+
+**No cubren Albal** ✅: `icon_d2`, `knmi_harmonie_arome_europe`, `dmi_harmonie_arome_europe`, `ukmo_uk_deterministic_2km`. `arome` a secas → 400.
+
+### Estructura de la respuesta ✅
+
+Con varios modelos, cada variable lleva sufijo `_<model_id>` (con uno solo, no). `time` es común. Fuera de horizonte o variable no soportada → `null`. Modelos que no cubren el punto se **omiten silenciosamente**; si ninguno cubre, `latitude: nan` sin `hourly`. `latitude/longitude/elevation` corresponden a la celda del **primer** modelo.
+
+```json
+{"latitude":39.5,"longitude":-0.5,"utc_offset_seconds":0,"timezone":"GMT","elevation":16.0,
+ "hourly_units":{"time":"iso8601","precipitation_ecmwf_ifs025":"mm","precipitation_probability_ecmwf_ifs025":"%",
+                 "precipitation_meteofrance_arome_france_hd":"mm","precipitation_probability_meteofrance_arome_france_hd":"undefined"},
+ "hourly":{"time":["2026-08-25T00:00","2026-08-25T01:00"],
+           "precipitation_ecmwf_ifs025":[0.0,0.0],"precipitation_probability_ecmwf_ifs025":[0,0],
+           "precipitation_meteofrance_arome_france_hd":[0.0,null],"precipitation_probability_meteofrance_arome_france_hd":[null,null]}}
+```
+
+### Hora de la corrida (`forecast_ts`) ✅
+
+`GET https://api.open-meteo.com/data/{meta_id}/static/meta.json` →
+
+```json
+{"last_run_initialisation_time":1787637600,"last_run_modification_time":1787663170,
+ "last_run_availability_time":1787663303,"data_end_time":1788166800,
+ "temporal_resolution_seconds":10800,"update_interval_seconds":21600,"crs_wkt":"…BBOX[…]"}
+```
+
+Usar `last_run_initialisation_time` como `forecast_ts`. Los ids `*_seamless` y `best_match` no tienen `meta.json` (virtuales). Latencias observadas init → disponible: ICON EU ~3 h, AROME HD ~4,5 h, ECMWF/GFS ~7 h.
+
+### Otros endpoints útiles ✅
+
+- **Previous Runs**: `https://previous-runs-api.open-meteo.com/v1/forecast` con variables `precipitation_previous_day1…7` (tendencia entre corridas, desfase por días).
+- **Single Runs**: `https://single-runs-api.open-meteo.com/v1/forecast?run=2026-08-25T00:00&models=…` — corrida concreta (archivo desde abr 2026; ECMWF 9 km desde mar 2024).
+- **Archivo ERA5**: `https://archive-api.open-meteo.com/v1/archive?start_date&end_date&models=era5|era5_land|ecmwf_ifs`. Es reanálisis (para la DANA, ERA5 da ~70 mm/día en Albal frente a 771 mm en Turís: no sirve para verificar convección local).
+- **Flood API (GloFAS)**: `https://flood-api.open-meteo.com/v1/flood?daily=river_discharge`. Celda 5 km y valores diarios → **no útil** para el Poyo; solo como indicador contextual.
+
+### Mapeo a variables canónicas
+
+`precipitation`→`precip_mm`, `precipitation_probability`→`precip_prob_pct`, `temperature_2m`→`temp_c`, `relative_humidity_2m`→`rh_pct`, `wind_speed_10m`→`wind_ms` (km/h ÷ 3.6, o pedir `wind_speed_unit=ms`), `wind_gusts_10m`→`gust_ms`, `cape`→`cape_jkg`. `source` = `open-meteo:<model_id>`.
+
+### Riesgos
+- Snap a la celda de rejilla (25 km en ECMWF 0.25°): para Albal es mejor confiar en AROME HD / ICON EU / ECMWF 9 km.
+- Claves ausentes o `null` según modelo: el parser debe ser tolerante.
+- Condición no comercial.
+
+---
+
+## 3. SAIH Júcar (CHJ)
+
+| Campo | Valor |
+|---|---|
+| URL | https://saih.chj.es/ (redirige a `/mapa-lluvias`) ✅. Las rutas antiguas `/chj/saih/...` dan 404 |
+| Formato | HTML con JSON inline (valores actuales) + **endpoints JSON internos sin autenticación** ✅. CORS abierto (`Access-Control-Allow-Origin: *`) |
+| Autenticación | Ninguna |
+| Cuota | No documentada ❓. Usar con moderación (5 min) |
+| Frecuencia | Registro **cincominutal**; retraso 5–10 min ✅ |
+| Retención pública | Desde ~01‑01‑2025 ✅. **El 29‑10‑2024 devuelve vacío** (la DANA no está en el portal) |
+| Docs | Ninguna. Contacto `sugerencias.saihweb@chj.es`. Descripción: https://saih.chj.es/saih |
+
+### Endpoints internos ✅
+
+| Endpoint | Devuelve |
+|---|---|
+| `GET /admin/variables/valor/{idVariable}/{YYYY-MM-DD HH:MM}/{YYYY-MM-DD HH:MM}` (fechas URL‑encoded, `%20`) | `[{"valor":0,"fecha":"2026-08-23T22:00:00.000Z","estado":128},…]` cada 5 min. Con formato de fecha distinto devuelve `[]` sin error. Sin límite de rango observado (55 días → 15.760 puntos) |
+| `GET /api/variables/{idVariable}/propiedades` | Definición de la variable y **umbrales** (`fldFUmbralBajo/Medio/Alto`) |
+| `GET /lluviasIntervalo/{YYYY-MM-DD}/{YYYY-MM-DD}` | Todas las estaciones con `lluvia_int` (mm), `idEstacionRemota`, `fldTCodigo`, `fldTNombre`, coords UTM 25830 |
+| `/aforos`, `/lluvias`, `/mapa-embalses` (HTML) | JSON inline con `lastValue`, `lastValueFecha`, `lluvia_1h/4h/12h/24h`, umbrales, estado |
+
+Timestamps en UTC. `estado`: 0 normal; 128 frecuente en el Poyo (¿dato provisional/sin validar? ❓). La exportación CSV/XLSX del portal se genera en cliente a partir de este JSON: no hay descarga directa.
+
+### Estaciones relevantes ✅
+
+(Inventario completo por cuenca —Túria, Xúquer bajo, Poyo— con umbrales en `docs/cuencas.md`.)
+
+| Estación | `idEstacionRemota` | Código | Tipo | Coordenadas | `idVariable` |
+|---|---|---|---|---|---|
+| **MC RAMBLA POYO N‑III** (Riba‑roja de Túria) | **227** | `0O04` | Marco de control (caudal estimado) + pluviómetro | 39.4734, −0.5841 | **13873** caudal (m³/s) |
+| CHIVA | 371 | `0P09` | Pluviómetro | 39.4575, −0.7355 | 14079 intensidad; **15311** acumulado 24 h |
+| MC TURÍS | 789 | `7R04` | Marco de control + pluviómetro (Magro) | 39.3459, −0.7091 | 16922 intensidad; **16927** acumulado 24 h |
+| EMBALSE DE FORATA (Yátova, Magro) | 303 | `7E03` | Embalse | 39.3405, −0.8644 | 1874 cota; 2464 volumen; 14582 entrada; 13345 salida total; 16696 salida al Magro |
+| SIETE AGUAS | 232 | `7P12` | Pluviómetro (cabecera) | 39.4888, −0.8991 | lluvia |
+| PARADA 14 – PICASSENT | 238 | `0L02` | Pluviómetro | 39.3934, −0.4799 | lluvia |
+| AZUD REPARTIMENT (Quart de Poblet, Turia) | 222 | `0E02` | Aforo + pluviómetro | 39.4841, −0.4387 | 14450 caudal Turia |
+
+URLs: `https://saih.chj.es/aforos/13873`, `/aforos/13873/chart`, `/chart-lluvia/227`, `/embalses/303`.
+
+**Huecos**: no hay estaciones automáticas públicas en Buñol, Cheste, Torrent, Paiporta, Catarroja ni en los barrancos de l'Horteta, Gallego o Pozalet (solo regletas manuales del Plan de Inundaciones, gestionadas por el CCE de la GVA). El único aforo de toda la cuenca del Poyo es Riba‑roja. El sensor de Riba‑roja fue arrasado en la DANA y sustituido por un radar provisional; el definitivo estaba previsto para junio 2026 ❓ (sigue apareciendo como estación 227 / variable 13873).
+
+### Umbrales oficiales CHJ del caudal del Poyo (variable 13873) ✅
+
+**30 m³/s (bajo/amarillo) · 70 m³/s (medio/naranja) · 150 m³/s (alto/rojo)**. Comparación: Forata salida al Magro 5/30/100; Turia en Azud del Repartiment 100/500/1000.
+
+### Referencias físicas e históricas
+- Capacidad del encauzamiento aguas abajo de Paiporta: **800 m³/s**; caudal de diseño 1.500 m³/s (BOE‑A‑2012‑193) ✅.
+- DANA 29‑10‑2024: último dato del sensor **2.282,9 m³/s y 4,9 m a las 18:55** (informe CHJ); aviso CHJ con 1.686 m³/s a las 18:43; pico estimado ~2.800 m³/s ❓; subida de ~0 a ~2.230 m³/s entre las 16:00 y las 18:50.
+- Lluvia AEMET 29‑10‑2024: **Turís 771,8 mm/24 h, 184,6 mm/1 h (récord nacional), 102,8 mm/30 min; Chiva 445,4 mm**. Informe: https://www.aemet.es/documentos/es/conocermas/recursos_en_linea/publicaciones_y_estudios/estudios/informe_episodio_dana_29_oct_2024_.pdf
+
+### Mapeo a variables canónicas
+`13873`→`river_flow_m3s` (station `saih:227`); resto de aforos según `docs/cuencas.md` (no hay aforo en Sueca/Cullera ni nivel de la Albufera: el último del Xúquer es Huerto Mulet `13070`); acumulados 24 h → `precip_mm` con intervalo 24 h (o mejor derivar horario de la intensidad cincominutal); Forata volumen → `reservoir_hm3`, salida → `river_flow_m3s`.
+
+### Riesgos
+- Endpoints no documentados con prefijo `/admin/`: pueden cambiar o cerrarse sin aviso. Guardar fixtures y monitorizar errores.
+- Caudal del Poyo es **estimado** por marco de control, y el sensor es provisional.
+- Datos "provisionales" (estado 128).
+
+---
+
+## 4. Meteoalarm
+
+| Campo | Valor |
+|---|---|
+| URL | Feeds CAP/Atom por país: https://feeds.meteoalarm.org/feeds/meteoalarm-legacy-atom-spain (formato legado) y API https://feeds.meteoalarm.org/api/v1/warnings/feeds-spain ❓ |
+| Formato | Atom + CAP 1.2 |
+| Autenticación | Ninguna |
+| Frecuencia | Continuo (republica AEMET) |
+| Interés | Mismo contenido que AEMET `avisos_cap` pero sin clave ni cuota; polígonos por zona (`774602`) |
+| Riesgo | Retraso respecto a AEMET; formato legado en transición ❓. Fase 2: validar URLs. |
+
+---
+
+## 5. MITECO Boletín Hidrológico / embalses.net
+
+| Campo | Valor |
+|---|---|
+| MITECO | https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html · PDF semanal `https://sede.miteco.gob.es/BoleHWeb/accion/cargador_archivo.htm?file=cache/pdf/{YYYYWW}/{YYYYWW}40_es.pdf` · histórico en MDB/XLSX · datos.gob.es `e05068001-boletin-hidrologico-semanal` |
+| embalses.net | `https://www.embalses.net/pantano-640-forata.html` ✅ (Forata: 17 hm³, 45,95 % el 24‑08‑2026). Cuenca: `cuenca-7-jucar.html`. Scraping HTML; semanal |
+| Interés | Contexto (llenado de Forata). Para tiempo real usar SAIH `/embalses/303` |
+| Prioridad | Fase 3 |
+
+---
+
+## 6. GVA Emergències / 112 Comunitat Valenciana
+
+| Campo | Valor |
+|---|---|
+| URL | https://www.112cv.gva.es/es/ · X: https://x.com/GVA112 · app "GVA 112 Avisos" |
+| Formato | HTML (Liferay). **Sin RSS ni API encontrados** ❓ |
+| Alternativa | Avisos AEMET por RSS (https://www.aemet.es/es/rss_info/avisos/val) para la parte meteorológica; ES‑Alert no tiene feed |
+| Prioridad | Fase 3; requiere scraping o seguimiento de X (API de pago) |
+
+---
+
+## 7. Copernicus EFAS
+
+| Campo | Valor |
+|---|---|
+| URL | Early Warning Data Store: https://ewds.climate.copernicus.eu/ · API `https://ewds.climate.copernicus.eu/api` (cliente `cdsapi`, token en `.cdsapirc`) · Doc: https://confluence.ecmwf.int/display/CEMS/EWDS+API |
+| Datasets | `efas-forecast`, `efas-historical`, `efas-reforecast`, `efas-seasonal` (GRIB/NetCDF, ~1 km en v5) |
+| Autenticación | Cuenta ECMWF/Copernicus gratuita |
+| Interés | Túria/Xúquer; utilidad limitada para una cuenca de ~380 km² como el Poyo. Las notificaciones operativas solo llegan a autoridades |
+| Prioridad | Fase 4 |
+
+---
+
+## 8. AVAMET (estaciones amateur)
+
+| Campo | Valor |
+|---|---|
+| URL | Red MXO: https://www.avamet.org/mxo-mxo.php · Tabla de precipitación en tiempo real: https://www.avamet.org/mxo-mxo-prec.php (~1 MB HTML) · Ficha: `https://www.avamet.org/mxo_i.php?id={codi}` |
+| Posiciones (WFS ICV) ✅ | `https://terramapas.icv.gva.es/0508_AVAMET?service=WFS&version=2.0.0&request=GetFeature&typeNames=AVAMET.Estaciones&outputFormat=geojson` → 598 estaciones (solo metadatos, sin valores) |
+| Formato | HTML (scraping). GeoJSON en tiempo real anunciado en datos.gob.es pero URL rota ❓ |
+| Estaciones de interés | Paiporta `c16m186e02`; Catarroja `c16m094e05`; Torrent `c16m244e03`, `c16m244e01`; Chiva `c18m111e01`, `c18m111e03`, `c18m111e04`; Turís `c20m248e02` |
+| Interés | Única red densa en l'Horta Sud y cabecera del Poyo; el 29‑10‑2024 registró >500 mm en Chiva/Cheste/Buñol/Godelleta |
+| Prioridad | Fase 4 (scraping frágil) |

@@ -1,0 +1,17 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.idea/
+.vscode/
+__pycache__/
+*.pyc
+.venv/
+infra/data/
+infra/secrets/*
+!infra/secrets/.gitignore
