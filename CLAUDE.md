@@ -21,14 +21,15 @@ Albal es la localización principal (el semáforo se calibra primero ahí). El M
 - **Fase 5 implementada** (25‑08‑2026) según `openspec/changes/collector-meteoalarm/`: collector de Meteoalarm, que da los avisos de AEMET **sin clave** y cierra la cuarta señal del semáforo. Traduce `EMMA_ID`→zona AEMET (mapa de 128 zonas verificado) y `awareness_type`/`awareness_level` al vocabulario de AEMET; los duplicados entre fuentes se resuelven al leer, prefiriendo AEMET.
 - **Deuda conocida** (ver final de `openspec/specs/collector-aemet/spec.md`): faltan la `AEMET_API_KEY` real en Dokploy y las fixtures reales de AEMET (`46007`, `46054`, `46235`, `46051` y tar CAP del área `77`). Todo lo demás está verificado contra las fuentes reales.
 - **Fase 4 implementada** (25‑08‑2026) según `openspec/changes/notificaciones-riesgo/`: el cálculo del riesgo vive en `packages/shared` (`evaluateRisk`) para que scheduler y API no diverjan; tablas `risk_state` y `risk_events`; job `risk` cada 5 min con histéresis asimétrica; notificación por ntfy opcional; `GET /api/v1/risk/history`. Verificado con una crecida simulada de extremo a extremo. Pendiente: desplegar y archivar.
-- Siguiente incremento previsto: frontend (Next.js + MapLibre) y calibración de umbrales con episodios reales.
+- **Fase 6 implementada** (25‑08‑2026) según `openspec/changes/frontend-web/`: paquete `web/` con Next.js 16 y React 19. Tres pantallas: semáforo con su desglose e histórico, mapa MapLibre con los 70 sensores coloreados por umbral, y comparativa entre modelos en SVG propio. El navegador **no habla con la API**: las páginas son Server Components y solo `web` necesita dominio.
+- Siguiente incremento previsto: calibración de umbrales con episodios reales, radar de AEMET en el mapa (necesita clave) y WebSocket para el semáforo en vivo.
 
 ## Estructura del monorepo
 
 ```
 collectors/   Un paquete por fuente (aemet, open-meteo, saih, meteoalarm…). Cron cada 5–15 min. Desacoplados: uno puede fallar sin afectar al resto.
 api/          REST. Calcula umbrales y semáforo de riesgo en servidor (el cálculo vive en packages/shared para que el scheduler notifique exactamente lo mismo).
-web/          Frontend (Mapa, Comparativa, Alertas). No existe todavía.
+web/          Frontend Next.js 16 (App Router): semáforo, mapa y comparativa. Consume la API desde el servidor.
 db/           Migraciones SQL de Postgres + TimescaleDB, seeds (estaciones, umbrales).
 docs/         Documentación técnica en español. Contexto para sesiones futuras.
 infra/        docker-compose, Dockerfiles, config de cron, CI.
@@ -86,7 +87,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - **Zona horaria**: todo en UTC en base de datos; convertir a `Europe/Madrid` solo al presentar.
 - **SQL crudo con Drizzle (`sql\`…\``)**: pasar fechas como `${d.toISOString()}::timestamptz`, nunca objetos `Date` (el cliente `postgres` va con `fetch_types: false` y no los serializa). Las tablas de filas de `db.execute<T>` deben ser `type`, no `interface`.
 - **NestJS + Vitest**: esbuild no emite metadatos de decoradores; usar `@Inject(Token)` explícito y `ValidationPipe({ expectedType })` en lugar de confiar en el tipo del parámetro.
-- **Docker**: imágenes ligeras e **independientes por servicio** (cada target solo lleva su paquete). Compatible con **Dokploy**: sin redes explícitas (Dokploy gestiona la red al asignar dominio), sin `container_name`, `api` con `expose` (dominio por UI), variables `${VAR}`. `collectors` un solo contenedor (cuota AEMET). Nuevos servicios = nuevo target en el Dockerfile + nueva Application.
+- **Docker**: imágenes ligeras e **independientes por servicio** (targets `api`, `collectors` y `web`; cada uno solo lleva su paquete). Compatible con **Dokploy**: sin redes explícitas (Dokploy gestiona la red al asignar dominio), sin `container_name`, `api` con `expose` (dominio por UI), variables `${VAR}`. `collectors` un solo contenedor (cuota AEMET). Nuevos servicios = nuevo target en el Dockerfile + nueva Application.
 - **Errores en collectors**: nunca lanzar excepciones no controladas fuera del collector; registrar fallo en `source_status` y continuar. Si un ciclo escribe datos pero pierde parte de la fuente (p. ej. un sensor SAIH caído), devolver `warning` en el `RunResult`: se registra en `last_error` conservando el éxito.
 
 ## Stack (decidido el 25‑08‑2026)
@@ -97,7 +98,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - Collectors: proceso scheduler con `node-cron`, un job por fuente aislado.
 - Tests: **Vitest** con fixtures reales; integración contra TimescaleDB en CI (GitHub Actions).
 - Docker: **una imagen por servicio** (`infra/Dockerfile` targets `api` y `collectors`, podadas con `pnpm deploy`). **Producción en Dokploy** como una *Application* por servicio (Dockerfile + Build Stage) más la DB aparte; compose solo como alternativa/desarrollo. Cada servicio aplica migraciones al arrancar. Sin registro de imágenes.
-- Frontend (futuro): Next.js + MapLibre.
+- Frontend: **Next.js 16 (App Router) + React 19 + MapLibre**, `output: standalone`. Sin framework de CSS ni librería de gráficos: CSS con variables y SVG propio.
 
 ## Comandos útiles
 
@@ -115,7 +116,8 @@ pnpm --filter @talaia/collector-saih run-once                   # sin clave; SAI
 pnpm --filter @talaia/collector-meteoalarm run-once             # avisos oficiales sin clave
 pnpm --filter @talaia/scheduler risk-once                       # fuerza una evaluación del semáforo
 pnpm --filter @talaia/api dev        # API en :3000 con recarga
+API_URL=http://127.0.0.1:3000 pnpm --filter @talaia/web dev   # frontend en :3001
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build  # stack completo local
 ```
 
-Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,saih,meteoalarm,scheduler}`, `api` (NestJS/Fastify). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.
+Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,saih,meteoalarm,scheduler}`, `api` (NestJS/Fastify), `web` (Next.js). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.

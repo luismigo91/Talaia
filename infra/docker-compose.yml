@@ -10,7 +10,8 @@
 #   SAIH_INTERVAL_MIN, SAIH_BACKFILL_HOURS, LOG_LEVEL
 #
 # api y collectors aplican las migraciones al arrancar (idempotente, con advisory lock).
-# Dominio: asignarlo en Dokploy al servicio `api`, puerto 3000. Sin redes explícitas (Dokploy
+# Dominio: asignarlo en Dokploy al servicio `web`, puerto 3001 (la API queda interna: el
+# navegador nunca habla con ella, el frontend la consulta desde el servidor). Sin redes explícitas (Dokploy
 # conecta Traefik al asignar el dominio).
 
 # Dokploy escribe el .env de la UI JUNTO a este fichero (infra/.env) si la opción
@@ -73,6 +74,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+      target: web
+    env_file: *env-file
+    environment:
+      API_URL: http://api:3000
+      TZ: UTC
+    expose:
+      - "3001"
+    restart: unless-stopped
+    depends_on:
+      - api
 
 volumes:
   talaia-db:

@@ -3,6 +3,7 @@
 #
 #   docker build -f infra/Dockerfile --target api        -t talaia-api .
 #   docker build -f infra/Dockerfile --target collectors -t talaia-collectors .
+#   docker build -f infra/Dockerfile --target web        -t talaia-web .
 
 FROM node:22-alpine AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH CI=1
@@ -20,11 +21,13 @@ COPY collectors/saih/package.json collectors/saih/
 COPY collectors/meteoalarm/package.json collectors/meteoalarm/
 COPY collectors/scheduler/package.json collectors/scheduler/
 COPY api/package.json api/
+COPY web/package.json web/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY packages packages
 COPY db db
 COPY collectors collectors
 COPY api api
+COPY web web
 RUN pnpm -r --workspace-concurrency=1 run build
 
 # ---- deploy: un árbol podado por servicio (solo prod deps + dist de sus paquetes)
@@ -33,6 +36,10 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm --filter @talaia/api depl
 
 FROM build AS deploy-collectors
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm --filter @talaia/scheduler deploy --prod --legacy /out
+
+# ---- web: Next.js en modo standalone (trae solo las dependencias que usa en ejecución)
+FROM build AS build-web
+RUN pnpm --filter @talaia/web run build
 
 # ---- runtime común
 FROM node:22-alpine AS runtime
@@ -48,6 +55,15 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3000/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "dist/main.js"]
+
+FROM runtime AS web
+COPY --from=build-web --chown=talaia:talaia /app/web/.next/standalone /app
+COPY --from=build-web --chown=talaia:talaia /app/web/.next/static /app/web/.next/static
+ENV PORT=3001 HOSTNAME=0.0.0.0
+EXPOSE 3001
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3001/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "web/server.js"]
 
 FROM runtime AS collectors
 COPY --from=deploy-collectors --chown=talaia:talaia /out /app

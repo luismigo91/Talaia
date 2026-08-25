@@ -181,11 +181,22 @@ alerts (
 - WebSocket `/ws` para empujar nuevos datos y cambios de semáforo (pendiente; hoy la vía de aviso es ntfy).
 - Umbrales de lluvia configurables en la tabla `thresholds`, evaluados en servidor. Los de caudal vienen de la CHJ en `sensors`.
 
-## 5. Frontend (fases posteriores)
+## 5. Frontend (implementado el 25‑08‑2026)
 
-- **Mapa** (MapLibre): radar AEMET (tiles o imagen georreferenciada), sensores SAIH, polígonos Meteoalarm.
-- **Comparativa**: gráfico de líneas (una serie por fuente) + tabla "quién dice qué para las próximas 24 h".
-- **Alertas**: semáforo (lluvia prevista × nivel de barranco × aviso vigente) + notificaciones push (Web Push / ntfy).
+Paquete `web/`: Next.js 16 (App Router) + React 19 + MapLibre, con `output: "standalone"`.
+
+- **Semáforo** (`/`): una tarjeta por localización con su nivel, el desglose que lo justifica, los avisos vigentes y las advertencias de frescura, ordenadas de mayor a menor riesgo. Debajo, las últimas transiciones de nivel.
+- **Mapa** (`/mapa`): las cuatro localizaciones y los sensores del catálogo, coloreados por su nivel de umbral, con su último valor al pulsarlos.
+- **Comparativa** (`/comparativa`): una serie por fuente en SVG propio, con la hora de emisión de cada corrida y el resumen entre fuentes. La selección va en la URL.
+
+Decisiones que conviene no deshacer sin motivo:
+
+- **El navegador nunca habla con la API**. Las páginas son Server Components que consultan `API_URL` (interna) con los datos cacheados 60 s. Así solo `web` necesita dominio en Dokploy, no hay CORS y la API no queda expuesta.
+- **El nivel se lee en texto, no solo por color**: un semáforo que solo distingue por color es inservible para quien no distingue rojo y verde.
+- **Sin framework de CSS ni librería de gráficos**: variables CSS y SVG a medida. Una comparativa de líneas no justifica arrastrar un árbol de dependencias.
+- El estilo del mapa (teselas de OpenStreetMap) se define en el propio código: sin clave ni servicio de terceros que pueda caerse. `NEXT_PUBLIC_MAP_STYLE` lo sobrescribe.
+
+Pendiente: radar de AEMET sobre el mapa (necesita la clave) y WebSocket para empujar cambios de nivel; hoy la vía de aviso inmediato es ntfy.
 
 ## 6. Despliegue
 
@@ -196,7 +207,7 @@ Desarrollo local con el mismo compose más `docker-compose.override.yml`. Servic
 - `db`: `timescale/timescaledb:latest-pg16` (incluye PostGIS en la variante `-ha`; alternativa: instalar `postgis` en la imagen). Volumen persistente.
 - `collectors`: imagen Node alpine con scheduler interno.
 - `api`: imagen Node alpine.
-- `web` (futuro): Next.js standalone o estático servido por Caddy.
+- `web`: Next.js en modo standalone (target `web`). Es el único servicio con dominio.
 
 Configuración por variables de entorno (`.env` en desarrollo; UI de Dokploy en producción).
 
