@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { NestFastifyApplication } from "@nestjs/platform-fastify";
 import { createDb, upsertForecasts, type ForecastRow } from "@talaia/shared";
-import { migrate } from "../../db/src/migrate.js";
-import { resetDatabase } from "../../db/src/testing.js";
+import { migrate } from "@talaia/db";
+import { resetDatabase } from "@talaia/db/testing";
 import { createApp } from "../src/app.js";
 
 const URL_ = process.env.DATABASE_URL ?? "postgres://talaia:talaia@localhost:5433/talaia";

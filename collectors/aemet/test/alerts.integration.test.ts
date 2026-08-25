@@ -5,8 +5,8 @@ import { createDb } from "@talaia/shared";
 import { AemetClient } from "../src/client.js";
 import { collectAlerts, collectForecast, forecastSource, upsertAlerts } from "../src/run.js";
 import { extractXmlFromTarGz, parseCap } from "../src/cap.js";
-import { migrate } from "../../../db/src/migrate.js";
-import { resetDatabase } from "../../../db/src/testing.js";
+import { migrate } from "@talaia/db";
+import { resetDatabase } from "@talaia/db/testing";
 
 const URL_ = process.env.DATABASE_URL ?? "postgres://talaia:talaia@localhost:5433/talaia";
 const fx = (f: string) => new URL(`../fixtures/${f}`, import.meta.url);

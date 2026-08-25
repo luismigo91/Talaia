@@ -2,24 +2,24 @@
 
 ## ADDED Requirements
 
-### Requirement: Despliegue en Dokploy
-`infra/docker-compose.yml` DEBE ser desplegable como servicio *Compose* de Dokploy en modo Docker Compose, construyendo las imágenes desde el repo, con todos los servicios en la red externa `dokploy-network`, sin `container_name`, `api` con `expose` (no `ports`), y las variables sensibles (`AEMET_API_KEY`, `POSTGRES_PASSWORD`) leídas de `${VAR}` definidas en la UI de Dokploy.
+### Requirement: Imagen independiente por servicio
+`infra/Dockerfile` DEBE exponer un target por servicio (`api`, `collectors`) que produzca una imagen con solo ese paquete y sus dependencias de producción, construible y desplegable por separado (Application de Dokploy con *Docker Build Stage*), y `api` y `collectors` DEBEN aplicar las migraciones al arrancar de forma idempotente y concurrente-segura.
 
-#### Scenario: Despliegue en limpio
-- **Dado** un servicio Compose en Dokploy apuntando al repo con las variables `AEMET_API_KEY`, `POSTGRES_PASSWORD` y `POSTGRES_USER/DB` definidas y un dominio asignado a `api:3000`
-- **Cuando** se lanza *Deploy*
-- **Entonces** en < 5 min (incluida la construcción) `GET https://<dominio>/api/v1/health` devuelve `ok:true`, `migrate` termina con exit 0, `/status` muestra `open-meteo` con `last_success_at` no nulo y `/compare?station=virtual:benetusser` devuelve series.
+#### Scenario: Builds independientes
+- **Cuando** se ejecuta `docker build --target api` y `docker build --target collectors`
+- **Entonces** se obtienen dos imágenes distintas, ninguna contiene el código del otro servicio, y cada una arranca con `node dist/main.js`.
 
-#### Scenario: Orden de arranque
-- **Dado** que la DB tarda en aceptar conexiones
-- **Entonces** `migrate` espera a `db` sana (`depends_on: service_healthy`), y `api`/`collectors` a que `migrate` complete; además, si la DB se reinicia, `api` y `collectors` reconectan sin intervención.
+#### Scenario: Arranque simultáneo contra una DB vacía
+- **Dado** `api` y `collectors` arrancando a la vez contra una DB recién creada
+- **Entonces** ambos terminan con las migraciones aplicadas una sola vez, sin error, y `/api/v1/health` devuelve `ok:true`.
 
-#### Scenario: Persistencia entre despliegues
-- **Cuando** se redespliega tras un push
-- **Entonces** los datos de la DB persisten (volumen `../files/db` o con nombre) y no se pierden las series.
+#### Scenario: Despliegue en Dokploy
+- **Dado** una Application por servicio con `DATABASE_URL` (y `AEMET_API_KEY` en `collectors`) y un dominio en `api:3000`
+- **Cuando** se lanza *Deploy* de cada una
+- **Entonces** `GET https://<dominio>/api/v1/health` devuelve `ok:true`, `/status` muestra `open-meteo` con `last_success_at` no nulo y `/compare?station=virtual:benetusser` devuelve series.
 
 ### Requirement: Desarrollo local con Compose
-`docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up` DEBE levantar el mismo conjunto en local con `.env` y puertos publicados.
+`docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up` DEBE levantar `db`, `api` y `collectors` en local construyendo los mismos targets, con `.env` y puertos publicados.
 
 #### Scenario: Arranque en local
 - **Dado** un `.env` válido con `AEMET_API_KEY`

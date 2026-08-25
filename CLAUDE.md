@@ -81,7 +81,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - **Zona horaria**: todo en UTC en base de datos; convertir a `Europe/Madrid` solo al presentar.
 - **SQL crudo con Drizzle (`sql\`…\``)**: pasar fechas como `${d.toISOString()}::timestamptz`, nunca objetos `Date` (el cliente `postgres` va con `fetch_types: false` y no los serializa). Las tablas de filas de `db.execute<T>` deben ser `type`, no `interface`.
 - **NestJS + Vitest**: esbuild no emite metadatos de decoradores; usar `@Inject(Token)` explícito y `ValidationPipe({ expectedType })` en lugar de confiar en el tipo del parámetro.
-- **Docker**: imágenes ligeras (alpine/slim, multi-stage). Compose compatible con **Dokploy**: red externa `dokploy-network`, sin `container_name`, `api` con `expose` (dominio por UI), variables referenciadas como `${VAR}`, volumen `../files/db`. `collectors` un solo contenedor (cuota AEMET). Override para desarrollo local.
+- **Docker**: imágenes ligeras e **independientes por servicio** (cada target solo lleva su paquete). Compatible con **Dokploy**: red `dokploy-network`, sin `container_name`, `api` con `expose` (dominio por UI), variables `${VAR}`. `collectors` un solo contenedor (cuota AEMET). Nuevos servicios = nuevo target en el Dockerfile + nueva Application.
 - **Errores en collectors**: nunca lanzar excepciones no controladas fuera del collector; registrar fallo en `source_status` y continuar.
 
 ## Stack (decidido el 25‑08‑2026)
@@ -91,7 +91,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - DB: **Postgres 16 + TimescaleDB + PostGIS** (`timescale/timescaledb-ha:pg16`). Acceso con **Drizzle ORM**; hypertables, políticas y PostGIS en migraciones SQL manuales.
 - Collectors: proceso scheduler con `node-cron`, un job por fuente aislado.
 - Tests: **Vitest** con fixtures reales; integración contra TimescaleDB en CI (GitHub Actions).
-- Docker multi-stage `node:22-alpine`. **Producción en Dokploy** (homelab) como servicio *Compose* que construye desde el repo (`infra/docker-compose.yml`), con auto-deploy en push a `main`. Sin registro de imágenes.
+- Docker: **una imagen por servicio** (`infra/Dockerfile` targets `api` y `collectors`, podadas con `pnpm deploy`). **Producción en Dokploy** como una *Application* por servicio (Dockerfile + Build Stage) más la DB aparte; compose solo como alternativa/desarrollo. Cada servicio aplica migraciones al arrancar. Sin registro de imágenes.
 - Frontend (futuro): Next.js + MapLibre.
 
 ## Comandos útiles

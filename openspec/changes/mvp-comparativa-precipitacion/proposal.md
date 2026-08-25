@@ -37,7 +37,7 @@ Antes de construir mapa, semáforo o integrar el SAIH, necesitamos el "esqueleto
 | 3 | Acceso a DB | **Drizzle ORM** para tablas y queries; hypertables, políticas y PostGIS en SQL crudo dentro de las migraciones |
 | 4 | Ejecución de collectors | **`node-cron` interno** (o `@nestjs/schedule`) en el contenedor `collectors`, con aislamiento por job |
 | 5 | Clave AEMET | **Variable de entorno `AEMET_API_KEY`** definida en la UI de Dokploy (no soporta Docker secrets); en local, `.env`. Se mantiene `AEMET_API_KEY_FILE` como opción. Tests sin clave |
-| 10 | Despliegue | **Dokploy** en el homelab: servicio Compose que construye desde el repo (`infra/docker-compose.yml`), auto-deploy en push a `main`, dominio por UI. Sin registro de imágenes |
+| 10 | Despliegue | **Dokploy**, **un servicio por componente** (Application con Dockerfile + target `api` / `collectors`, imágenes independientes podadas con `pnpm deploy`; DB aparte). Migraciones al arrancar en cada servicio. Compose disponible como alternativa. Sin registro de imágenes |
 | 6 | Ventana de comparativa | **24 h móviles** desde la hora actual truncada; parámetro `hours` (1–48) |
 | 7 | Modelos Open-Meteo | **Los 6 verificados**, sin `best_match` |
 | 8 | Nombre | **Talaia** |

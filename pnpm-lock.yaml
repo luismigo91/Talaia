@@ -44,6 +44,9 @@ importers:
       '@nestjs/platform-fastify':
         specifier: ^11.1.0
         version: 11.2.1(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(@nestjs/core@11.2.1(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@7.2.0))(reflect-metadata@0.2.2)(rxjs@7.8.2))
+      '@talaia/db':
+        specifier: workspace:*
+        version: link:../db
       '@talaia/shared':
         specifier: workspace:*
         version: link:../packages/shared
@@ -106,6 +109,9 @@ importers:
       '@talaia/collector-open-meteo':
         specifier: workspace:*
         version: link:../open-meteo
+      '@talaia/db':
+        specifier: workspace:*
+        version: link:../../db
       '@talaia/shared':
         specifier: workspace:*
         version: link:../../packages/shared

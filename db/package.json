@@ -16,5 +16,21 @@
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.0"
-  }
+  },
+  "main": "./dist/migrate.js",
+  "types": "./dist/migrate.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/migrate.d.ts",
+      "default": "./dist/migrate.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "default": "./dist/testing.js"
+    }
+  },
+  "files": [
+    "dist",
+    "migrations"
+  ]
 }

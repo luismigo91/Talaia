@@ -1,5 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import cron from "node-cron";
+import { migrate } from "@talaia/db";
 import { createDb, logger, waitForDb, type Db } from "@talaia/shared";
 import { run as runOpenMeteo } from "@talaia/collector-open-meteo";
 import {
@@ -53,6 +54,10 @@ const jobs: Job[] = [
 ];
 
 async function main() {
+  if (process.env.RUN_MIGRATIONS !== "false") {
+    const applied = await migrate();
+    logger.info({ applied: applied.length }, "migraciones al día");
+  }
   const { db, sql } = createDb();
   await waitForDb(sql);
   logger.info({ jobs: jobs.map((j) => `${j.name}@${j.intervalMin}m`) }, "scheduler arrancado");

@@ -3,6 +3,8 @@ import { defineConfig } from "vitest/config";
 
 const alias = {
   "@talaia/shared": fileURLToPath(new URL("./packages/shared/src/index.ts", import.meta.url)),
+  "@talaia/db/testing": fileURLToPath(new URL("./db/src/testing.ts", import.meta.url)),
+  "@talaia/db": fileURLToPath(new URL("./db/src/migrate.ts", import.meta.url)),
   "@talaia/collector-aemet": fileURLToPath(
     new URL("./collectors/aemet/src/index.ts", import.meta.url),
   ),

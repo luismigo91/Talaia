@@ -12,9 +12,9 @@ collectors/scheduler/     proceso largo: node-cron → ejecuta run() de cada col
 api/                      NestJS (adaptador Fastify): módulos health, status, stations, compare
 db/migrations/            migraciones SQL generadas por drizzle-kit + SQL manual (extensiones, hypertables, políticas, seeds)
 db/migrate.ts             aplica migraciones pendientes (drizzle-orm/migrator)
-infra/docker-compose.yml  compose único (Dokploy lo despliega en modo Docker Compose): db, migrate, collectors, api
+infra/docker-compose.yml  compose (targets api y collectors + db); alternativa a las Applications individuales
 infra/docker-compose.override.yml  extras de desarrollo local (puertos publicados, watch)
-infra/Dockerfile.node     multi-stage, node:22-alpine, un target por servicio
+infra/Dockerfile          multi-stage, node:22-alpine, un target podado por servicio (pnpm deploy)
 ```
 
 ## Esquema de base de datos (SQL definitivo del MVP)
@@ -207,21 +207,16 @@ Respuesta:
 
 Series sin datos en la ventana se omiten; `summary` se calcula en servidor.
 
-## Despliegue en Dokploy
+## Despliegue en Dokploy (un servicio por componente)
 
-Producción = servicio de tipo **Compose** en Dokploy (homelab), en modo *Docker Compose* (no *Stack*, que no permite `build`), apuntando al repo Git y al fichero `infra/docker-compose.yml`. Dokploy clona el repo y construye las imágenes en el servidor en cada despliegue (auto-deploy por push a `main` vía webhook/GitHub App): **no hace falta registro de imágenes**.
+Cada componente tiene su **propia imagen** (target del `infra/Dockerfile`: `api`, `collectors`), podada con `pnpm deploy` a su paquete y dependencias de producción, y se construye y despliega **de forma independiente** como *Application* de Dokploy (Build Type Dockerfile + *Docker Build Stage*), con auto-deploy por push. La base de datos es un servicio aparte (Compose solo con `db`, o Database de Dokploy con imagen `timescale/timescaledb-ha:pg16`). Alternativa: un único servicio Compose con `infra/docker-compose.yml`, que construye los mismos targets.
 
-- **Un solo compose** para desarrollo y producción, con las diferencias controladas por variables: `infra/docker-compose.yml` + `infra/docker-compose.override.yml` para desarrollo local (puertos publicados, hot reload). Dokploy usa solo el fichero base.
-- **Variables de entorno**: se definen en la UI de Dokploy (pestaña *Environment*); Dokploy las escribe en un `.env` junto al compose y hay que **referenciarlas explícitamente** (`environment: AEMET_API_KEY: ${AEMET_API_KEY}` o `env_file: [.env]`), porque no se inyectan solas.
-- **Clave AEMET y contraseña de Postgres**: Dokploy no gestiona Docker secrets → van como **variables de entorno** (`AEMET_API_KEY`, `POSTGRES_PASSWORD`) en la UI. El código mantiene el soporte `AEMET_API_KEY_FILE` como opción, pero el camino por defecto es la variable.
-- **Red**: red externa `dokploy-network` en todos los servicios (`networks: {dokploy-network: {external: true}}`) para que Traefik llegue a `api`. No usar `container_name` (rompe logs/métricas de Dokploy).
-- **Dominio**: se asigna en la UI (*Domains* → servicio `api`, puerto 3000); Dokploy añade las labels de Traefik. En el compose `api` usa `expose: ["3000"]`, **no** `ports`.
-- **DB**: TimescaleDB dentro del compose (el Postgres gestionado de Dokploy no trae la extensión `timescaledb`). Volumen bind `../files/db:/home/postgres/pgdata/data` (convención de Dokploy para persistencia y backups) o volumen con nombre si se quiere backup a S3 desde la UI.
-- **Orden de arranque**: en modo Compose sí funciona `depends_on: {db: {condition: service_healthy}}` con `healthcheck: pg_isready`. Se mantiene además la espera activa a la DB en el código (robustez ante reinicios).
-- **Migraciones**: servicio `migrate` con `restart: "no"` que termina con exit 0; `collectors` y `api` con `depends_on: {migrate: {condition: service_completed_successfully}}`.
-- **`collectors`**: un solo contenedor, `restart: unless-stopped`. Healthcheck por fichero de heartbeat.
-- **Logs**: stdout JSON (pino), visibles en la UI de Dokploy.
-- **Backups**: volumen con nombre `talaia-db` + backup programado a S3 desde Dokploy (opcional, fase posterior).
+- **Migraciones**: no hay servicio `migrate`; `api` y `collectors` ejecutan `migrate()` al arrancar (idempotente, advisory lock `7419`), desactivable con `RUN_MIGRATIONS=false`. Así cada servicio es autónomo y el orden de arranque es indiferente.
+- **Variables**: por la UI de Dokploy (`DATABASE_URL`, `AEMET_API_KEY`, intervalos). Sin Docker secrets.
+- **Red**: `dokploy-network`; `api` con `expose 3000` y dominio por UI; sin `container_name`.
+- **DB**: volumen persistente (`../files/db` en Compose, o el gestionado por Dokploy).
+- **`collectors`**: siempre una réplica (cuota de AEMET). Healthcheck por heartbeat en la imagen; `api` con healthcheck `/api/v1/health`.
+- Detalle operativo en `infra/README.md`.
 
 ## Tests
 
