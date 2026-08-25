@@ -1,0 +1,106 @@
+# Compose único de Talaia. En producción lo despliega Dokploy (servicio Compose, modo Docker Compose)
+# construyendo desde el repo; en desarrollo se combina con docker-compose.override.yml.
+#
+# Variables (en la UI de Dokploy → Environment, o en .env en local):
+#   POSTGRES_PASSWORD (obligatoria), AEMET_API_KEY (obligatoria para AEMET),
+#   POSTGRES_USER, POSTGRES_DB, OPEN_METEO_INTERVAL_MIN, AEMET_FORECAST_INTERVAL_MIN,
+#   AEMET_ALERTS_INTERVAL_MIN, LOG_LEVEL
+#
+# Dominio: asignarlo en Dokploy al servicio `api`, puerto 3000 (no se publican puertos aquí).
+
+x-app: &app
+  build:
+    context: ..
+    dockerfile: infra/Dockerfile
+  environment: &app-env
+    DATABASE_URL: postgres://${POSTGRES_USER:-talaia}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-talaia}
+    LOG_LEVEL: ${LOG_LEVEL:-info}
+    TZ: UTC
+  networks:
+    - dokploy-network
+
+services:
+  db:
+    image: timescale/timescaledb-ha:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-talaia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-talaia}
+    volumes:
+      - ../files/db:/home/postgres/pgdata/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-talaia} -d ${POSTGRES_DB:-talaia}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+
+  migrate:
+    <<: *app
+    command: ["node", "db/dist/migrate.js"]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  collectors:
+    <<: *app
+    command: ["node", "collectors/scheduler/dist/main.js"]
+    environment:
+      <<: *app-env
+      AEMET_API_KEY: ${AEMET_API_KEY:-}
+      OPEN_METEO_INTERVAL_MIN: ${OPEN_METEO_INTERVAL_MIN:-30}
+      AEMET_FORECAST_INTERVAL_MIN: ${AEMET_FORECAST_INTERVAL_MIN:-30}
+      AEMET_ALERTS_INTERVAL_MIN: ${AEMET_ALERTS_INTERVAL_MIN:-10}
+      HEARTBEAT_FILE: /tmp/talaia-heartbeat
+    healthcheck:
+      # sano si el scheduler ha completado algún ciclo en las últimas 2 h
+      test:
+        [
+          "CMD-SHELL",
+          "test -f /tmp/talaia-heartbeat && test $(( $(date +%s) - $(stat -c %Y /tmp/talaia-heartbeat) )) -lt 7200",
+        ]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  api:
+    <<: *app
+    command: ["node", "api/dist/main.js"]
+    environment:
+      <<: *app-env
+      API_PORT: "3000"
+    expose:
+      - "3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+networks:
+  dokploy-network:
+    external: true

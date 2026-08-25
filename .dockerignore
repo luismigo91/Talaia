@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+.git
+docs
+openspec
+infra/files
+files
+.env
+*.md

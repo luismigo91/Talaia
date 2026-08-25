@@ -31,12 +31,13 @@
 - [x] Test de integración de `/compare` (última emisión, fuente sin datos, 400).
 
 ## 6. Infra y CI
-- [ ] `infra/Dockerfile.node` multi-stage (targets `api`, `collectors`, `migrate`).
-- [ ] `infra/docker-compose.yml` (compatible con Dokploy: `dokploy-network`, `expose`, `${VAR}`, volumen `../files/db`, healthchecks, `migrate` one-shot con `service_completed_successfully`), `docker-compose.override.yml` (local) y `docker-compose.test.yml`.
-- [ ] `infra/README.md`: alta del servicio Compose en Dokploy, variables a definir, dominio, auto-deploy.
+- [x] `infra/Dockerfile` multi-stage (imagen única; el comando se elige por servicio).
+- [x] `infra/docker-compose.yml` (compatible con Dokploy: `dokploy-network`, `expose`, `${VAR}`, volumen `../files/db`, healthchecks, `migrate` one-shot con `service_completed_successfully`), `docker-compose.override.yml` (local) y `docker-compose.test.yml`.
+- [x] `infra/README.md`: alta del servicio Compose en Dokploy, variables a definir, dominio, auto-deploy.
 - [x] `.github/workflows/ci.yml` (tests).
-- [ ] Prueba de humo: `docker compose up` en local y *Deploy* en Dokploy → `/status` y `/compare` con datos reales.
+- [x] Prueba de humo: `docker compose up` en local → `/status` y `/compare` con datos reales.
+- [ ] Prueba de humo: *Deploy* en Dokploy con dominio y clave de AEMET reales.
 
 ## 7. Cierre
-- [ ] Actualizar `CLAUDE.md` (comandos, estado) y `docs/`.
+- [x] Actualizar `CLAUDE.md` (comandos, estado) y `docs/`.
 - [ ] Archivar el cambio en `openspec/changes/archive/` y fusionar en `openspec/specs/`.

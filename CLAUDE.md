@@ -17,8 +17,8 @@ Albal es la localización principal (el semáforo se calibra primero ahí). El M
 
 ## Estado actual
 
-- **Fase**: spec del MVP **validada** el 25‑08‑2026 (`openspec/changes/mvp-comparativa-precipitacion/`). Siguiente paso: implementar siguiendo `tasks.md`, empezando por la base del monorepo y el collector de Open-Meteo.
-- Repo casi vacío: solo estructura de carpetas y documentación.
+- **MVP implementado** (25‑08‑2026) según `openspec/changes/mvp-comparativa-precipitacion/`: collectors de Open-Meteo y AEMET, TimescaleDB, API NestJS con `/compare`, compose para Dokploy. Pendiente en `tasks.md`: desplegar en Dokploy con clave real de AEMET y sustituir las fixtures de AEMET por capturas reales; después archivar el cambio en `openspec/specs/`.
+- Siguiente incremento previsto: collector SAIH Júcar (fase 2; sensores en `docs/cuencas.md`), luego Meteoalarm, semáforo y frontend.
 
 ## Estructura del monorepo
 
@@ -96,4 +96,18 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 
 ## Comandos útiles
 
-(Se rellenarán cuando exista código.)
+```bash
+pnpm install                         # dependencias (pnpm 11, Node 22)
+pnpm typecheck                       # build topológico + tsc en todos los paquetes
+pnpm lint && pnpm prettier --check . # calidad
+pnpm test                            # unitarios (Vitest, fixtures reales, sin red)
+docker compose -f infra/docker-compose.test.yml up -d --wait   # solo TimescaleDB en :5433
+pnpm test:integration                # integración (secuencial) contra esa DB
+pnpm db:migrate                      # aplica db/migrations (DATABASE_URL)
+pnpm --filter @talaia/collector-open-meteo run-once             # un ciclo del collector
+pnpm --filter @talaia/collector-aemet run-once                  # requiere AEMET_API_KEY
+pnpm --filter @talaia/api dev        # API en :3000 con recarga
+docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build  # stack completo local
+```
+
+Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,scheduler}`, `api` (NestJS/Fastify). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.
