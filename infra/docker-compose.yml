@@ -1,0 +1,72 @@
+# Compose de Talaia. Cada servicio se construye por separado (target de infra/Dockerfile) y puede
+# desplegarse individualmente en Dokploy (ver infra/README.md). En desarrollo se combina con
+# infra/docker-compose.override.yml.
+#
+# Variables: Dokploy escribe las de la UI en `.env` en la raíz del código; en local, `.env` en la
+# raíz del repo (copiar de .env.example). Se cargan con env_file (no con ${VAR}), así que las
+# rutas funcionan aunque el compose esté en infra/.
+#   POSTGRES_PASSWORD (OBLIGATORIA), AEMET_API_KEY (obligatoria para AEMET),
+#   OPEN_METEO_INTERVAL_MIN, AEMET_FORECAST_INTERVAL_MIN, AEMET_ALERTS_INTERVAL_MIN, LOG_LEVEL
+#
+# api y collectors aplican las migraciones al arrancar (idempotente, con advisory lock).
+# Dominio: asignarlo en Dokploy al servicio `api`, puerto 3000. Sin redes explícitas (Dokploy
+# conecta Traefik al asignar el dominio).
+
+x-env-file: &env-file
+  - path: ../.env
+    required: false
+
+services:
+  db:
+    image: timescale/timescaledb-ha:pg16
+    env_file: *env-file
+    environment:
+      POSTGRES_USER: talaia
+      POSTGRES_DB: talaia
+    volumes:
+      - talaia-db:/home/postgres/pgdata/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U talaia -d talaia"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+      target: api
+    env_file: *env-file
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_USER: talaia
+      POSTGRES_DB: talaia
+      API_PORT: "3000"
+      TZ: UTC
+    expose:
+      - "3000"
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+
+  collectors:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+      target: collectors
+    env_file: *env-file
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_USER: talaia
+      POSTGRES_DB: talaia
+      TZ: UTC
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  talaia-db:

@@ -14,10 +14,10 @@ Las migraciones son idempotentes y usan un advisory lock, así que da igual qué
 
 1. **Base de datos**: *Create Service → Compose* con solo `db` (o *Database → PostgreSQL* con imagen personalizada `timescale/timescaledb-ha:pg16`, si tu versión de Dokploy lo permite). Anota el nombre de host interno del contenedor de la DB (Dokploy lo muestra en la ficha del servicio).
 2. **api**: *Create Service → Application*, proveedor Git (este repo, rama `main`), *Build Type* **Dockerfile**, *Docker File* `infra/Dockerfile`, *Docker Build Stage* `api`, *Docker Context Path* `.`.
-   - Environment: `DATABASE_URL=postgres://talaia:<pass>@<host-db>:5432/talaia`, `LOG_LEVEL=info`.
+   - Environment: `POSTGRES_HOST=<host-db>`, `POSTGRES_PASSWORD=<pass>` (o `DATABASE_URL=postgres://talaia:<pass>@<host-db>:5432/talaia`), `LOG_LEVEL=info`.
    - Domains: puerto `3000`, HTTPS.
    - Auto Deploy activado.
-3. **collectors**: igual que `api` con *Docker Build Stage* `collectors`; Environment: `DATABASE_URL`, `AEMET_API_KEY`, intervalos opcionales (`OPEN_METEO_INTERVAL_MIN`, `AEMET_FORECAST_INTERVAL_MIN`, `AEMET_ALERTS_INTERVAL_MIN`). Sin dominio. **Una sola réplica** (cuota de AEMET).
+3. **collectors**: igual que `api` con *Docker Build Stage* `collectors`; Environment: `POSTGRES_HOST`, `POSTGRES_PASSWORD` (o `DATABASE_URL`), `AEMET_API_KEY`, intervalos opcionales (`OPEN_METEO_INTERVAL_MIN`, `AEMET_FORECAST_INTERVAL_MIN`, `AEMET_ALERTS_INTERVAL_MIN`). Sin dominio. **Una sola réplica** (cuota de AEMET).
 
 Cada Application se reconstruye y redespliega de forma independiente en cada push (Dokploy detecta cambios en todo el repo; si quieres limitar, usa *Watch Paths*: `api/**,packages/**,db/**` para `api` y `collectors/**,packages/**,db/**` para `collectors`).
 
