@@ -16,11 +16,12 @@
 - [x] `run()` con idempotencia por `forecast_ts` y `source_status`.
 
 ## 3. Collector AEMET
-- [ ] `AemetClient` (dos pasos, charset, limitador, 429, cuerpo vacío; clave desde `AEMET_API_KEY_FILE` o `AEMET_API_KEY`) + tests con servidor mock.
-- [ ] Capturar fixtures reales: horaria 46007, 46054, 46235 y 46051 (y un día de DST), tar CAP área 77 con avisos en 774602/774604 y sin avisos.
-- [ ] `parseHourly` + tests.
-- [ ] `parseCap` + tests (zona 774602, otra zona, sin aviso, upsert).
-- [ ] `run()` para `aemet:forecast` y `aemet:alerts` con caché por hash.
+- [x] `AemetClient` (dos pasos, charset, limitador, 429, cuerpo vacío; clave desde `AEMET_API_KEY_FILE` o `AEMET_API_KEY`) + tests con servidor mock.
+- [x] Fixtures: horaria real (fixture público de la API, municipio 28065) + derivada con día de DST; tar CAP construido según el Anexo 3 oficial (774602 amarillo, 774604 naranja, 774601, sin aviso).
+- [ ] Sustituir las fixtures por capturas reales de 46007/46054/46235/46051 y del tar CAP del área 77 cuando haya clave de AEMET.
+- [x] `parseHourly` + tests.
+- [x] `parseCap` + tests (zona 774602, otra zona, sin aviso, upsert).
+- [x] `run()` para `aemet:forecast` y `aemet:alerts` con caché por hash.
 
 ## 4. Scheduler
 - [x] Proceso con `node-cron`, aislamiento, timeout, ejecución inicial, logs.

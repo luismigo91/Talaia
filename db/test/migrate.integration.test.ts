@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createDb, latestForecastTs, loadVirtualStations, upsertForecasts } from "@talaia/shared";
 import { OpenMeteoClient, collect } from "@talaia/collector-open-meteo";
 import { migrate } from "../src/migrate.js";
+import { resetDatabase } from "../src/testing.js";
 
 const URL_ = process.env.DATABASE_URL ?? "postgres://talaia:talaia@localhost:5433/talaia";
 
@@ -13,7 +14,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
     const { db, sql: pg, close } = createDb(URL_, { max: 2 });
 
     beforeAll(async () => {
-      await pg.unsafe("drop schema public cascade; create schema public;");
+      await resetDatabase(pg);
       const applied = await migrate(URL_);
       expect(applied.length).toBe(5);
     });

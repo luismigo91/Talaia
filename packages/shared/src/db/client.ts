@@ -16,7 +16,7 @@ export function databaseUrl(): string {
 }
 
 export function createDb(url = databaseUrl(), opts: { max?: number } = {}) {
-  const sql = postgres(url, { max: opts.max ?? 5, onnotice: () => {} });
+  const sql = postgres(url, { max: opts.max ?? 5, onnotice: () => {}, fetch_types: false });
   const db = drizzle(sql, { schema });
   return { db, sql, close: () => sql.end({ timeout: 5 }) };
 }

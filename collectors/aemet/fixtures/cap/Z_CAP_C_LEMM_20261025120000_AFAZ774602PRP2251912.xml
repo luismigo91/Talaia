@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+  <identifier>2.49.0.0.724.0.ES.20261025120000.774602PRP2251912</identifier>
+  <sender>http://www.aemet.es</sender>
+  <sent>2026-10-25T12:00:00-00:00</sent>
+  <status>Actual</status>
+  <msgType>Alert</msgType>
+  <scope>Public</scope>
+  <info>
+    <language>es-ES</language>
+    <category>Met</category>
+    <event>Aviso de lluvias de nivel amarillo</event>
+    <responseType>Monitor</responseType>
+    <urgency>Immediate</urgency>
+    <severity>Moderate</severity>
+    <certainty>Likely</certainty>
+    <eventCode>
+      <valueName>AEMET-Meteoalerta fenomeno</valueName>
+      <value>PR;Lluvias</value>
+    </eventCode>
+    <effective>2026-10-25T12:00:00-00:00</effective>
+    <onset>2026-10-25T14:00:00+02:00</onset>
+    <expires>2026-10-25T23:59:59+02:00</expires>
+    <senderName>AEMET. Agencia Estatal de Meteorología</senderName>
+    <headline>Aviso de lluvias de nivel amarillo. Litoral norte de Valencia</headline>
+    <description>Precipitación acumulada en 12 horas: 60 mm. Tormentas con granizo.</description>
+    <instruction>Esté preparado.</instruction>
+    <web>http://www.aemet.es/es/eltiempo/prediccion/avisos</web>
+    <contact>AEMET</contact>
+    <parameter>
+      <valueName>AEMET-Meteoalerta nivel</valueName>
+      <value>amarillo</value>
+    </parameter>
+    <parameter>
+      <valueName>AEMET-Meteoalerta parametro</valueName>
+      <value>P2;Precipitación acumulada en 12 horas;60 mm</value>
+    </parameter>
+    <parameter>
+      <valueName>AEMET-Meteoalerta probabilidad</valueName>
+      <value>40%-70%</value>
+    </parameter>
+    <area>
+      <areaDesc>Litoral norte de Valencia</areaDesc>
+      <polygon>39.65,-0.55 39.65,-0.30 39.35,-0.30 39.35,-0.55 39.65,-0.55</polygon>
+      <geocode>
+        <valueName>AEMET-Meteoalerta zona</valueName>
+        <value>774602</value>
+      </geocode>
+    </area>
+  </info>
+  <info>
+    <language>en-GB</language>
+    <category>Met</category>
+    <event>Warning</event>
+    <responseType>Monitor</responseType>
+    <urgency>Immediate</urgency>
+    <severity>Moderate</severity>
+    <certainty>Likely</certainty>
+    <eventCode>
+      <valueName>AEMET-Meteoalerta fenomeno</valueName>
+      <value>PR;Lluvias</value>
+    </eventCode>
+    <effective>2026-10-25T12:00:00-00:00</effective>
+    <onset>2026-10-25T14:00:00+02:00</onset>
+    <expires>2026-10-25T23:59:59+02:00</expires>
+    <senderName>AEMET. Agencia Estatal de Meteorología</senderName>
+    <headline>Warning. Litoral norte de Valencia</headline>
+    <description>Precipitación acumulada en 12 horas: 60 mm. Tormentas con granizo.</description>
+    <instruction>Esté preparado.</instruction>
+    <web>http://www.aemet.es/es/eltiempo/prediccion/avisos</web>
+    <contact>AEMET</contact>
+    <parameter>
+      <valueName>AEMET-Meteoalerta nivel</valueName>
+      <value>amarillo</value>
+    </parameter>
+    <parameter>
+      <valueName>AEMET-Meteoalerta parametro</valueName>
+      <value>P2;Precipitación acumulada en 12 horas;60 mm</value>
+    </parameter>
+    <parameter>
+      <valueName>AEMET-Meteoalerta probabilidad</valueName>
+      <value>40%-70%</value>
+    </parameter>
+    <area>
+      <areaDesc>Litoral norte de Valencia</areaDesc>
+      <polygon>39.65,-0.55 39.65,-0.30 39.35,-0.30 39.35,-0.55 39.65,-0.55</polygon>
+      <geocode>
+        <valueName>AEMET-Meteoalerta zona</valueName>
+        <value>774602</value>
+      </geocode>
+    </area>
+  </info>
+</alert>

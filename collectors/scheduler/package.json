@@ -12,6 +12,7 @@
   "dependencies": {
     "@talaia/collector-open-meteo": "workspace:*",
     "@talaia/shared": "workspace:*",
-    "node-cron": "^4.2.0"
+    "node-cron": "^4.2.0",
+    "@talaia/collector-aemet": "workspace:*"
   }
 }

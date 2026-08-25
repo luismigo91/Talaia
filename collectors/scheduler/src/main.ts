@@ -2,6 +2,15 @@ import { writeFile } from "node:fs/promises";
 import cron from "node-cron";
 import { createDb, logger, waitForDb, type Db } from "@talaia/shared";
 import { run as runOpenMeteo } from "@talaia/collector-open-meteo";
+import {
+  run as runAemet,
+  AemetClient,
+  resolveApiKey,
+  runForecasts,
+  collectAlerts,
+  ALERTS_SOURCE,
+} from "@talaia/collector-aemet";
+import { runWithStatus } from "@talaia/shared";
 
 interface Job {
   name: string;
@@ -12,8 +21,35 @@ interface Job {
 const minutes = (env: string, def: number) => Math.max(1, Number(process.env[env] ?? def) || def);
 const HEARTBEAT = process.env.HEARTBEAT_FILE ?? "/tmp/talaia-heartbeat";
 
+/** Un único cliente AEMET por proceso: el limitador de cuota es compartido entre jobs. */
+let aemet: AemetClient | undefined;
+function aemetClient(): AemetClient | undefined {
+  if (!aemet && resolveApiKey()) aemet = new AemetClient();
+  return aemet;
+}
+
 const jobs: Job[] = [
   { name: "open-meteo", intervalMin: minutes("OPEN_METEO_INTERVAL_MIN", 30), fn: runOpenMeteo },
+  {
+    name: "aemet-forecast",
+    intervalMin: minutes("AEMET_FORECAST_INTERVAL_MIN", 30),
+    fn: async (db) => {
+      const c = aemetClient();
+      return c ? runForecasts(db, c) : runAemet(db); // sin clave: runAemet registra el error
+    },
+  },
+  {
+    name: "aemet-alerts",
+    intervalMin: minutes("AEMET_ALERTS_INTERVAL_MIN", 10),
+    fn: async (db) => {
+      const c = aemetClient();
+      if (!c)
+        return runWithStatus(db, ALERTS_SOURCE, () =>
+          Promise.reject(new Error("falta AEMET_API_KEY")),
+        );
+      return runWithStatus(db, ALERTS_SOURCE, () => collectAlerts(db, c, "77"));
+    },
+  },
 ];
 
 async function main() {

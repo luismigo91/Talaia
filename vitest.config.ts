@@ -3,6 +3,9 @@ import { defineConfig } from "vitest/config";
 
 const alias = {
   "@talaia/shared": fileURLToPath(new URL("./packages/shared/src/index.ts", import.meta.url)),
+  "@talaia/collector-aemet": fileURLToPath(
+    new URL("./collectors/aemet/src/index.ts", import.meta.url),
+  ),
   "@talaia/collector-open-meteo": fileURLToPath(
     new URL("./collectors/open-meteo/src/index.ts", import.meta.url),
   ),
@@ -11,6 +14,8 @@ const alias = {
 export default defineConfig({
   resolve: { alias },
   test: {
+    // Las suites de integración comparten una base de datos: nunca en paralelo.
+    fileParallelism: false,
     projects: [
       {
         resolve: { alias },
@@ -28,6 +33,7 @@ export default defineConfig({
           exclude: ["**/node_modules/**", "**/dist/**"],
           testTimeout: 60_000,
           hookTimeout: 120_000,
+          fileParallelism: false,
         },
       },
     ],
