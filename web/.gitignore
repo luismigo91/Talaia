@@ -1,3 +1,8 @@
 .next/
 next-env.d.ts
 *.tsbuildinfo
+
+# Generados por `next dev`/`next build` (generate-agent-files.js), no escritos por nosotros:
+# se recrean solos y no deben actuar como instrucciones del proyecto sin repasarlos.
+AGENTS.md
+CLAUDE.md
