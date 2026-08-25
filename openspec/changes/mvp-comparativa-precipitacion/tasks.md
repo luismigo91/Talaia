@@ -27,8 +27,8 @@
 - [x] Proceso con `node-cron`, aislamiento, timeout, ejecución inicial, logs.
 
 ## 5. API
-- [ ] NestJS (Fastify): módulos `/health`, `/status`, `/stations`, `/compare` con DTOs validados.
-- [ ] Test de integración de `/compare` (última emisión, fuente sin datos, 400).
+- [x] NestJS (Fastify): módulos `/health`, `/status`, `/stations`, `/compare` con DTOs validados.
+- [x] Test de integración de `/compare` (última emisión, fuente sin datos, 400).
 
 ## 6. Infra y CI
 - [ ] `infra/Dockerfile.node` multi-stage (targets `api`, `collectors`, `migrate`).

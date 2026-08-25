@@ -79,6 +79,8 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - **Tests**: cada collector con tests unitarios sobre fixtures reales guardadas en `collectors/<fuente>/fixtures/` (respuestas capturadas de la API, nunca llamar a la red en tests).
 - **Secretos**: nunca en el repo. `AEMET_API_KEY` y `POSTGRES_PASSWORD` como variables de entorno definidas en la UI de Dokploy (no soporta Docker secrets); en local, `.env` (ignorado) + `.env.example` documentado.
 - **Zona horaria**: todo en UTC en base de datos; convertir a `Europe/Madrid` solo al presentar.
+- **SQL crudo con Drizzle (`sql\`…\``)**: pasar fechas como `${d.toISOString()}::timestamptz`, nunca objetos `Date` (el cliente `postgres` va con `fetch_types: false` y no los serializa). Las tablas de filas de `db.execute<T>` deben ser `type`, no `interface`.
+- **NestJS + Vitest**: esbuild no emite metadatos de decoradores; usar `@Inject(Token)` explícito y `ValidationPipe({ expectedType })` en lugar de confiar en el tipo del parámetro.
 - **Docker**: imágenes ligeras (alpine/slim, multi-stage). Compose compatible con **Dokploy**: red externa `dokploy-network`, sin `container_name`, `api` con `expose` (dominio por UI), variables referenciadas como `${VAR}`, volumen `../files/db`. `collectors` un solo contenedor (cuota AEMET). Override para desarrollo local.
 - **Errores en collectors**: nunca lanzar excepciones no controladas fuera del collector; registrar fallo en `source_status` y continuar.
 
