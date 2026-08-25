@@ -5,7 +5,7 @@ export async function resetDatabase(sql: Sql, attempts = 5): Promise<void> {
   for (let i = 1; ; i++) {
     try {
       await sql.unsafe(`
-        drop table if exists alerts, raw_payloads, observations, forecasts, watch_points, thresholds, sensors, source_status, stations, sources, schema_migrations cascade;
+        drop table if exists alerts, raw_payloads, observations, forecasts, risk_events, risk_state, watch_points, thresholds, sensors, source_status, stations, sources, schema_migrations cascade;
       `);
       return;
     } catch (err) {
