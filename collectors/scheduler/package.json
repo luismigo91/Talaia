@@ -16,6 +16,7 @@
     "@talaia/shared": "workspace:*",
     "node-cron": "^4.2.0",
     "@talaia/collector-aemet": "workspace:*",
-    "@talaia/db": "workspace:*"
+    "@talaia/db": "workspace:*",
+    "@talaia/collector-meteoalarm": "workspace:*"
   }
 }

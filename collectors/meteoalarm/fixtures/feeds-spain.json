@@ -1,0 +1,707 @@
+{
+ "warnings": [
+  {
+   "alert": {
+    "identifier": "2.49.0.0.724.0.ES.260820093609.774602COCO201818569",
+    "incidents": "Update",
+    "info": [
+     {
+      "area": [
+       {
+        "areaDesc": "Costa - Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES864",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "description": "Viento de componente oeste de 45 a 60 km/h (fuerza 6 a 7) y rachas que podrían superar los 80 km/h.",
+      "effective": "2026-08-20T11:32:41+02:00",
+      "event": "Aviso de costeros de nivel amarillo",
+      "expires": "2026-08-20T19:59:59+02:00",
+      "headline": "Aviso de costeros de nivel amarillo. Costa - Litoral norte de Valencia",
+      "instruction": "Esté atento. Manténgase informado de la predicción meteorológica más actualizada. Se pueden producir daños moderados a personas y bienes, especialmente a aquellos vulnerables o en zonas expuestas al fenómeno.",
+      "language": "es-ES",
+      "onset": "2026-08-20T12:00:00+02:00",
+      "parameter": [
+       {
+        "value": "2; yellow; Moderate",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "7; coastalevent",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "Monitor"
+      ],
+      "senderName": "AEMET. Agencia Estatal de Meteorología",
+      "severity": "Moderate",
+      "urgency": "Expected",
+      "web": "https://www.aemet.es/es/eltiempo/prediccion/avisos"
+     },
+     {
+      "area": [
+       {
+        "areaDesc": "Costa - Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES864",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "description": "Viento de componente oeste de 45 a 60 km/h (fuerza 6 a 7) y rachas que podrían superar los 80 km/h.",
+      "effective": "2026-08-20T11:32:41+02:00",
+      "event": "Moderate coastalevent warning",
+      "expires": "2026-08-20T19:59:59+02:00",
+      "headline": "Moderate coastalevent warning. Costa - Litoral norte de Valencia",
+      "instruction": "Be aware, keep up to date with the latest weather forecast. Moderate damages to people and properties may occur, especially to those vulnerable or in exposed areas.",
+      "language": "en-GB",
+      "onset": "2026-08-20T12:00:00+02:00",
+      "parameter": [
+       {
+        "value": "2; yellow; Moderate",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "7; coastalevent",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "Monitor"
+      ],
+      "senderName": "AEMET. State Meteorological Agency",
+      "severity": "Moderate",
+      "urgency": "Expected",
+      "web": "https://www.aemet.es/en/eltiempo/prediccion/avisos"
+     }
+    ],
+    "msgType": "Update",
+    "references": "http://www.aemet.es,2.49.0.0.724.0.ES.260819092610.774602COCO201831570,2026-08-19T09:26:10+00:00",
+    "scope": "Public",
+    "sender": "http://www.aemet.es",
+    "sent": "2026-08-20T09:36:09+00:00",
+    "status": "Actual"
+   },
+   "uuid": "ca671673-2b62-4b13-a55c-c23e983a9d27"
+  },
+  {
+   "alert": {
+    "identifier": "2.49.0.0.724.0.ES.260822091208.774602PRP1230889928",
+    "incidents": "Alert",
+    "info": [
+     {
+      "area": [
+       {
+        "areaDesc": "Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES247",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "description": "Precipitación acumulada en una hora: 20 mm.",
+      "effective": "2026-08-22T11:09:47+02:00",
+      "event": "Aviso de lluvias de nivel amarillo",
+      "expires": "2026-08-23T09:59:59+02:00",
+      "headline": "Aviso de lluvias de nivel amarillo. Litoral norte de Valencia",
+      "instruction": "Esté atento. Manténgase informado de la predicción meteorológica más actualizada. Se pueden producir daños moderados a personas y bienes, especialmente a aquellos vulnerables o en zonas expuestas al fenómeno.",
+      "language": "es-ES",
+      "onset": "2026-08-23T03:00:00+02:00",
+      "parameter": [
+       {
+        "value": "2; yellow; Moderate",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "10; Rain",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "Monitor"
+      ],
+      "senderName": "AEMET. Agencia Estatal de Meteorología",
+      "severity": "Moderate",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/es/eltiempo/prediccion/avisos"
+     },
+     {
+      "area": [
+       {
+        "areaDesc": "Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES247",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "description": "One-hour accumulated precipitation: 20 mm.",
+      "effective": "2026-08-22T11:09:47+02:00",
+      "event": "Moderate rain warning",
+      "expires": "2026-08-23T09:59:59+02:00",
+      "headline": "Moderate rain warning. Litoral norte de Valencia",
+      "instruction": "Be aware, keep up to date with the latest weather forecast. Moderate damages to people and properties may occur, especially to those vulnerable or in exposed areas.",
+      "language": "en-GB",
+      "onset": "2026-08-23T03:00:00+02:00",
+      "parameter": [
+       {
+        "value": "2; yellow; Moderate",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "10; Rain",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "Monitor"
+      ],
+      "senderName": "AEMET. State Meteorological Agency",
+      "severity": "Moderate",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/en/eltiempo/prediccion/avisos"
+     }
+    ],
+    "msgType": "Alert",
+    "scope": "Public",
+    "sender": "http://www.aemet.es",
+    "sent": "2026-08-22T09:12:08+00:00",
+    "status": "Actual"
+   },
+   "uuid": "2d3e9cdf-cbfc-456b-9f14-e1332f4532ac"
+  },
+  {
+   "alert": {
+    "identifier": "2.49.0.0.724.0.ES.260824092209.774602ATTA251863329",
+    "incidents": "Update",
+    "info": [
+     {
+      "area": [
+       {
+        "areaDesc": "Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES247",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "description": "Temperatura máxima: 36 ºC. Se superarán los umbrales de aviso en la zona de interior.",
+      "effective": "2026-08-24T11:18:33+02:00",
+      "event": "Aviso de temperaturas máximas de nivel amarillo",
+      "expires": "2026-08-25T19:59:59+02:00",
+      "headline": "Aviso de temperaturas máximas de nivel amarillo. Litoral norte de Valencia",
+      "instruction": "Esté atento. Manténgase informado de la predicción meteorológica más actualizada. Se pueden producir daños moderados a personas y bienes, especialmente a aquellos vulnerables o en zonas expuestas al fenómeno.",
+      "language": "es-ES",
+      "onset": "2026-08-25T13:00:00+02:00",
+      "parameter": [
+       {
+        "value": "2; yellow; Moderate",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "5; high-temperature",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "Monitor"
+      ],
+      "senderName": "AEMET. Agencia Estatal de Meteorología",
+      "severity": "Moderate",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/es/eltiempo/prediccion/avisos"
+     },
+     {
+      "area": [
+       {
+        "areaDesc": "Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES247",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "description": "Maximum temperature: 36 ºC. Se superarán los umbrales de aviso en la zona de interior.",
+      "effective": "2026-08-24T11:18:33+02:00",
+      "event": "Moderate high-temperature warning",
+      "expires": "2026-08-25T19:59:59+02:00",
+      "headline": "Moderate high-temperature warning. Litoral norte de Valencia",
+      "instruction": "Be aware, keep up to date with the latest weather forecast. Moderate damages to people and properties may occur, especially to those vulnerable or in exposed areas.",
+      "language": "en-GB",
+      "onset": "2026-08-25T13:00:00+02:00",
+      "parameter": [
+       {
+        "value": "2; yellow; Moderate",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "5; high-temperature",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "Monitor"
+      ],
+      "senderName": "AEMET. State Meteorological Agency",
+      "severity": "Moderate",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/en/eltiempo/prediccion/avisos"
+     }
+    ],
+    "msgType": "Update",
+    "references": "http://www.aemet.es,2.49.0.0.724.0.ES.260824090808.774602ATTA251862488,2026-08-24T09:08:08+00:00",
+    "scope": "Public",
+    "sender": "http://www.aemet.es",
+    "sent": "2026-08-24T09:22:09+00:00",
+    "status": "Actual"
+   },
+   "uuid": "ff05f860-9124-4567-a69f-701ecbdcafce"
+  },
+  {
+   "alert": {
+    "identifier": "2.49.0.0.724.0.ES.260820215208.61VV61NINI232262728",
+    "incidents": "Alert",
+    "info": [
+     {
+      "area": [
+       {
+        "areaDesc": "Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES247",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Litoral sur de Valencia",
+        "geocode": [
+         {
+          "value": "ES249",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Valle del Almanzora y Los Vélez",
+        "geocode": [
+         {
+          "value": "ES070",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Nacimiento y Campo de Tabernas",
+        "geocode": [
+         {
+          "value": "ES071",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "effective": "2026-08-20T23:50:01+02:00",
+      "event": "Aviso de nieblas de nivel verde",
+      "expires": "2026-08-23T23:59:59+02:00",
+      "headline": "Aviso de nieblas de nivel verde.",
+      "language": "es-ES",
+      "onset": "2026-08-23T00:00:00+02:00",
+      "parameter": [
+       {
+        "value": "1; green; Minor",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "4; Fog",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "None"
+      ],
+      "senderName": "AEMET. Agencia Estatal de Meteorología",
+      "severity": "Minor",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/es/eltiempo/prediccion/avisos"
+     },
+     {
+      "area": [
+       {
+        "areaDesc": "Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES247",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Litoral sur de Valencia",
+        "geocode": [
+         {
+          "value": "ES249",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Valle del Almanzora y Los Vélez",
+        "geocode": [
+         {
+          "value": "ES070",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Nacimiento y Campo de Tabernas",
+        "geocode": [
+         {
+          "value": "ES071",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "effective": "2026-08-20T23:50:01+02:00",
+      "event": "Minor fog warning",
+      "expires": "2026-08-23T23:59:59+02:00",
+      "headline": "Minor fog warning.",
+      "language": "en-GB",
+      "onset": "2026-08-23T00:00:00+02:00",
+      "parameter": [
+       {
+        "value": "1; green; Minor",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "4; Fog",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "None"
+      ],
+      "senderName": "AEMET. State Meteorological Agency",
+      "severity": "Minor",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/en/eltiempo/prediccion/avisos"
+     }
+    ],
+    "msgType": "Alert",
+    "scope": "Public",
+    "sender": "http://www.aemet.es",
+    "sent": "2026-08-20T21:52:08+00:00",
+    "status": "Actual"
+   },
+   "uuid": "86c9dbbf-c941-42f8-906e-716ed369678e"
+  },
+  {
+   "alert": {
+    "identifier": "2.49.0.0.724.0.ES.260820215208.71VV71COCO232262728",
+    "incidents": "Alert",
+    "info": [
+     {
+      "area": [
+       {
+        "areaDesc": "Costa - Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES864",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Costa - Litoral sur de Valencia",
+        "geocode": [
+         {
+          "value": "ES863",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Costa - Poniente y Almería Capital",
+        "geocode": [
+         {
+          "value": "ES857",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Costa - Levante almeriense",
+        "geocode": [
+         {
+          "value": "ES858",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "effective": "2026-08-20T23:50:01+02:00",
+      "event": "Aviso de costeros de nivel verde",
+      "expires": "2026-08-23T23:59:59+02:00",
+      "headline": "Aviso de costeros de nivel verde.",
+      "language": "es-ES",
+      "onset": "2026-08-23T00:00:00+02:00",
+      "parameter": [
+       {
+        "value": "1; green; Minor",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "7; coastalevent",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "None"
+      ],
+      "senderName": "AEMET. Agencia Estatal de Meteorología",
+      "severity": "Minor",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/es/eltiempo/prediccion/avisos"
+     },
+     {
+      "area": [
+       {
+        "areaDesc": "Costa - Litoral norte de Valencia",
+        "geocode": [
+         {
+          "value": "ES864",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Costa - Litoral sur de Valencia",
+        "geocode": [
+         {
+          "value": "ES863",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Costa - Poniente y Almería Capital",
+        "geocode": [
+         {
+          "value": "ES857",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       },
+       {
+        "areaDesc": "Costa - Levante almeriense",
+        "geocode": [
+         {
+          "value": "ES858",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "effective": "2026-08-20T23:50:01+02:00",
+      "event": "Minor coastalevent warning",
+      "expires": "2026-08-23T23:59:59+02:00",
+      "headline": "Minor coastalevent warning.",
+      "language": "en-GB",
+      "onset": "2026-08-23T00:00:00+02:00",
+      "parameter": [
+       {
+        "value": "1; green; Minor",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "7; coastalevent",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "None"
+      ],
+      "senderName": "AEMET. State Meteorological Agency",
+      "severity": "Minor",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/en/eltiempo/prediccion/avisos"
+     }
+    ],
+    "msgType": "Alert",
+    "scope": "Public",
+    "sender": "http://www.aemet.es",
+    "sent": "2026-08-20T21:52:08+00:00",
+    "status": "Actual"
+   },
+   "uuid": "6f81d646-b444-4dbc-a533-1c4a958fb4b4"
+  },
+  {
+   "alert": {
+    "identifier": "2.49.0.0.724.0.ES.260820063809.622202TOTO202207889",
+    "incidents": "Update",
+    "info": [
+     {
+      "area": [
+       {
+        "areaDesc": "Centro de Huesca",
+        "geocode": [
+         {
+          "value": "ES100",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "description": "Pueden ir acompañadas de granizo y rachas muy fuertes de viento.",
+      "effective": "2026-08-20T08:34:17+02:00",
+      "event": "Aviso de tormentas de nivel naranja",
+      "expires": "2026-08-20T23:59:59+02:00",
+      "headline": "Aviso de tormentas de nivel naranja. Centro de Huesca",
+      "instruction": "Esté preparado. Tome precauciones y manténgase informado de la predicción meteorológica más actualizada. Se pueden producir daños graves a personas y bienes, especialmente a aquellos vulnerables o en zonas expuestas al fenómeno.",
+      "language": "es-ES",
+      "onset": "2026-08-20T16:00:00+02:00",
+      "parameter": [
+       {
+        "value": "3; orange; Severe",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "3; Thunderstorm",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "Monitor"
+      ],
+      "senderName": "AEMET. Agencia Estatal de Meteorología",
+      "severity": "Severe",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/es/eltiempo/prediccion/avisos"
+     },
+     {
+      "area": [
+       {
+        "areaDesc": "Centro de Huesca",
+        "geocode": [
+         {
+          "value": "ES100",
+          "valueName": "EMMA_ID"
+         }
+        ]
+       }
+      ],
+      "category": [
+       "Met"
+      ],
+      "certainty": "Likely",
+      "contact": "AEMET",
+      "description": "Pueden ir acompañadas de granizo y rachas muy fuertes de viento.",
+      "effective": "2026-08-20T08:34:17+02:00",
+      "event": "Severe thunderstorm warning",
+      "expires": "2026-08-20T23:59:59+02:00",
+      "headline": "Severe thunderstorm warning. Centro de Huesca",
+      "instruction": "Be prepared. Take precautions and keep up to date with the latest weather forecast. Severe damages to people and properties may occur, especially to those vulnerable or in exposed areas.",
+      "language": "en-GB",
+      "onset": "2026-08-20T16:00:00+02:00",
+      "parameter": [
+       {
+        "value": "3; orange; Severe",
+        "valueName": "awareness_level"
+       },
+       {
+        "value": "3; Thunderstorm",
+        "valueName": "awareness_type"
+       }
+      ],
+      "responseType": [
+       "Monitor"
+      ],
+      "senderName": "AEMET. State Meteorological Agency",
+      "severity": "Severe",
+      "urgency": "Future",
+      "web": "https://www.aemet.es/en/eltiempo/prediccion/avisos"
+     }
+    ],
+    "msgType": "Update",
+    "references": "http://www.aemet.es,2.49.0.0.724.0.ES.260819092808.622202TOTO202231688,2026-08-19T09:28:08+00:00",
+    "scope": "Public",
+    "sender": "http://www.aemet.es",
+    "sent": "2026-08-20T06:38:09+00:00",
+    "status": "Actual"
+   },
+   "uuid": "111699f6-f197-4263-8ad2-6fae93c6ab6f"
+  }
+ ]
+}

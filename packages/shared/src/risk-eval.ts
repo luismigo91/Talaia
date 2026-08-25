@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import type { Db } from "./db/client.js";
 import { loadVirtualStations, type VirtualStation } from "./stations.js";
 import { thresholdLevel } from "./sensors.js";
+import { dedupeAlerts } from "./alerts.js";
 import {
   levelFor,
   loadThresholds,
@@ -48,6 +49,7 @@ export interface StationRisk {
   components: RiskComponent[];
   alerts: {
     id: string;
+    source: string;
     level: string;
     event: string | null;
     event_code: string | null;
@@ -69,9 +71,12 @@ type RainRow = {
 type ForecastRow = { source: string; mm12h: number | string | null; mm24h: number | string | null };
 type AlertRow = {
   id: string;
+  source: string;
+  area_code: string;
   level: string;
   event: string | null;
   event_code: string | null;
+  onset: string | Date;
   expires: string | Date;
 };
 
@@ -120,7 +125,7 @@ async function riskFor(db: Db, station: VirtualStation, now: Date): Promise<Stat
       unit: null,
       threshold: null,
       source: a.id,
-      detail: `aviso de AEMET vigente: ${a.event ?? a.event_code ?? "sin descripción"} (${a.level}) hasta ${a.expires}`,
+      detail: `aviso oficial vigente (vía ${a.source}): ${a.event ?? a.event_code ?? "sin descripción"} (${a.level}) hasta ${a.expires}`,
     });
   }
   if (points.length === 0) warnings.push("la localización no tiene sensores vigilados");
@@ -340,14 +345,24 @@ async function alertsFor(
 ): Promise<StationRisk["alerts"]> {
   if (!station.aemetZone) return [];
   const rows = await db.execute<AlertRow>(sql`
-      select id, level, event, event_code, expires from alerts
+      select id, source, area_code, level, event, event_code, onset, expires from alerts
       where area_code = ${station.aemetZone}
         and expires > ${now.toISOString()}::timestamptz
         and onset <= ${now.toISOString()}::timestamptz
       order by expires
     `);
-  return rows.map((a) => ({
+  // AEMET y Meteoalarm publican el mismo aviso con identificadores distintos: se resuelve aquí,
+  // al leer, para no depender del orden en que corren los collectors.
+  const unique = dedupeAlerts(
+    rows.map((r) => ({
+      ...r,
+      areaCode: r.area_code,
+      eventCode: r.event_code,
+    })),
+  );
+  return unique.map((a) => ({
     id: a.id,
+    source: a.source,
     level: a.level,
     event: a.event,
     event_code: a.event_code,
