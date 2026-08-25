@@ -3,6 +3,7 @@ packages:
   - collectors/*
   - api
   - db
+  - web
 
 allowBuilds:
   esbuild: true

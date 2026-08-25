@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
 const alias = {
@@ -17,6 +18,7 @@ const alias = {
   "@talaia/collector-meteoalarm": fileURLToPath(
     new URL("./collectors/meteoalarm/src/index.ts", import.meta.url),
   ),
+  "@": fileURLToPath(new URL("./web/src", import.meta.url)),
 };
 
 export default defineConfig({
@@ -30,7 +32,17 @@ export default defineConfig({
         test: {
           name: "unit",
           include: ["**/test/**/*.test.ts", "**/src/**/*.test.ts"],
-          exclude: ["**/node_modules/**", "**/dist/**", "**/*.integration.test.ts"],
+          exclude: ["**/node_modules/**", "**/dist/**", "**/*.integration.test.ts", "web/**"],
+        },
+      },
+      {
+        plugins: [react()],
+        resolve: { alias },
+        test: {
+          name: "web",
+          environment: "jsdom",
+          include: ["web/test/**/*.test.{ts,tsx}"],
+          exclude: ["**/node_modules/**", "**/.next/**"],
         },
       },
       {
