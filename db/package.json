@@ -1,0 +1,20 @@
+{
+  "name": "@talaia/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "migrate": "tsx src/migrate.ts",
+    "generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "@talaia/shared": "workspace:*",
+    "drizzle-orm": "^0.44.0",
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.0"
+  }
+}

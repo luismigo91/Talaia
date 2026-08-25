@@ -1,0 +1,17 @@
+{
+  "name": "@talaia/scheduler",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/main.js",
+    "dev": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@talaia/collector-open-meteo": "workspace:*",
+    "@talaia/shared": "workspace:*",
+    "node-cron": "^4.2.0"
+  }
+}

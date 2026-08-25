@@ -1,0 +1,8 @@
+packages:
+  - packages/*
+  - collectors/*
+  - api
+  - db
+
+allowBuilds:
+  esbuild: true

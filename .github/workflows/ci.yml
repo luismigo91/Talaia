@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: timescale/timescaledb-ha:pg16
+        env:
+          POSTGRES_USER: talaia
+          POSTGRES_PASSWORD: talaia
+          POSTGRES_DB: talaia
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U talaia -d talaia"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DATABASE_URL: postgres://talaia:talaia@localhost:5433/talaia
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm test:integration
