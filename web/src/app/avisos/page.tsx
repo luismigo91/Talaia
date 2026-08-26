@@ -29,54 +29,56 @@ export default async function AvisosPage() {
           que no pueda llover: el semáforo mira además el caudal y la lluvia real.
         </p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Nivel</th>
-              <th>Aviso</th>
-              <th>Zona</th>
-              <th>Vigencia</th>
-              <th>Origen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {alerts.data.map((a) => (
-              <tr key={a.id}>
-                <td>
-                  <LevelBadge level={a.level as Level} />
-                </td>
-                <td>
-                  {a.event ?? a.event_code ?? "aviso"}
-                  {!FLOOD.has((a.event_code ?? "").toUpperCase()) && (
-                    <>
-                      {" "}
-                      <small style={{ opacity: 0.7 }}>(no eleva el semáforo)</small>
-                    </>
-                  )}
-                  {a.parameter && (
-                    <>
-                      <br />
-                      <small style={{ opacity: 0.7 }}>{a.parameter}</small>
-                    </>
-                  )}
-                </td>
-                <td>
-                  {a.zone_name ?? a.zone}
-                  {a.stations.length > 0 && (
-                    <>
-                      <br />
-                      <small style={{ opacity: 0.7 }}>{a.stations.join(", ")}</small>
-                    </>
-                  )}
-                </td>
-                <td>
-                  {dateTimeMadrid(a.onset)} → {dateTimeMadrid(a.expires)}
-                </td>
-                <td>{a.source}</td>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Nivel</th>
+                <th>Aviso</th>
+                <th>Zona</th>
+                <th>Vigencia</th>
+                <th>Origen</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {alerts.data.map((a) => (
+                <tr key={a.id}>
+                  <td>
+                    <LevelBadge level={a.level as Level} />
+                  </td>
+                  <td>
+                    {a.event ?? a.event_code ?? "aviso"}
+                    {!FLOOD.has((a.event_code ?? "").toUpperCase()) && (
+                      <>
+                        {" "}
+                        <small style={{ opacity: 0.7 }}>(no eleva el semáforo)</small>
+                      </>
+                    )}
+                    {a.parameter && (
+                      <>
+                        <br />
+                        <small style={{ opacity: 0.7 }}>{a.parameter}</small>
+                      </>
+                    )}
+                  </td>
+                  <td>
+                    {a.zone_name ?? a.zone}
+                    {a.stations.length > 0 && (
+                      <>
+                        <br />
+                        <small style={{ opacity: 0.7 }}>{a.stations.join(", ")}</small>
+                      </>
+                    )}
+                  </td>
+                  <td>
+                    {dateTimeMadrid(a.onset)} → {dateTimeMadrid(a.expires)}
+                  </td>
+                  <td>{a.source}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );

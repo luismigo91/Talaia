@@ -45,33 +45,35 @@ export default async function Page() {
         ) : history.data.length === 0 ? (
           <p className="empty">Todavía no se ha registrado ningún cambio de nivel.</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Cuándo</th>
-                <th>Localidad</th>
-                <th>Cambio</th>
-                <th>Aviso</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.data.map((e) => (
-                <tr key={e.id}>
-                  <td>{dateTimeMadrid(e.ts)}</td>
-                  <td>{e.station.name}</td>
-                  <td>
-                    {e.previous_level ? (
-                      <>
-                        <LevelBadge level={e.previous_level} /> →{" "}
-                      </>
-                    ) : null}
-                    <LevelBadge level={e.level} />
-                  </td>
-                  <td>{e.notified ? "enviado" : "no enviado"}</td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cuándo</th>
+                  <th>Localidad</th>
+                  <th>Cambio</th>
+                  <th>Aviso</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {history.data.map((e) => (
+                  <tr key={e.id}>
+                    <td>{dateTimeMadrid(e.ts)}</td>
+                    <td>{e.station.name}</td>
+                    <td>
+                      {e.previous_level ? (
+                        <>
+                          <LevelBadge level={e.previous_level} /> →{" "}
+                        </>
+                      ) : null}
+                      <LevelBadge level={e.level} />
+                    </td>
+                    <td>{e.notified ? "enviado" : "no enviado"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 

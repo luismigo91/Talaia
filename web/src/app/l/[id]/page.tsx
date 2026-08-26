@@ -60,26 +60,28 @@ export default async function LocalidadPage({ params }: { params: Promise<{ id: 
         {station.components.length === 0 ? (
           <p className="empty">Sin datos evaluables: el verde no significa que no haya riesgo.</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Señal</th>
-                <th>Nivel</th>
-                <th>Detalle</th>
-              </tr>
-            </thead>
-            <tbody>
-              {station.components.map((c, i) => (
-                <tr key={`${c.kind}-${c.source ?? i}`}>
-                  <td>{label(KIND_LABEL, c.kind)}</td>
-                  <td>
-                    <LevelBadge level={c.level} />
-                  </td>
-                  <td>{c.detail}</td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Señal</th>
+                  <th>Nivel</th>
+                  <th>Detalle</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {station.components.map((c, i) => (
+                  <tr key={`${c.kind}-${c.source ?? i}`}>
+                    <td>{label(KIND_LABEL, c.kind)}</td>
+                    <td>
+                      <LevelBadge level={c.level} />
+                    </td>
+                    <td>{c.detail}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
         {station.warnings.length > 0 && (
           <div className="warnings">
@@ -125,28 +127,30 @@ export default async function LocalidadPage({ params }: { params: Promise<{ id: 
         {propios.length === 0 ? (
           <p className="empty">No hay sensores con datos para esta localización ahora mismo.</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Estación</th>
-                <th>Variable</th>
-                <th className="num">Último valor</th>
-                <th>Nivel</th>
-                <th>Frescura</th>
-              </tr>
-            </thead>
-            <tbody>
-              {propios.map((s) => (
-                <tr key={s.id}>
-                  <td>{s.station.name}</td>
-                  <td>{label(VARIABLE_LABEL, s.variable)}</td>
-                  <td className="num">{formatValue(s.last_value, s.unit)}</td>
-                  <td>{s.level ? <LevelBadge level={s.level} /> : "—"}</td>
-                  <td>{ago(s.age_seconds)}</td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Estación</th>
+                  <th>Variable</th>
+                  <th className="num">Último valor</th>
+                  <th>Nivel</th>
+                  <th>Frescura</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {propios.map((s) => (
+                  <tr key={s.id}>
+                    <td>{s.station.name}</td>
+                    <td>{label(VARIABLE_LABEL, s.variable)}</td>
+                    <td className="num">{formatValue(s.last_value, s.unit)}</td>
+                    <td>{s.level ? <LevelBadge level={s.level} /> : "—"}</td>
+                    <td>{ago(s.age_seconds)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </>

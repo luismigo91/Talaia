@@ -78,38 +78,42 @@ export default async function ComparativaPage({
       ) : (
         <>
           <CompareChart data={compare.data} />
-          <table style={{ marginTop: "1.25rem" }}>
-            <thead>
-              <tr>
-                <th>Fuente</th>
-                <th className="num">{acumulada ? "Total 24 h" : "Máximo"}</th>
-                <th className="num">Máximo horario</th>
-                <th>Emitido</th>
-              </tr>
-            </thead>
-            <tbody>
-              {compare.data.series.map((s) => (
-                <tr key={s.source}>
-                  <td>{s.name}</td>
-                  <td className="num">{formatValue(s.total ?? s.max_hourly, compare.data.unit)}</td>
-                  <td className="num">{formatValue(s.max_hourly, compare.data.unit)}</td>
-                  <td>{dateTimeMadrid(s.forecast_ts)}</td>
+          <div className="table-scroll">
+            <table style={{ marginTop: "1.25rem" }}>
+              <thead>
+                <tr>
+                  <th>Fuente</th>
+                  <th className="num">{acumulada ? "Total 24 h" : "Máximo"}</th>
+                  <th className="num">Máximo horario</th>
+                  <th>Emitido</th>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td>
-                  <strong>{compare.data.summary.sources} fuentes</strong>
-                </td>
-                <td className="num" colSpan={3}>
-                  mínimo {formatValue(compare.data.summary.min_total, compare.data.unit)} · mediana{" "}
-                  {formatValue(compare.data.summary.median_total, compare.data.unit)} · máximo{" "}
-                  {formatValue(compare.data.summary.max_total, compare.data.unit)}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+              </thead>
+              <tbody>
+                {compare.data.series.map((s) => (
+                  <tr key={s.source}>
+                    <td>{s.name}</td>
+                    <td className="num">
+                      {formatValue(s.total ?? s.max_hourly, compare.data.unit)}
+                    </td>
+                    <td className="num">{formatValue(s.max_hourly, compare.data.unit)}</td>
+                    <td>{dateTimeMadrid(s.forecast_ts)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>
+                    <strong>{compare.data.summary.sources} fuentes</strong>
+                  </td>
+                  <td className="num" colSpan={3}>
+                    mínimo {formatValue(compare.data.summary.min_total, compare.data.unit)} ·
+                    mediana {formatValue(compare.data.summary.median_total, compare.data.unit)} ·
+                    máximo {formatValue(compare.data.summary.max_total, compare.data.unit)}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </>
       )}
     </>

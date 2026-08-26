@@ -398,6 +398,17 @@ section.block > h1 {
 }
 
 /* ---------- Tablas ---------- */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* deja respirar el scroll sin cortar la sombra del borde */
+  margin-inline: -0.1rem;
+  padding-inline: 0.1rem;
+}
+.table-scroll table {
+  min-width: 32rem; /* en móvil la tabla scrollea en su caja en vez de ensanchar la página */
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
