@@ -55,6 +55,8 @@ export class VerifyService {
     const from = new Date(to.getTime() - opts.days * 86_400_000);
 
     const gaugeIds = gauges.map((g) => g.station_id);
+    // Lista IN construida con sql.join: el binding de arrays (`= any($1)`) no lleva tipo con
+    // el cliente `postgres` a `fetch_types:false` y Postgres no puede inferir el tipo → error.
     const observed =
       gaugeIds.length === 0
         ? []
@@ -62,7 +64,11 @@ export class VerifyService {
             select to_char(date_trunc('day', ts at time zone 'Europe/Madrid'), 'YYYY-MM-DD') as day,
                    station_id, sum(value)::float8 as mm
             from observations
-            where variable = 'precip_mm' and station_id = any(${gaugeIds})
+            where variable = 'precip_mm'
+              and station_id in ${sql`(${sql.join(
+                gaugeIds.map((id) => sql`${id}`),
+                sql`, `,
+              )})`}
               and ts >= ${from.toISOString()}::timestamptz and ts < ${to.toISOString()}::timestamptz
             group by day, station_id
           `);
