@@ -1,11 +1,32 @@
 import Link from "next/link";
-import type { StationRisk } from "@/lib/api";
-import { KIND_LABEL, label, timeMadrid } from "@/lib/format";
+import type { RiskComponent, StationRisk } from "@/lib/api";
+import { KIND_LABEL, label, rank, timeMadrid } from "@/lib/format";
 import { LevelBadge } from "./LevelBadge";
 
-/** Una localización: su nivel, por qué, y lo que no se sabe. */
+/** El componente que determina el nivel (o, en calma, el caudal principal). */
+function leading(risk: StationRisk): RiskComponent | undefined {
+  const atLevel = risk.components.filter((c) => c.level === risk.level);
+  return (
+    atLevel.find((c) => c.kind === "flow") ??
+    atLevel[0] ??
+    risk.components.find((c) => c.kind === "flow") ??
+    risk.components[0]
+  );
+}
+
+/**
+ * Vista de un vistazo: el nivel, lo que manda y lo que preocupa. El desglose completo de las
+ * señales vive en la página de detalle; aquí solo el titular, para poder comparar las cuatro
+ * localizaciones de golpe.
+ */
 export function StationCard({ risk }: { risk: StationRisk }) {
-  const sinDatos = risk.components.length === 0;
+  const lead = leading(risk);
+  // Lo que hay que mirar: las señales por encima de verde (las que no son el titular).
+  const drivers = risk.components.filter(
+    (c) => c.level !== "verde" && c !== lead && rank(c.level) >= rank("amarillo"),
+  );
+  const avisos = risk.alerts.filter((a) => a.counts);
+
   return (
     <article className="card">
       <header>
@@ -15,44 +36,46 @@ export function StationCard({ risk }: { risk: StationRisk }) {
         <LevelBadge level={risk.level} />
       </header>
       <div className="body">
-        {sinDatos ? (
+        {!lead ? (
           <p className="empty">
             Sin datos evaluables ahora mismo: este verde no significa que no haya riesgo.
           </p>
         ) : (
-          <ul className="components">
-            {risk.components.map((c, i) => (
+          <p className="lead">
+            <LevelBadge level={lead.level} /> {lead.detail}
+          </p>
+        )}
+
+        {drivers.length > 0 && (
+          <ul className="drivers">
+            {drivers.map((c, i) => (
               <li key={`${c.kind}-${c.source ?? i}`}>
-                <span className="kind">{label(KIND_LABEL, c.kind)}</span>
-                <span>
-                  <LevelBadge level={c.level} /> {c.detail}
-                </span>
+                <LevelBadge level={c.level} />{" "}
+                <span className="kind-inline">{label(KIND_LABEL, c.kind)}</span> {c.detail}
               </li>
             ))}
           </ul>
         )}
 
         {risk.warnings.length > 0 && (
-          <div className="warnings">
-            <strong>Atención a la frescura de los datos</strong>
-            <ul>
-              {risk.warnings.map((w) => (
-                <li key={w}>{w}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {risk.alerts.length > 0 && (
-          <p className="empty">
-            Avisos vigentes en la zona:{" "}
-            {risk.alerts
-              .map((a) => `${a.event ?? a.event_code ?? "aviso"} (${a.level})`)
-              .join(" · ")}
+          <p className="hint">
+            ⚠ {risk.warnings.length}{" "}
+            {risk.warnings.length === 1 ? "dato sin actualizar" : "datos sin actualizar"}
           </p>
         )}
 
-        <p className="empty">Calculado a las {timeMadrid(risk.computed_at)}</p>
+        {avisos.length > 0 && (
+          <p className="hint">
+            Aviso oficial: {avisos.map((a) => a.event ?? a.event_code ?? "aviso").join(" · ")}
+          </p>
+        )}
+
+        <p className="card-foot">
+          <Link href={`/l/${encodeURIComponent(risk.station.id)}`}>
+            {risk.components.length} señales · ver desglose →
+          </Link>
+          <span className="when">{timeMadrid(risk.computed_at)}</span>
+        </p>
       </div>
     </article>
   );
