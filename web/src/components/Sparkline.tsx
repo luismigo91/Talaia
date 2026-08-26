@@ -9,9 +9,9 @@ const BOX: ChartBox = {
 };
 
 const THRESHOLD_COLOR: Record<string, string> = {
-  low: "#c9a227",
-  mid: "#d1741f",
-  high: "#c0392b",
+  low: "var(--amarillo)",
+  mid: "var(--naranja)",
+  high: "var(--rojo)",
 };
 
 /**

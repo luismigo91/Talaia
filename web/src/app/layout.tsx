@@ -1,6 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Logo } from "@/components/Logo";
 import "./globals.css";
+
+const display = Fraunces({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "900"],
+  variable: "--talaia-display",
+  display: "swap",
+});
+const sans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--talaia-sans",
+  display: "swap",
+});
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--talaia-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -13,13 +34,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
       <body>
         <header className="site">
           <div className="inner">
             <Link href="/" className="brand">
-              Talaia
-              <small>l&apos;Horta Sud i la Ribera</small>
+              <Logo size={30} />
+              <span>
+                <span className="word">Talaia</span>
+                <small>l&apos;Horta Sud i la Ribera</small>
+              </span>
             </Link>
             <nav>
               <Link href="/">Semáforo</Link>

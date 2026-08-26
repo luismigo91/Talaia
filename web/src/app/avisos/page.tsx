@@ -13,6 +13,7 @@ export default async function AvisosPage() {
 
   return (
     <>
+      <p className="eyebrow">Protección Civil · AEMET</p>
       <h1>Avisos oficiales</h1>
       <p className="subtitle">
         Avisos de AEMET vigentes en las zonas de las cuatro localizaciones, lleguen por AEMET

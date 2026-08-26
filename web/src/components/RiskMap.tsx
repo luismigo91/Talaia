@@ -8,12 +8,12 @@ import { ago, formatValue, label, VARIABLE_LABEL } from "@/lib/format";
 import { mapStyle } from "@/lib/mapStyle";
 
 const LEVEL_COLOR: Record<Level, string> = {
-  verde: "#2f8f4e",
-  amarillo: "#c9a227",
-  naranja: "#d1741f",
+  verde: "#2f8f5a",
+  amarillo: "#ad8210",
+  naranja: "#c9691c",
   rojo: "#c0392b",
 };
-const NO_DATA = "#8b98a5";
+const NO_DATA = "#879898";
 
 const escape = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 

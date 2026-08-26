@@ -84,14 +84,14 @@ export function pathOf(points: Point[], scale: Scale): string {
  * el gráfico lleva además leyenda con el nombre de cada fuente, no solo color.
  */
 export const SERIES_COLORS = [
-  "#1d6fa5",
-  "#d1741f",
-  "#2f8f4e",
-  "#8e44ad",
-  "#c0392b",
-  "#0e8b8b",
-  "#7f8c3a",
-  "#b03a72",
+  "#0f6e7a",
+  "#c9691c",
+  "#2f8f5a",
+  "#7d5ba6",
+  "#b5623a",
+  "#3a8fb0",
+  "#a8842a",
+  "#a8436a",
 ];
 
 export const colorFor = (index: number) => SERIES_COLORS[index % SERIES_COLORS.length]!;

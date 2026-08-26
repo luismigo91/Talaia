@@ -21,7 +21,8 @@ export default async function MapaPage() {
   const conDatos = sensors.data.filter((s) => s.last_value !== null).length;
   return (
     <>
-      <h1>Mapa</h1>
+      <p className="eyebrow">Sensores · SAIH Júcar i AVAMET</p>
+      <h1>Mapa de vigilancia</h1>
       <p className="subtitle">
         Las cuatro localizaciones objetivo (círculos grandes) y los {sensors.data.length} sensores
         del catálogo, {conDatos} de ellos con dato reciente. Pulsa cualquiera para ver su último

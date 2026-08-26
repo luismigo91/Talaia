@@ -38,6 +38,7 @@ export default async function ComparativaPage({
 
   return (
     <>
+      <p className="eyebrow">Predicción · 6 modelos</p>
       <h1>Comparativa entre modelos</h1>
       <p className="subtitle">
         Qué dice cada fuente para las próximas 24 horas en {station.name}. Cada una con su última
