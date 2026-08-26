@@ -9,6 +9,8 @@ export interface Scale {
   yMax: number;
   ticks: { y: number; value: number }[];
   hours: { x: number; iso: string }[];
+  /** Ventanas largas (> 48 h) se rotulan por día, no por hora. */
+  longSpan: boolean;
 }
 
 export interface ChartBox {
@@ -56,12 +58,16 @@ export function buildScale(
     return { value, y: y(value) };
   });
 
+  // Paso de las marcas del eje X: se elige para que quepan ~8 sin amontonarse, tanto en una
+  // ventana de 24 h como en una de 7 días (donde las marcas pasan a ser diarias).
+  const spanHours = span / 3.6e6;
+  const stepH = [1, 2, 3, 6, 12, 24, 48, 72, 168].find((s) => spanHours / s <= 8) ?? 168;
+  const longSpan = spanHours > 48;
   const hours: { x: number; iso: string }[] = [];
-  const stepH = span / 3.6e6 > 12 ? 6 : 3;
   for (let t = ceilToHour(t0, stepH); t <= t1; t += stepH * 3.6e6) {
     hours.push({ x: x(new Date(t).toISOString()), iso: new Date(t).toISOString() });
   }
-  return { x, y, yMax, ticks, hours };
+  return { x, y, yMax, ticks, hours, longSpan };
 }
 
 function ceilToHour(t: number, stepH: number): number {
@@ -95,3 +101,9 @@ export const SERIES_COLORS = [
 ];
 
 export const colorFor = (index: number) => SERIES_COLORS[index % SERIES_COLORS.length]!;
+
+/** Etiqueta de una marca del eje, con los decimales justos para no repetir valores. */
+export function formatTick(value: number, yMax: number): string {
+  const decimals = yMax >= 10 ? 0 : yMax >= 2 ? 1 : 2;
+  return value.toFixed(decimals).replace(".", ",");
+}

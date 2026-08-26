@@ -602,3 +602,93 @@ section.block {
   color: var(--text-dim);
   margin: -0.6rem 0 1.3rem;
 }
+
+/* ── Profundidad (fase 12): método, embalses, verificación ─────────────────── */
+
+/* Listas de prosa (página de método) */
+.prose-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  line-height: 1.55;
+}
+.prose-list li {
+  padding-left: 0.2rem;
+}
+
+/* Barra de nivel de embalse */
+.meter {
+  position: relative;
+  height: 0.5rem;
+  width: 100%;
+  min-width: 6rem;
+  background: var(--surface-2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.meter > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--brand), var(--accent));
+  border-radius: 999px;
+}
+
+/* Frescura a la vista (cabecera de página) */
+.freshness {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.freshness .dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--verde);
+}
+.freshness.stale .dot {
+  background: var(--ochre);
+}
+
+/* Verificación: número previsto + desvío frente a lo observado */
+.delta {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: var(--radius-sm);
+  margin-left: 0.35rem;
+  white-space: nowrap;
+}
+.delta.ok {
+  background: var(--verde-bg);
+  color: var(--verde);
+}
+.delta.over {
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+.delta.under {
+  background: var(--rojo-bg);
+  color: var(--rojo);
+}
+.col-observed {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.legend-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+.legend-inline .delta {
+  margin-left: 0;
+}

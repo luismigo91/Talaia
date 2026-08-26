@@ -15,13 +15,29 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: `${name} · Talaia` };
 }
 
-/** Sensores que se dibujan con serie: los de caudal, que son la señal que se sigue de cerca. */
-const WITH_SERIES = new Set(["river_flow_m3s", "river_level_m"]);
+/** Sensores que se dibujan con serie, en orden de importancia para seguir una crecida. */
+const SERIES_ORDER = [
+  "river_flow_m3s",
+  "river_level_m",
+  "precip_mm",
+  "reservoir_hm3",
+  "reservoir_level_m",
+];
+const WITH_SERIES = new Set(SERIES_ORDER);
+const RANGES = [24, 168] as const;
 
-export default async function LocalidadPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function LocalidadPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ rango?: string }>;
+}) {
   // Los ids llevan ":" (`virtual:albal`), y Next entrega el parámetro tal como viaja en la URL.
   const { id } = await params;
+  const { rango } = await searchParams;
   const stationId = decodeURIComponent(id);
+  const hours = rango === "7d" ? 168 : 24;
   const [risk, sensors] = await Promise.all([safe(getRisk), safe(getSensors)]);
   if ("error" in risk) {
     return (
@@ -37,10 +53,15 @@ export default async function LocalidadPage({ params }: { params: Promise<{ id: 
   // Sensores que vigilan esta localidad: los que el semáforo ha usado como componentes.
   const usados = new Set(station.components.map((c) => c.source).filter(Boolean) as string[]);
   const propios = "error" in sensors ? [] : sensors.data.filter((s) => usados.has(s.id));
-  const conSerie = propios.filter((s) => WITH_SERIES.has(s.variable)).slice(0, 3);
+  const conSerie = propios
+    .filter((s) => WITH_SERIES.has(s.variable))
+    .sort((a, b) => SERIES_ORDER.indexOf(a.variable) - SERIES_ORDER.indexOf(b.variable))
+    .slice(0, 5);
   const series = await Promise.all(
-    conSerie.map(async (s) => [s.id, await safe(() => getObservations(s.id, 24))] as const),
+    conSerie.map(async (s) => [s.id, await safe(() => getObservations(s.id, hours))] as const),
   );
+
+  const rangeLabel = hours === 168 ? "7 días" : "24 horas";
 
   return (
     <>
@@ -52,7 +73,10 @@ export default async function LocalidadPage({ params }: { params: Promise<{ id: 
       </h1>
       <p className="subtitle">
         Calculado a las {timeMadrid(station.computed_at)}. {station.components.length} señales
-        evaluadas, {station.alerts.length} avisos vigentes en su zona.
+        evaluadas, {station.alerts.length} avisos vigentes en su zona.{" "}
+        <Link href={`/verificacion?station=${encodeURIComponent(stationId)}`}>
+          ¿Aciertan los modelos aquí? →
+        </Link>
       </p>
 
       <section className="block">
@@ -95,11 +119,22 @@ export default async function LocalidadPage({ params }: { params: Promise<{ id: 
         )}
       </section>
 
-      {series.length > 0 && (
+      {conSerie.length > 0 && (
         <section className="block">
-          <h1>Últimas 24 horas</h1>
+          <h1>Últimas {rangeLabel}</h1>
+          <div className="controls">
+            {RANGES.map((r) => (
+              <Link
+                key={r}
+                href={`/l/${encodeURIComponent(stationId)}${r === 168 ? "?rango=7d" : ""}`}
+                aria-current={r === hours}
+              >
+                {r === 168 ? "7 días" : "24 horas"}
+              </Link>
+            ))}
+          </div>
           <p className="subtitle">
-            Las líneas discontinuas son los umbrales oficiales de la CHJ: amarillo, naranja y rojo.
+            Las líneas discontinuas son los umbrales oficiales: amarillo, naranja y rojo.
           </p>
           {series.map(([sensorId, res]) => {
             const sensor = conSerie.find((s) => s.id === sensorId)!;

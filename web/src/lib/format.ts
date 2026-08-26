@@ -45,6 +45,18 @@ export function dateTimeMadrid(iso: string): string {
   return `${get("day")}/${get("month")} ${get("hour")}:${get("minute")}`;
 }
 
+/** "21/08". Para rotular el eje de una serie de varios días sin la hora. */
+export function dayShortMadrid(iso: string): string {
+  const parts = new Intl.DateTimeFormat("es-ES", {
+    timeZone: TZ,
+    day: "2-digit",
+    month: "2-digit",
+  }).formatToParts(new Date(iso));
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    (parts.find((p) => p.type === type)?.value ?? "").padStart(2, "0");
+  return `${get("day")}/${get("month")}`;
+}
+
 /** "hace 5 min", "hace 2 h". Para la frescura, que es tan importante como el dato. */
 export function ago(seconds: number | null): string {
   if (seconds === null) return "sin datos";

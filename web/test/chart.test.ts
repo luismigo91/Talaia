@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildScale,
   colorFor,
+  formatTick,
   niceMax,
   pathOf,
   SERIES_COLORS,
@@ -96,5 +97,32 @@ describe("colorFor", () => {
     expect(colorFor(0)).not.toBe(colorFor(1));
     expect(colorFor(SERIES_COLORS.length)).toBe(colorFor(0));
     expect(colorFor(99)).toMatch(/^#[0-9a-f]{6}$/i);
+  });
+});
+
+
+describe("marcas del eje X según la ventana", () => {
+  it("una ventana de 24 h no amontona marcas (<= 9)", () => {
+    const scale = buildScale([{ points: [{ ts: FROM, value: 1 }] }], FROM, TO, BOX);
+    expect(scale.longSpan).toBe(false);
+    expect(scale.hours.length).toBeLessThanOrEqual(9);
+  });
+
+  it("una ventana de 7 días pasa a marcas diarias y se rotula por día", () => {
+    const to = "2026-09-01T00:00:00Z";
+    const scale = buildScale([{ points: [{ ts: FROM, value: 1 }] }], FROM, to, BOX);
+    expect(scale.longSpan).toBe(true);
+    expect(scale.hours.length).toBeLessThanOrEqual(8);
+  });
+});
+
+describe("formatTick", () => {
+  it("no repite etiquetas cuando el techo es pequeño", () => {
+    expect(formatTick(0.1, 1)).toBe("0,10");
+    expect(formatTick(0.2, 1)).toBe("0,20");
+    expect(formatTick(0.1, 1)).not.toBe(formatTick(0.2, 1));
+  });
+  it("sin decimales cuando el techo es grande", () => {
+    expect(formatTick(50, 100)).toBe("50");
   });
 });

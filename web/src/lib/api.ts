@@ -132,6 +132,21 @@ export interface Station {
   primary: boolean;
 }
 
+export interface Verify {
+  station: { id: string; name: string; lat: number; lon: number };
+  tz: string;
+  days_requested: number;
+  from: string;
+  to: string;
+  gauges: { station_id: string; name: string }[];
+  models: { source: string; name: string }[];
+  days: {
+    day: string;
+    observed_mm: number | null;
+    predictions: { source: string; mm: number | null }[];
+  }[];
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -169,6 +184,9 @@ export const getCompare = (station: string, variable: string, hours = 24) =>
   get<Compare>(
     `/api/v1/compare?station=${encodeURIComponent(station)}&variable=${encodeURIComponent(variable)}&hours=${hours}`,
   );
+
+export const getVerify = (station: string, days = 7) =>
+  get<Verify>(`/api/v1/verify?station=${encodeURIComponent(station)}&days=${days}`);
 
 /** Envuelve una carga para que un fallo de la API no tumbe la página entera. */
 export async function safe<T>(fn: () => Promise<T>): Promise<{ data: T } | { error: string }> {

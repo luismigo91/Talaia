@@ -24,18 +24,37 @@ const mono = IBM_Plex_Mono({
   display: "swap",
 });
 
+const SITE_URL = process.env.SITE_URL ?? "https://talaia.luismi.dev";
+const DESCRIPTION =
+  "Semáforo de riesgo de inundación, sensores del SAIH Júcar y comparativa de modelos para Albal, Benetússer, el Mareny de Barraquetes y Benaguasil.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Talaia — vigilancia de l'Horta Sud i la Ribera",
     template: "%s",
   },
-  description:
-    "Semáforo de riesgo de inundación, sensores del SAIH Júcar y comparativa de modelos para Albal, Benetússer, el Mareny de Barraquetes y Benaguasil.",
+  description: DESCRIPTION,
   applicationName: "Talaia",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Talaia" },
   icons: {
     icon: "/icon.svg",
     apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Talaia",
+    title: "Talaia — vigilancia de l'Horta Sud i la Ribera",
+    description: DESCRIPTION,
+    url: SITE_URL,
+    locale: "es_ES",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Talaia" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Talaia — vigilancia de l'Horta Sud i la Ribera",
+    description: DESCRIPTION,
+    images: ["/og.png"],
   },
 };
 
@@ -64,6 +83,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/mapa">Mapa</Link>
               <Link href="/avisos">Avisos</Link>
               <Link href="/comparativa">Comparativa</Link>
+              <Link href="/verificacion">Verificación</Link>
+              <Link href="/embalses">Embalses</Link>
+              <Link href="/como-funciona">Método</Link>
             </nav>
           </div>
         </header>

@@ -1,5 +1,5 @@
 import { getHistory, getRisk, safe } from "@/lib/api";
-import { byRisk, dateTimeMadrid } from "@/lib/format";
+import { byRisk, dateTimeMadrid, timeMadrid } from "@/lib/format";
 import { LevelBadge } from "@/components/LevelBadge";
 import { StationCard } from "@/components/StationCard";
 import { LiveRefresh } from "@/components/LiveRefresh";
@@ -9,6 +9,19 @@ import { PushToggle } from "@/components/PushToggle";
 // no depende de que la API esté levantada y aun así no se la machaca.
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Semáforo de riesgo · Talaia" };
+
+/** Frescura del semáforo a la vista: la hora del cálculo más reciente y si algo está viejo. */
+function Freshness({ stations }: { stations: import("@/lib/api").StationRisk[] }) {
+  const latest = stations.reduce((a, b) => (a.computed_at > b.computed_at ? a : b));
+  const anyStale = stations.some((s) => s.stale);
+  return (
+    <span className={`freshness${anyStale ? " stale" : ""}`}>
+      <span className="dot" aria-hidden />
+      {anyStale ? "algún dato desactualizado · " : "actualizado a las "}
+      {timeMadrid(latest.computed_at)}
+    </span>
+  );
+}
 
 export default async function Page() {
   const [risk, history] = await Promise.all([safe(getRisk), safe(() => getHistory(12))]);
@@ -25,6 +38,7 @@ export default async function Page() {
 
       <div className="toolbar">
         <PushToggle />
+        {!("error" in risk) && risk.data.length > 0 && <Freshness stations={risk.data} />}
       </div>
       <LiveRefresh />
 

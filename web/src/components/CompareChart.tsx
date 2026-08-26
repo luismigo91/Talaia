@@ -1,5 +1,5 @@
 import type { Compare } from "@/lib/api";
-import { buildScale, colorFor, pathOf, type ChartBox } from "@/lib/chart";
+import { buildScale, colorFor, formatTick, pathOf, type ChartBox } from "@/lib/chart";
 import { timeMadrid } from "@/lib/format";
 
 const BOX: ChartBox = {
@@ -40,7 +40,7 @@ export function CompareChart({ data }: { data: Compare }) {
               fill="currentColor"
               opacity={0.65}
             >
-              {t.value.toFixed(t.value < 10 ? 1 : 0).replace(".", ",")}
+              {formatTick(t.value, scale.yMax)}
             </text>
           </g>
         ))}

@@ -14,6 +14,8 @@ import { RiskStream } from "./risk/risk.stream.js";
 import { RiskStreamController } from "./risk/stream.controller.js";
 import { RiskBadgeController } from "./risk/badge.controller.js";
 import { PushController } from "./push/push.controller.js";
+import { VerifyController } from "./verify/verify.controller.js";
+import { VerifyService } from "./verify/verify.service.js";
 import { RiskService } from "./risk/risk.service.js";
 
 @Module({
@@ -31,7 +33,8 @@ import { RiskService } from "./risk/risk.service.js";
     RiskStreamController,
     RiskBadgeController,
     PushController,
+    VerifyController,
   ],
-  providers: [CompareService, RiskService, RiskStream],
+  providers: [CompareService, RiskService, RiskStream, VerifyService],
 })
 export class AppModule {}

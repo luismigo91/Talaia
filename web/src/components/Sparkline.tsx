@@ -1,6 +1,6 @@
-import { buildScale, pathOf, type ChartBox } from "@/lib/chart";
+import { buildScale, formatTick, pathOf, type ChartBox } from "@/lib/chart";
 import type { ObservationSeries } from "@/lib/api";
-import { formatValue, timeMadrid } from "@/lib/format";
+import { dayShortMadrid, formatValue, timeMadrid } from "@/lib/format";
 
 const BOX: ChartBox = {
   width: 620,
@@ -66,7 +66,7 @@ export function Sparkline({ series }: { series: ObservationSeries }) {
             fill="currentColor"
             opacity={0.6}
           >
-            {t.value.toFixed(t.value < 10 ? 1 : 0).replace(".", ",")}
+            {formatTick(t.value, scale.yMax)}
           </text>
         </g>
       ))}
@@ -96,7 +96,7 @@ export function Sparkline({ series }: { series: ObservationSeries }) {
           fill="currentColor"
           opacity={0.6}
         >
-          {timeMadrid(h.iso)}
+          {scale.longSpan ? dayShortMadrid(h.iso) : timeMadrid(h.iso)}
         </text>
       ))}
 
