@@ -8,6 +8,8 @@ export interface VirtualStation {
   lon: number;
   ine: string | undefined;
   aemetZone: string | undefined;
+  /** Zonas de emergencia de la GVA (comarca + comodín provincial). */
+  gvaZones: string[];
   primary: boolean;
 }
 
@@ -32,6 +34,9 @@ export async function loadVirtualStations(db: Db): Promise<VirtualStation[]> {
     lon: Number(r.lon),
     ine: typeof r.meta.ine === "string" ? r.meta.ine : undefined,
     aemetZone: typeof r.meta.aemet_zone === "string" ? r.meta.aemet_zone : undefined,
+    gvaZones: Array.isArray(r.meta.gva_zones)
+      ? (r.meta.gva_zones as unknown[]).filter((z): z is string => typeof z === "string")
+      : [],
     primary: r.meta.primary === true,
   }));
 }

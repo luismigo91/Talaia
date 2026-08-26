@@ -6,6 +6,7 @@ import { run as runOpenMeteo } from "@talaia/collector-open-meteo";
 import { run as runSaih } from "@talaia/collector-saih";
 import { run as runMeteoalarm } from "@talaia/collector-meteoalarm";
 import { run as runAvamet } from "@talaia/collector-avamet";
+import { run as runGva } from "@talaia/collector-gva";
 import {
   run as runAemet,
   AemetClient,
@@ -55,6 +56,12 @@ const jobs: Job[] = [
     name: "avamet",
     intervalMin: minutes("AVAMET_INTERVAL_MIN", 10),
     fn: runAvamet,
+  },
+  {
+    // Protección Civil autonómica: activación de fases del plan de emergencias.
+    name: "gva",
+    intervalMin: minutes("GVA_INTERVAL_MIN", 5),
+    fn: runGva,
   },
   {
     name: "aemet-alerts",

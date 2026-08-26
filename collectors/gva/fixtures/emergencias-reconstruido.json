@@ -1,0 +1,14 @@
+{
+  "_nota": "EJEMPLO RECONSTRUIDO a partir del parser del widget (emergencias.html, lineas 542-563). NO es una captura real: ahora mismo z2 esta vacio. Muestra la forma de z2 cuando HAY emergencia activa. Verificar contra captura real en un episodio de lluvias antes de fijar la fixture de test.",
+  "c": "1",
+  "v": 5,
+  "t": 2,
+  "z2": {
+    "28": [ { "sit": 15, "fen": 10 } ],
+    "33": [ { "sit": 16, "fen": 10 } ]
+  },
+  "time": "2024-10-29 12:00:00.0",
+  "desEs": "<ul><li>Situacion 1 declarada en L'Horta Sud por Inundaciones</li></ul>",
+  "desVa": "<p>Situacio 1 declarada en L'Horta Sud per Inundacions</p>",
+  "isFileAH": true
+}

@@ -409,10 +409,16 @@ async function alertsFor(
   station: VirtualStation,
   now: Date,
 ): Promise<StationRisk["alerts"]> {
-  if (!station.aemetZone) return [];
+  // Zonas que afectan a esta localización: la de aviso de AEMET y las de emergencia de la GVA
+  // (comarca + comodín provincial). Los códigos no colisionan entre sistemas (774602 vs 28).
+  const zones = [station.aemetZone, ...station.gvaZones].filter((z): z is string => !!z);
+  if (zones.length === 0) return [];
   const rows = await db.execute<AlertRow>(sql`
       select id, source, area_code, level, event, event_code, onset, expires from alerts
-      where area_code = ${station.aemetZone}
+      where area_code in ${sql`(${sql.join(
+        zones.map((z) => sql`${z}`),
+        sql`, `,
+      )})`}
         and expires > ${now.toISOString()}::timestamptz
         and onset <= ${now.toISOString()}::timestamptz
       order by expires

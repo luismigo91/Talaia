@@ -34,11 +34,16 @@ export class AlertsController {
     q: AlertsQueryDto,
   ) {
     const stations = await loadVirtualStations(this.db);
-    const zones = [...new Set(stations.map((s) => s.aemetZone).filter((z): z is string => !!z))];
+    const zones = [
+      ...new Set(
+        stations.flatMap((s) => [s.aemetZone, ...s.gvaZones]).filter((z): z is string => !!z),
+      ),
+    ];
     const zoneNames = new Map<string, string[]>();
     for (const s of stations) {
-      if (!s.aemetZone) continue;
-      zoneNames.set(s.aemetZone, [...(zoneNames.get(s.aemetZone) ?? []), s.name]);
+      for (const z of [s.aemetZone, ...s.gvaZones].filter((z): z is string => !!z)) {
+        zoneNames.set(z, [...(zoneNames.get(z) ?? []), s.name]);
+      }
     }
     const wanted = q.zone ? [q.zone] : zones;
     if (wanted.length === 0) return { alerts: [] };

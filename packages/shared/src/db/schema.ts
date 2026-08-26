@@ -49,6 +49,7 @@ export const stations = pgTable("stations", {
 export interface StationMeta {
   ine?: string;
   aemet_zone?: string;
+  gva_zones?: string[];
   primary?: boolean;
   aemet_note?: string;
   [k: string]: unknown;
