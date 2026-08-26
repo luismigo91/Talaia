@@ -43,6 +43,8 @@ RUN pnpm --filter @talaia/web run build
 FROM runtime AS web
 COPY --from=build-web --chown=talaia:talaia /app/web/.next/standalone /app
 COPY --from=build-web --chown=talaia:talaia /app/web/.next/static /app/web/.next/static
+# `public/` no lo copia el standalone de Next: sin esto, sw.js e iconos dan 404.
+COPY --from=build-web --chown=talaia:talaia /app/web/public /app/web/public
 # Next escribe su caché en ejecución: sin este directorio, el contenedor arranca pero
 # registra errores de permisos en cada petición.
 USER root
