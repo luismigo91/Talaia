@@ -32,10 +32,11 @@ describe("StationCard", () => {
     expect(screen.getAllByText("naranja").length).toBeGreaterThan(0);
   });
 
-  it("explica por qué está en ese nivel", () => {
+  it("muestra la señal que manda (el titular)", () => {
     render(<StationCard risk={risk()} />);
     expect(screen.getByText(/RAMBLA POYO/)).toBeDefined();
-    expect(screen.getByText("Caudal")).toBeDefined();
+    // enlace al desglose completo
+    expect(screen.getByText(/ver desglose/)).toBeDefined();
   });
 
   it("sin datos evaluables lo dice, en vez de aparentar calma", () => {
@@ -43,14 +44,13 @@ describe("StationCard", () => {
     expect(screen.getByText(/no significa que no haya riesgo/)).toBeDefined();
   });
 
-  it("las advertencias de frescura se ven, no se esconden", () => {
+  it("avisa de datos sin actualizar de forma compacta", () => {
     render(
       <StationCard
         risk={risk({ warnings: ["dato obsoleto de MC RAMBLA POYO N-III (saih:13873): 45 min"] })}
       />,
     );
-    expect(screen.getByText(/dato obsoleto/)).toBeDefined();
-    expect(screen.getByText(/frescura de los datos/i)).toBeDefined();
+    expect(screen.getByText(/dato sin actualizar/)).toBeDefined();
   });
 
   it("muestra los avisos vigentes de la zona", () => {
@@ -74,8 +74,8 @@ describe("StationCard", () => {
     expect(screen.getByText(/Aviso de lluvias/)).toBeDefined();
   });
 
-  it("indica la hora de cálculo en local", () => {
+  it("indica la hora de cálculo en local, en el pie", () => {
     render(<StationCard risk={risk()} />);
-    expect(screen.getByText(/Calculado a las 20:00/)).toBeDefined();
+    expect(screen.getByText("20:00")).toBeDefined();
   });
 });

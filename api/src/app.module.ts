@@ -12,6 +12,8 @@ import { RiskHistoryController } from "./risk/history.controller.js";
 import { AlertsController } from "./alerts/alerts.controller.js";
 import { RiskStream } from "./risk/risk.stream.js";
 import { RiskStreamController } from "./risk/stream.controller.js";
+import { RiskBadgeController } from "./risk/badge.controller.js";
+import { PushController } from "./push/push.controller.js";
 import { RiskService } from "./risk/risk.service.js";
 
 @Module({
@@ -27,6 +29,8 @@ import { RiskService } from "./risk/risk.service.js";
     RiskHistoryController,
     AlertsController,
     RiskStreamController,
+    RiskBadgeController,
+    PushController,
   ],
   providers: [CompareService, RiskService, RiskStream],
 })

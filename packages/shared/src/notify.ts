@@ -84,6 +84,23 @@ export class NtfyNotifier implements Notifier {
   }
 }
 
+/** Reparte el aviso a varios canales; un canal que falle no impide los demás. */
+export class MultiNotifier implements Notifier {
+  private readonly targets: Notifier[];
+  constructor(targets: (Notifier | undefined)[]) {
+    this.targets = targets.filter((t): t is Notifier => !!t);
+  }
+  async send(n: RiskNotification): Promise<void> {
+    await Promise.all(
+      this.targets.map((t) =>
+        t.send(n).catch((err) => {
+          logger.error({ err: String(err) }, "un canal de notificación falló");
+        }),
+      ),
+    );
+  }
+}
+
 /** Notificador según el entorno: ntfy si hay `NTFY_URL`, si no uno nulo. */
 export function notifierFromEnv(env: NodeJS.ProcessEnv = process.env): Notifier {
   const url = env.NTFY_URL?.trim();

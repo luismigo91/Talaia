@@ -21,6 +21,7 @@ Las migraciones son idempotentes y usan un advisory lock, así que da igual qué
 | `API_URL` | web | sí (ya en compose) | `http://api:3000` |
 | `AEMET_API_KEY` | collectors | no | Sin ella: predicción y observación de AEMET se registran como error; el resto funciona |
 | `NTFY_URL`, `NTFY_TOKEN` | collectors | no | Notificaciones del semáforo; sin `NTFY_URL` solo se registran |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | **api y collectors** | no | Web Push. Las mismas en los dos servicios. Sin ellas, push desactivado |
 | `LOG_LEVEL` | todos | no | `info` por defecto |
 
 Intervalos opcionales (minutos), todos en `collectors`: `OPEN_METEO_INTERVAL_MIN`, `AEMET_FORECAST_INTERVAL_MIN`, `AEMET_ALERTS_INTERVAL_MIN`, `AEMET_OBSERVATION_INTERVAL_MIN`, `SAIH_INTERVAL_MIN`, `SAIH_BACKFILL_HOURS`, `METEOALARM_INTERVAL_MIN`, `AVAMET_INTERVAL_MIN`, `AVAMET_RADIUS_KM`, `GVA_INTERVAL_MIN`, `GVA_TTL_MINUTES`, `RISK_INTERVAL_MIN`, `RISK_FALL_CONFIRMATIONS`, `RISK_STALE_MINUTES`, `RISK_MAX_FLOW_JUMP`. Valores por defecto sensatos en `.env.example`.

@@ -31,6 +31,7 @@ Nueve incrementos implementados y verificados contra las fuentes reales (25–26
 | 8 | Observación y directo | Estaciones automáticas de AEMET; semáforo en vivo por SSE |
 | 9 | Calibración y AVAMET | Backfill e informe de umbrales; estaciones amateur para el hueco del Horteta |
 | 10 | GVA Emergències | Fases del plan de Protección Civil (Situación 0‑3) como cuarta señal de aviso |
+| 11 | PWA móvil | Instalable, offline, Web Push del cambio de nivel y endpoint de insignia para widgets |
 
 **Hallazgo de la calibración**: el histórico del Poyo trae **picos espurios** —de 0,1 a 855 m³/s en cinco minutos, sostenidos media hora y de vuelta a cero, con `estado` normal—. El semáforo usa ahora la última lectura *creíble* (`lastPlausible`): un salto mayor de 250 m³/s queda en cuarentena y solo se acepta si se sostiene una hora. Sin eso habría dado rojo cinco veces en año y medio sin llover.
 
@@ -90,7 +91,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - `forecast_ts`: instante de emisión de la predicción (NULL en observaciones). Permite comparar a posteriori el error de cada modelo.
 - Variables canónicas: `precip_mm`, `precip_prob_pct`, `precip_rate_mmh`, `precip_1h_mm`, `precip_12h_mm`, `precip_24h_mm`, `precip_day_mm`, `temp_c`, `rh_pct`, `wind_ms`, `gust_ms`, `river_level_m`, `river_flow_m3s`, `reservoir_hm3`, `reservoir_level_m`, `reservoir_pct`.
 - Unidades canónicas: mm, mm/h, %, °C, m/s, m, m³/s, hm³. Se convierte en el normalizador, nunca en el frontend.
-- Tablas: `observations`, `forecasts` (hypertables con compresión a 30 días; observaciones 3 años, predicciones 365 días), `stations`, `sensors`, `watch_points`, `thresholds`, `risk_state`, `risk_events`, `sources`, `source_status`, `alerts`.
+- Tablas: `push_subscriptions`, `observations`, `forecasts` (hypertables con compresión a 30 días; observaciones 3 años, predicciones 365 días), `stations`, `sensors`, `watch_points`, `thresholds`, `risk_state`, `risk_events`, `sources`, `source_status`, `alerts`.
 - `sensors` = catálogo de sensores externos (sensor de la fuente → variable canónica, unidad y umbrales oficiales). Añadir un sensor es una fila, no un despliegue. Los sensores **derivados** (`meta.derived_from`) los calcula el collector y `loadSensors()` los excluye por defecto para no pedirlos al portal.
 - `watch_points` = qué sensores vigila cada localización objetivo y con qué rol; `thresholds` = umbrales de lluvia (los de caudal ya vienen de la CHJ en `sensors`).
 

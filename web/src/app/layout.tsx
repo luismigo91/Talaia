@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { Fraunces, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { Logo } from "@/components/Logo";
+import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
 
 const display = Fraunces({
@@ -30,6 +31,19 @@ export const metadata: Metadata = {
   },
   description:
     "Semáforo de riesgo de inundación, sensores del SAIH Júcar y comparativa de modelos para Albal, Benetússer, el Mareny de Barraquetes y Benaguasil.",
+  applicationName: "Talaia",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Talaia" },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0f6e7a" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b191f" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -54,6 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
         <main className="layout">{children}</main>
+        <PwaRegister />
       </body>
     </html>
   );

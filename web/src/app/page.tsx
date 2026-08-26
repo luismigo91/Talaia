@@ -3,6 +3,7 @@ import { byRisk, dateTimeMadrid } from "@/lib/format";
 import { LevelBadge } from "@/components/LevelBadge";
 import { StationCard } from "@/components/StationCard";
 import { LiveRefresh } from "@/components/LiveRefresh";
+import { PushToggle } from "@/components/PushToggle";
 
 // Renderizado en cada petición, pero con los datos cacheados 60 s en `fetch`: así el build
 // no depende de que la API esté levantada y aun así no se la machaca.
@@ -22,6 +23,9 @@ export default async function Page() {
         máximo de las cuatro señales, nunca su media.
       </p>
 
+      <div className="toolbar">
+        <PushToggle />
+      </div>
       <LiveRefresh />
 
       {"error" in risk ? (

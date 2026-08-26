@@ -3,7 +3,8 @@ import type { Db } from "./db/client.js";
 import { logger } from "./logger.js";
 import { RISK_LEVELS, type RiskLevel } from "./risk.js";
 import { evaluateRisk, type StationRisk } from "./risk-eval.js";
-import { notifierFromEnv, type Notifier, type RiskNotification } from "./notify.js";
+import { MultiNotifier, notifierFromEnv, type Notifier, type RiskNotification } from "./notify.js";
+import { vapidFromEnv, WebPushNotifier } from "./webpush.js";
 
 export function fallConfirmations(env: NodeJS.ProcessEnv = process.env): number {
   const raw = Number(env.RISK_FALL_CONFIRMATIONS ?? 3);
@@ -115,7 +116,7 @@ export interface RiskCycleResult {
  */
 export async function runRiskCycle(db: Db, opts: RiskCycleOptions = {}): Promise<RiskCycleResult> {
   const now = opts.now ?? new Date();
-  const notifier = opts.notifier ?? notifierFromEnv();
+  const notifier = opts.notifier ?? defaultNotifier(db);
   const confirmations = opts.confirmations ?? fallConfirmations();
   const evaluations = await evaluateRisk(db, { now });
   if (evaluations.length === 0) throw new Error("no hay localizaciones que evaluar");
@@ -249,4 +250,10 @@ export const RISK_CHANNEL = "talaia_risk";
 export function leadingReason(station: StationRisk): string | null {
   const leading = station.components.filter((c) => c.level === station.level);
   return leading[0]?.detail ?? station.components[0]?.detail ?? null;
+}
+
+/** Canales por defecto del ciclo: ntfy (si hay URL) y Web Push (si hay claves VAPID). */
+function defaultNotifier(db: Db): Notifier {
+  const vapid = vapidFromEnv();
+  return new MultiNotifier([notifierFromEnv(), vapid ? new WebPushNotifier(db, vapid) : undefined]);
 }
