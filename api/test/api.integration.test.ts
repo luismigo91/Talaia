@@ -231,6 +231,49 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("API (integración)", () => {
     expect((r.json() as { summary: { last: number } }).summary.last).toBe(80);
   });
 
+  it("GET /alerts devuelve los vigentes de nuestras zonas, deduplicados entre fuentes", async () => {
+    // Fechas explícitas: `now()` cambia entre transacciones y estos avisos han de ser el mismo.
+    const onset = new Date(now.getTime() - 3.6e6).toISOString();
+    const expires = new Date(now.getTime() + 6 * 3.6e6).toISOString();
+    const add = (id: string, source: string, code: string, level: string) =>
+      pg`insert into alerts (id, source, area_code, event_code, event, level, severity,
+                             onset, expires, sent, raw)
+         values (${id}, ${source}, '774602', ${code}, ${"Aviso " + code}, ${level}, 'Severe',
+                 ${onset}::timestamptz, ${expires}::timestamptz, now(), '{}'::jsonb)
+         on conflict (id) do nothing`;
+    await add("a1", "aemet", "PR", "naranja");
+    await add("m1", "meteoalarm", "PR", "naranja"); // el mismo aviso, otra fuente
+    await add("v1", "meteoalarm", "VI", "amarillo");
+    await pg`insert into alerts (id, source, area_code, event_code, event, level, severity,
+                                 onset, expires, sent, raw)
+             values ('viejo', 'aemet', '774602', 'PR', 'Caducado', 'rojo', 'Severe',
+                     now() - interval '12 hours', now() - interval '1 hour', now(), '{}'::jsonb)
+             on conflict (id) do nothing`;
+
+    const r = await get("/api/v1/alerts");
+    expect(r.statusCode).toBe(200);
+    const { alerts } = r.json() as {
+      alerts: {
+        id: string;
+        source: string;
+        event_code: string;
+        active: boolean;
+        stations: string[];
+      }[];
+    };
+    // el aviso duplicado se cuenta una vez y manda AEMET; el caducado no sale
+    expect(alerts.filter((a) => a.event_code === "PR")).toHaveLength(1);
+    expect(alerts.find((a) => a.event_code === "PR")!.source).toBe("aemet");
+    expect(alerts.some((a) => a.id === "viejo")).toBe(false);
+    expect(alerts.every((a) => a.active)).toBe(true);
+    // la zona se traduce a las localidades que dependen de ella
+    expect(alerts[0]!.stations.length).toBeGreaterThan(0);
+
+    const todos = await get("/api/v1/alerts?active=false");
+    expect((todos.json() as { alerts: unknown[] }).alerts.length).toBeGreaterThan(alerts.length);
+    await pg`delete from alerts`;
+  });
+
   it("GET /observations sin parámetros → 400; sensor inexistente → 404", async () => {
     expect((await get("/api/v1/observations")).statusCode).toBe(400);
     expect((await get("/api/v1/observations?sensor=saih:99999")).statusCode).toBe(404);

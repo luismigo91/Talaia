@@ -50,6 +50,29 @@ describe("dedupeAlerts", () => {
     expect(out).toHaveLength(3);
   });
 
+  it("tolera diferencias de segundos: cada fuente sella el aviso a su manera", () => {
+    const out = dedupeAlerts([
+      { id: "a", source: "aemet", ...base },
+      {
+        id: "m",
+        source: "meteoalarm",
+        ...base,
+        onset: new Date("2026-08-25T10:00:41Z"),
+        expires: new Date("2026-08-25T20:00:12Z"),
+      },
+    ]);
+    expect(out).toHaveLength(1);
+    expect(out[0]!.source).toBe("aemet");
+  });
+
+  it("pero un minuto de diferencia ya es otro aviso", () => {
+    const out = dedupeAlerts([
+      { id: "a", source: "aemet", ...base },
+      { id: "m", source: "meteoalarm", ...base, expires: new Date("2026-08-25T20:01:00Z") },
+    ]);
+    expect(out).toHaveLength(2);
+  });
+
   it("compara fechas por instante, no por representación", () => {
     const out = dedupeAlerts([
       { id: "a", source: "aemet", ...base },

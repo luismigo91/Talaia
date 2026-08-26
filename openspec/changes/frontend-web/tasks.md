@@ -18,6 +18,12 @@
 - [x] Target `web` en `infra/Dockerfile` y servicio en el compose.
 - [x] `pnpm-workspace.yaml`, `.env.example` (`API_URL`, `NEXT_PUBLIC_MAP_STYLE`), lint y formato.
 
+## 2b. Ampliación (26-08-2026)
+- [x] `GET /api/v1/alerts` con deduplicación entre fuentes y traducción de zona a localidades.
+- [x] `/avisos`: avisos vigentes, marcando los que no elevan el semáforo.
+- [x] `/l/[id]`: detalle por localización con señales, sensores y series de 24 h con sus umbrales.
+- [x] Tests: endpoint de avisos, deduplicación tolerante a segundos y componentes.
+
 ## 5. Cierre
 - [x] Comprobación real con la pila local: las tres páginas sirven datos reales (4 tarjetas, 70 sensores en el mapa, 6 series en la comparativa con sus horas de emisión).
 - [ ] Verificación visual en navegador: no fue posible (la extensión de Chrome no está conectada); se verificó el HTML servido.

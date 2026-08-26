@@ -89,6 +89,39 @@ export interface Compare {
   };
 }
 
+export interface Alert {
+  id: string;
+  source: string;
+  zone: string;
+  zone_name: string | null;
+  stations: string[];
+  event: string | null;
+  event_code: string | null;
+  level: string;
+  severity: string | null;
+  parameter: string | null;
+  onset: string;
+  expires: string;
+  active: boolean;
+  headline: string | null;
+  description: string | null;
+}
+
+export interface ObservationSeries {
+  sensor: {
+    id: string;
+    source: string;
+    variable: string;
+    unit: string;
+    station: { id: string; name: string };
+    thresholds: { low: number | null; mid: number | null; high: number | null };
+  };
+  from: string;
+  hours: number;
+  summary: { points: number; last: number | null; max: number | null; level: Level | null };
+  points: { ts: string; value: number | null; quality: number | null }[];
+}
+
 export interface Station {
   id: string;
   name: string;
@@ -126,6 +159,12 @@ export const getSensors = () =>
   get<{ sensors: Sensor[] }>("/api/v1/sensors").then((r) => r.sensors);
 export const getStations = () =>
   get<{ stations: Station[] }>("/api/v1/stations").then((r) => r.stations);
+export const getAlerts = (active = true) =>
+  get<{ alerts: Alert[] }>(`/api/v1/alerts?active=${active}`).then((r) => r.alerts);
+export const getObservations = (sensor: string, hours = 24) =>
+  get<ObservationSeries>(
+    `/api/v1/observations?sensor=${encodeURIComponent(sensor)}&hours=${hours}`,
+  );
 export const getCompare = (station: string, variable: string, hours = 24) =>
   get<Compare>(
     `/api/v1/compare?station=${encodeURIComponent(station)}&variable=${encodeURIComponent(variable)}&hours=${hours}`,

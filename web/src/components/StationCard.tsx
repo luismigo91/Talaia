@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { StationRisk } from "@/lib/api";
 import { KIND_LABEL, label, timeMadrid } from "@/lib/format";
 import { LevelBadge } from "./LevelBadge";
@@ -8,7 +9,9 @@ export function StationCard({ risk }: { risk: StationRisk }) {
   return (
     <article className="card">
       <header>
-        <h2>{risk.station.name}</h2>
+        <h2>
+          <Link href={`/l/${encodeURIComponent(risk.station.id)}`}>{risk.station.name}</Link>
+        </h2>
         <LevelBadge level={risk.level} />
       </header>
       <div className="body">

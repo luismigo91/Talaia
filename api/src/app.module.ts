@@ -9,6 +9,7 @@ import { SensorsController } from "./sensors/sensors.controller.js";
 import { ObservationsController } from "./observations/observations.controller.js";
 import { RiskController } from "./risk/risk.controller.js";
 import { RiskHistoryController } from "./risk/history.controller.js";
+import { AlertsController } from "./alerts/alerts.controller.js";
 import { RiskService } from "./risk/risk.service.js";
 
 @Module({
@@ -22,6 +23,7 @@ import { RiskService } from "./risk/risk.service.js";
     ObservationsController,
     RiskController,
     RiskHistoryController,
+    AlertsController,
   ],
   providers: [CompareService, RiskService],
 })

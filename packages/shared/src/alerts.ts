@@ -15,14 +15,15 @@ const priority = (source: string) => {
   return i === -1 ? ALERT_SOURCE_PRIORITY.length : i;
 };
 
+/**
+ * Los avisos oficiales tienen granularidad de minuto, pero cada fuente los sella a su manera
+ * (y una reinserción puede cambiar los segundos). Comparar al segundo dejaría pasar duplicados
+ * por una diferencia que no significa nada.
+ */
+const minute = (d: Date | string) => Math.floor(new Date(d).getTime() / 60_000);
+
 const key = (a: DedupableAlert) =>
-  [
-    a.areaCode,
-    a.eventCode ?? "",
-    a.level,
-    new Date(a.onset).toISOString(),
-    new Date(a.expires).toISOString(),
-  ].join("|");
+  [a.areaCode, a.eventCode ?? "", a.level, minute(a.onset), minute(a.expires)].join("|");
 
 /**
  * Deduplica avisos equivalentes publicados por varias fuentes.

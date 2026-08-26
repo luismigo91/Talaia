@@ -59,6 +59,11 @@ CMD ["node", "dist/main.js"]
 FROM runtime AS web
 COPY --from=build-web --chown=talaia:talaia /app/web/.next/standalone /app
 COPY --from=build-web --chown=talaia:talaia /app/web/.next/static /app/web/.next/static
+# Next escribe su caché en ejecución: sin este directorio, el contenedor arranca pero
+# registra errores de permisos en cada petición.
+USER root
+RUN mkdir -p /app/web/.next/cache && chown -R talaia:talaia /app/web/.next
+USER talaia
 ENV PORT=3001 HOSTNAME=0.0.0.0
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
