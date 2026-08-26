@@ -1,16 +1,12 @@
-# Una imagen independiente por servicio (targets `api` y `collectors`), cada una con solo
-# su paquete y sus dependencias de producción (pnpm deploy). Contexto de build: raíz del repo.
-#
-#   docker build -f infra/Dockerfile --target api        -t talaia-api .
-#   docker build -f infra/Dockerfile --target collectors -t talaia-collectors .
-#   docker build -f infra/Dockerfile --target web        -t talaia-web .
+# Imagen del frontend (Next.js standalone). Contexto de build: raíz del repo.
+#   docker build -f infra/Dockerfile.web -t talaia-web .
 
 FROM node:22-alpine AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH CI=1
 RUN corepack enable
 WORKDIR /app
 
-# ---- build: instala todo el workspace y compila
+# ---- build: instala todo el workspace y compila (los servicios comparten @talaia/shared, db…)
 FROM base AS build
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY packages/shared/package.json packages/shared/
@@ -32,17 +28,6 @@ COPY api api
 COPY web web
 RUN pnpm -r --workspace-concurrency=1 run build
 
-# ---- deploy: un árbol podado por servicio (solo prod deps + dist de sus paquetes)
-FROM build AS deploy-api
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm --filter @talaia/api deploy --prod --legacy /out
-
-FROM build AS deploy-collectors
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm --filter @talaia/scheduler deploy --prod --legacy /out
-
-# ---- web: Next.js en modo standalone (trae solo las dependencias que usa en ejecución)
-FROM build AS build-web
-RUN pnpm --filter @talaia/web run build
-
 # ---- runtime común
 FROM node:22-alpine AS runtime
 ENV NODE_ENV=production TZ=UTC
@@ -51,12 +36,9 @@ WORKDIR /app
 USER talaia
 ENTRYPOINT ["/sbin/tini", "--"]
 
-FROM runtime AS api
-COPY --from=deploy-api --chown=talaia:talaia /out /app
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:3000/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "dist/main.js"]
+# ---- build del frontend (Next.js en modo standalone)
+FROM build AS build-web
+RUN pnpm --filter @talaia/web run build
 
 FROM runtime AS web
 COPY --from=build-web --chown=talaia:talaia /app/web/.next/standalone /app
@@ -71,10 +53,3 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3001/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "web/server.js"]
-
-FROM runtime AS collectors
-COPY --from=deploy-collectors --chown=talaia:talaia /out /app
-ENV HEARTBEAT_FILE=/tmp/talaia-heartbeat
-HEALTHCHECK --interval=60s --timeout=5s --start-period=120s --retries=3 \
-  CMD test -f /tmp/talaia-heartbeat && test $(( $(date +%s) - $(stat -c %Y /tmp/talaia-heartbeat) )) -lt 7200
-CMD ["node", "dist/main.js"]

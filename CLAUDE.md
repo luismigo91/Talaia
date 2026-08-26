@@ -114,7 +114,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - DB: **Postgres 16 + TimescaleDB + PostGIS** (`timescale/timescaledb-ha:pg16`). Acceso con **Drizzle ORM**; hypertables, políticas y PostGIS en migraciones SQL manuales.
 - Collectors: proceso scheduler con `node-cron`, un job por fuente aislado.
 - Tests: **Vitest** con fixtures reales; integración contra TimescaleDB en CI (GitHub Actions).
-- Docker: **una imagen por servicio** (`infra/Dockerfile` targets `api` y `collectors`, podadas con `pnpm deploy`). **Producción en Dokploy** como una *Application* por servicio (Dockerfile + Build Stage) más la DB aparte; compose solo como alternativa/desarrollo. Cada servicio aplica migraciones al arrancar. Sin registro de imágenes.
+- Docker: **una imagen por servicio** (un Dockerfile por servicio (`infra/Dockerfile.{api,collectors,web}`), podadas con `pnpm deploy`). **Producción en Dokploy** como una *Application* por servicio (Dockerfile + Build Stage) más la DB aparte; compose solo como alternativa/desarrollo. Cada servicio aplica migraciones al arrancar. Sin registro de imágenes.
 - Frontend: **Next.js 16 (App Router) + React 19 + MapLibre**, `output: standalone`. Sin framework de CSS ni librería de gráficos: CSS con variables y SVG propio.
 
 ## Comandos útiles

@@ -43,8 +43,7 @@ services:
   api:
     build:
       context: ..
-      dockerfile: infra/Dockerfile
-      target: api
+      dockerfile: infra/Dockerfile.api
     env_file: *env-file
     environment:
       POSTGRES_HOST: db
@@ -62,8 +61,7 @@ services:
   collectors:
     build:
       context: ..
-      dockerfile: infra/Dockerfile
-      target: collectors
+      dockerfile: infra/Dockerfile.collectors
     env_file: *env-file
     environment:
       POSTGRES_HOST: db
@@ -78,8 +76,7 @@ services:
   web:
     build:
       context: ..
-      dockerfile: infra/Dockerfile
-      target: web
+      dockerfile: infra/Dockerfile.web
     env_file: *env-file
     environment:
       API_URL: http://api:3000
