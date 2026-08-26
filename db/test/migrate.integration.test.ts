@@ -16,7 +16,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
     beforeAll(async () => {
       await resetDatabase(pg);
       const applied = await migrate(URL_);
-      expect(applied.length).toBe(8);
+      expect(applied.length).toBe(9);
     });
     afterAll(close);
 
@@ -36,7 +36,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
       const jobs = await db.execute<{ n: number }>(
         sql`select count(*)::int n from timescaledb_information.jobs where proc_name='policy_retention'`,
       );
-      expect(jobs[0]!.n).toBe(2);
+      expect(jobs[0]!.n).toBe(3);
       const stations = await loadVirtualStations(db);
       expect(stations.map((s) => s.id)).toEqual([
         "virtual:albal",
@@ -46,6 +46,31 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
       ]);
       expect(stations[0]!.primary).toBe(true);
       expect(stations[0]!.ine).toBe("46007");
+    });
+
+    it("las series temporales tienen retención y compresión", async () => {
+      const jobs = await db.execute<{
+        hypertable_name: string;
+        proc_name: string;
+        drop_after: string | null;
+        compress_after: string | null;
+      }>(sql`
+        select hypertable_name, proc_name,
+               config->>'drop_after' as drop_after, config->>'compress_after' as compress_after
+        from timescaledb_information.jobs where hypertable_name is not null
+      `);
+      const find = (t: string, p: string) =>
+        jobs.find((j) => j.hypertable_name === t && j.proc_name === p);
+
+      // El histórico de observaciones es la materia prima para calibrar umbrales: 3 años.
+      expect(find("observations", "policy_retention")?.drop_after).toBe("3 years");
+      expect(find("forecasts", "policy_retention")?.drop_after).toBe("365 days");
+      expect(find("raw_payloads", "policy_retention")?.drop_after).toBe("7 days");
+
+      // Se comprime a los 30 días: el collector reescribe datos recientes y esos upserts
+      // nunca deben caer en un chunk comprimido.
+      expect(find("observations", "policy_compression")?.compress_after).toBe("30 days");
+      expect(find("forecasts", "policy_compression")?.compress_after).toBe("30 days");
     });
 
     it("upsert de forecasts: la misma clave con otro valor deja una sola fila", async () => {
