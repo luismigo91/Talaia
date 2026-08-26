@@ -5,7 +5,7 @@
 ## Requirements
 
 ### Requirement: Imagen independiente por servicio
-`infra/Dockerfile` DEBE exponer un target por servicio (`api`, `collectors`) que produzca una imagen con solo ese paquete y sus dependencias de producción, construible y desplegable por separado (Application de Dokploy con *Docker Build Stage*), y `api` y `collectors` DEBEN aplicar las migraciones al arrancar de forma idempotente y concurrente-segura.
+Cada servicio DEBE tener su propio Dockerfile (`infra/Dockerfile.{api,collectors,web}`) que produzca una imagen con solo ese paquete y sus dependencias de producción, construible y desplegable por separado (Application de Dokploy, sin *Build Stage*), y `api` y `collectors` DEBEN aplicar las migraciones al arrancar de forma idempotente y concurrente-segura.
 
 #### Scenario: Builds independientes
 - **Cuando** se ejecuta `docker build --target api` y `docker build --target collectors`
