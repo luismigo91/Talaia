@@ -30,6 +30,7 @@ Nueve incrementos implementados y verificados contra las fuentes reales (25–26
 | 7 | Retención y CI | Compresión a 30 días, observaciones 3 años; CI construye frontend e imágenes |
 | 8 | Observación y directo | Estaciones automáticas de AEMET; semáforo en vivo por SSE |
 | 9 | Calibración y AVAMET | Backfill e informe de umbrales; estaciones amateur para el hueco del Horteta |
+| 10 | GVA Emergències | Fases del plan de Protección Civil (Situación 0‑3) como cuarta señal de aviso |
 
 **Hallazgo de la calibración**: el histórico del Poyo trae **picos espurios** —de 0,1 a 855 m³/s en cinco minutos, sostenidos media hora y de vuelta a cero, con `estado` normal—. El semáforo usa ahora la última lectura *creíble* (`lastPlausible`): un salto mayor de 250 m³/s queda en cuarentena y solo se acepta si se sostiene una hora. Sin eso habría dado rojo cinco veces en año y medio sin llover.
 
@@ -38,7 +39,7 @@ Nueve incrementos implementados y verificados contra las fuentes reales (25–26
 - Desplegar el servicio `web` en Dokploy y **mover el dominio de `api` a `web`** (la API es interna a propósito).
 - `AEMET_API_KEY` real: sin ella no entran la predicción municipal ni la observación de AEMET, y las fixtures de AEMET siguen sin ser capturas reales (ver final de `openspec/specs/collector-aemet/spec.md`).
 - `NTFY_URL` si se quieren recibir las notificaciones; sin ella las transiciones solo se registran.
-- Decidir sobre GVA Emergències, MITECO/embalses.net y Copernicus EFAS.
+- Capturar una respuesta real de la GVA con emergencias activas (`z2` poblado) en el próximo episodio, para confirmar la fixture de test.
 
 ## Estructura del monorepo
 
@@ -60,9 +61,9 @@ openspec/     Especificaciones (OpenSpec): specs/ = comportamiento vigente; chan
 | Open-Meteo | Predicción multi-modelo (ECMWF, GFS, ICON, AROME…) | REST sin clave. Uso no comercial | MVP |
 | Meteoalarm | Avisos AEMET republicados en CAP (API v1 JSON) | Feed público sin clave | **Implementado** (fase 5) |
 | SAIH Júcar (CHJ) | Nivel/caudal de barrancos, embalses, pluviómetros en tiempo real | Sin API pública ni auth; endpoints internos `/admin/…` | **Implementado** (fase 2) |
-| MITECO / embalses.net | Estado de embalses | Boletín semanal / scraping | Fase 3 |
-| GVA Emergències / 112 CV | Avisos Protección Civil | RSS / scraping | Fase 3 |
-| Copernicus EFAS | Alerta europea de inundación | GRIB/NetCDF pesados | Fase 4 |
+| MITECO / embalses.net | Estado de embalses | Boletín semanal | **Descartado**: ya hay 6 embalses del SAIH cada 5 min |
+| GVA Emergències / 112 CV | Fases del plan de emergencias (Situación 0‑3) | API JSON pública `wpr.112cv.gva.es` | **Implementado** (fase 10) |
+| Copernicus EFAS | Alerta europea de inundación | GRIB/NetCDF | **Descartado para alerta**: ciego al Poyo (<500 km²). Solo histórico para calibrar |
 | AVAMET | Estaciones amateur (l'Horta Sud); única señal del Horteta | Scraping HTML, CC BY‑NC‑ND | **Implementado** (fase 9) |
 
 ## Identificadores clave (verificados 25‑08‑2026, detalle en `docs/fuentes.md`)
@@ -139,4 +140,4 @@ API_URL=http://127.0.0.1:3000 pnpm --filter @talaia/web dev   # frontend en :300
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build  # stack completo local
 ```
 
-Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,saih,meteoalarm,avamet,scheduler}`, `api` (NestJS/Fastify), `web` (Next.js). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.
+Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,saih,meteoalarm,avamet,gva,scheduler}`, `api` (NestJS/Fastify), `web` (Next.js). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.

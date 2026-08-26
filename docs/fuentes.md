@@ -357,3 +357,28 @@ El mapa `EMMA_ID` → zona se generó del propio feed cruzando cada área con el
 - Datos amateur, sin control de calidad ni pluviómetros normalizados: entran como contexto y se muestran siempre marcados.
 - El histórico diario (`mx-meteoxarxa.php?territori=c16&data=AAAA-MM-DD`) **sí tiene el 29‑10‑2024** (Turís Canyapar 640,8 mm), a diferencia del SAIH ❓ pendiente de explotar para calibrar.
 - El export de microdatos crudos (`mx-consultes.php`) está **restringido a socios**.
+
+---
+
+## GVA Emergències · CCE 112 CV ✅ (verificado 26‑08‑2026)
+
+| Campo | Valor |
+|---|---|
+| URL | API JSON pública en `https://wpr.112cv.gva.es`. Emergencias: `/external/api/storage/descargar/json/emergencias`. Catálogos: `…/json/static/{zonas,situacion}`, `…/json/datos/fenomenos`, `/wp/api/municipios` |
+| Formato | JSON limpio (UTF‑8). `z2` = `{ "<idZonaEmergencia>": [ {sit, fen}, … ] }`. `time` en hora local, sin ISO |
+| Autenticación | Ninguna, sin cuota. `robots.txt` no restringe. **No hay RSS/Atom** (las rutas antiguas dan 404) |
+| Condiciones | *"Se autoriza su uso y difusión citando al CCE como autor"*. Atribución al CCE / Generalitat |
+| Interés | Activación de las **fases del plan de emergencias** por inundación (Situación 0/1/2/3): lo que deciden las autoridades, distinto del aviso meteorológico de AEMET |
+| Riesgo | Sin fecha de fin por aviso: la vigencia se infiere (TTL). El endpoint `avisosmeteorologicos` **es AEMET republicado, no integrar** |
+
+- Zonas de emergencia = **comarcas** (`idZonaEmergencia`): Albal/Benetússer `28` (L'Horta Sud), Sueca `33` (La Ribera Baixa), Benaguasil `23` (El Camp de Túria). Comodín provincial `51` = toda Valencia. Mapeo municipio→zona en `/wp/api/municipios`.
+- Fases (catálogo `situacion`): `14`=SIT 0, `15`=SIT 1, `16`=SIT 2, `17`=SIT 3. Fenómenos (`fenomenos`): `10`=Inundaciones, `15`=Tormentas, `11`=Vientos…
+- **Pendiente** ❓: capturar una respuesta con `z2` poblado durante un episodio real. Cuando se integró no había emergencias activas; la ruta con avisos está construida sobre el esquema del parser del widget, no sobre una captura real.
+
+## MITECO / embalses.net — descartado
+
+Ya hay volumen y cota de 6 embalses del SAIH Júcar **cada 5 min** (fase 2). MITECO es un boletín semanal: no añade nada más fresco. Sin collector.
+
+## Copernicus EFAS — descartado para alerta
+
+EFAS es **ciego al barranc del Poyo por diseño**: no emite notificación por debajo de 500 km² de cuenca, y el Poyo tiene ~182 km² en el aforo y ~450 en desembocadura. En la DANA de 2024 avisó del Túria (6.123 km²) con 138 h pero **nada del Poyo**. Único uso posible, nunca para alertar: `cems-glofas-historical` para climatología y verificar a posteriori el error de los modelos.
