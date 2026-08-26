@@ -17,12 +17,28 @@ Albal es la localización principal (el semáforo se calibra primero ahí). El M
 
 ## Estado actual
 
-- **MVP, collector SAIH Júcar y semáforo de riesgo implementados** (25‑08‑2026) y **archivados**: su comportamiento vigente vive en `openspec/specs/` (once capacidades) y las propuestas en `openspec/changes/archive/`. En producción: collectors de Open‑Meteo, AEMET y SAIH; TimescaleDB; API NestJS con `/compare`, `/sensors`, `/observations`, `/risk` y `/status`.
-- **Fase 5 implementada** (25‑08‑2026) según `openspec/changes/collector-meteoalarm/`: collector de Meteoalarm, que da los avisos de AEMET **sin clave** y cierra la cuarta señal del semáforo. Traduce `EMMA_ID`→zona AEMET (mapa de 128 zonas verificado) y `awareness_type`/`awareness_level` al vocabulario de AEMET; los duplicados entre fuentes se resuelven al leer, prefiriendo AEMET.
-- **Deuda conocida** (ver final de `openspec/specs/collector-aemet/spec.md`): faltan la `AEMET_API_KEY` real en Dokploy y las fixtures reales de AEMET (`46007`, `46054`, `46235`, `46051` y tar CAP del área `77`). Todo lo demás está verificado contra las fuentes reales.
-- **Fase 4 implementada** (25‑08‑2026) según `openspec/changes/notificaciones-riesgo/`: el cálculo del riesgo vive en `packages/shared` (`evaluateRisk`) para que scheduler y API no diverjan; tablas `risk_state` y `risk_events`; job `risk` cada 5 min con histéresis asimétrica; notificación por ntfy opcional; `GET /api/v1/risk/history`. Verificado con una crecida simulada de extremo a extremo. Pendiente: desplegar y archivar.
-- **Fase 6 implementada** (25‑08‑2026) según `openspec/changes/frontend-web/`: paquete `web/` con Next.js 16 y React 19. Tres pantallas: semáforo con su desglose e histórico, mapa MapLibre con los 70 sensores coloreados por umbral, y comparativa entre modelos en SVG propio. El navegador **no habla con la API**: las páginas son Server Components y solo `web` necesita dominio.
-- Siguiente incremento previsto: calibración de umbrales con episodios reales, radar de AEMET en el mapa (necesita clave) y WebSocket para el semáforo en vivo.
+Nueve incrementos implementados y verificados contra las fuentes reales (25–26‑08‑2026). Los tres primeros están **archivados** (`openspec/specs/`, once capacidades vigentes); el resto sigue en `openspec/changes/` pendiente de archivar.
+
+| # | Incremento | Qué aporta |
+|---|---|---|
+| 1 | MVP | Collectors Open‑Meteo y AEMET, TimescaleDB, `/compare` |
+| 2 | SAIH Júcar | 29 estaciones y 57 sensores, series cincominutales, `/sensors` y `/observations` |
+| 3 | Semáforo | `watch_points`, `thresholds`, `/risk` con desglose explicable |
+| 4 | Notificaciones | `risk_state`/`risk_events`, histéresis asimétrica, ntfy, `/risk/history` |
+| 5 | Meteoalarm | Avisos oficiales **sin clave**; cierra la cuarta señal del semáforo |
+| 6 | Frontend | `web/` (Next.js 16): semáforo, mapa, comparativa, avisos y detalle por localidad |
+| 7 | Retención y CI | Compresión a 30 días, observaciones 3 años; CI construye frontend e imágenes |
+| 8 | Observación y directo | Estaciones automáticas de AEMET; semáforo en vivo por SSE |
+| 9 | Calibración y AVAMET | Backfill e informe de umbrales; estaciones amateur para el hueco del Horteta |
+
+**Hallazgo de la calibración**: el histórico del Poyo trae **picos espurios** —de 0,1 a 855 m³/s en cinco minutos, sostenidos media hora y de vuelta a cero, con `estado` normal—. El semáforo usa ahora la última lectura *creíble* (`lastPlausible`): un salto mayor de 250 m³/s queda en cuarentena y solo se acepta si se sostiene una hora. Sin eso habría dado rojo cinco veces en año y medio sin llover.
+
+**Pendiente**:
+
+- Desplegar el servicio `web` en Dokploy y **mover el dominio de `api` a `web`** (la API es interna a propósito).
+- `AEMET_API_KEY` real: sin ella no entran la predicción municipal ni la observación de AEMET, y las fixtures de AEMET siguen sin ser capturas reales (ver final de `openspec/specs/collector-aemet/spec.md`).
+- `NTFY_URL` si se quieren recibir las notificaciones; sin ella las transiciones solo se registran.
+- Decidir sobre GVA Emergències, MITECO/embalses.net y Copernicus EFAS.
 
 ## Estructura del monorepo
 
@@ -47,7 +63,7 @@ openspec/     Especificaciones (OpenSpec): specs/ = comportamiento vigente; chan
 | MITECO / embalses.net | Estado de embalses | Boletín semanal / scraping | Fase 3 |
 | GVA Emergències / 112 CV | Avisos Protección Civil | RSS / scraping | Fase 3 |
 | Copernicus EFAS | Alerta europea de inundación | GRIB/NetCDF pesados | Fase 4 |
-| AVAMET / Meteoclimatic | Estaciones amateur | Por ver | Fase 4 |
+| AVAMET | Estaciones amateur (l'Horta Sud); única señal del Horteta | Scraping HTML, CC BY‑NC‑ND | **Implementado** (fase 9) |
 
 ## Identificadores clave (verificados 25‑08‑2026, detalle en `docs/fuentes.md`)
 
@@ -71,9 +87,9 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 
 - `ts`: instante para el que vale el dato (UTC, `timestamptz`).
 - `forecast_ts`: instante de emisión de la predicción (NULL en observaciones). Permite comparar a posteriori el error de cada modelo.
-- Variables canónicas: `precip_mm`, `precip_prob_pct`, `precip_rate_mmh`, `precip_24h_mm`, `temp_c`, `rh_pct`, `wind_ms`, `gust_ms`, `river_level_m`, `river_flow_m3s`, `reservoir_hm3`, `reservoir_level_m`, `reservoir_pct`.
+- Variables canónicas: `precip_mm`, `precip_prob_pct`, `precip_rate_mmh`, `precip_1h_mm`, `precip_12h_mm`, `precip_24h_mm`, `precip_day_mm`, `temp_c`, `rh_pct`, `wind_ms`, `gust_ms`, `river_level_m`, `river_flow_m3s`, `reservoir_hm3`, `reservoir_level_m`, `reservoir_pct`.
 - Unidades canónicas: mm, mm/h, %, °C, m/s, m, m³/s, hm³. Se convierte en el normalizador, nunca en el frontend.
-- Tablas: `observations`, `forecasts` (hypertables), `stations`, `sensors`, `watch_points`, `thresholds`, `risk_state`, `risk_events`, `sources`, `source_status`, `alerts`.
+- Tablas: `observations`, `forecasts` (hypertables con compresión a 30 días; observaciones 3 años, predicciones 365 días), `stations`, `sensors`, `watch_points`, `thresholds`, `risk_state`, `risk_events`, `sources`, `source_status`, `alerts`.
 - `sensors` = catálogo de sensores externos (sensor de la fuente → variable canónica, unidad y umbrales oficiales). Añadir un sensor es una fila, no un despliegue. Los sensores **derivados** (`meta.derived_from`) los calcula el collector y `loadSensors()` los excluye por defecto para no pedirlos al portal.
 - `watch_points` = qué sensores vigila cada localización objetivo y con qué rol; `thresholds` = umbrales de lluvia (los de caudal ya vienen de la CHJ en `sensors`).
 
@@ -114,10 +130,13 @@ pnpm --filter @talaia/collector-open-meteo run-once             # un ciclo del c
 pnpm --filter @talaia/collector-aemet run-once                  # requiere AEMET_API_KEY
 pnpm --filter @talaia/collector-saih run-once                   # sin clave; SAIH_BACKFILL_HOURS ajusta la 1.ª ventana
 pnpm --filter @talaia/collector-meteoalarm run-once             # avisos oficiales sin clave
+pnpm --filter @talaia/collector-avamet run-once                 # estaciones amateur (l'Horta Sud)
+pnpm --filter @talaia/collector-saih backfill 2025-01-01        # histórico para calibrar
+pnpm --filter @talaia/scheduler calibrate                       # informe de umbrales vs histórico
 pnpm --filter @talaia/scheduler risk-once                       # fuerza una evaluación del semáforo
 pnpm --filter @talaia/api dev        # API en :3000 con recarga
 API_URL=http://127.0.0.1:3000 pnpm --filter @talaia/web dev   # frontend en :3001
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build  # stack completo local
 ```
 
-Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,saih,meteoalarm,scheduler}`, `api` (NestJS/Fastify), `web` (Next.js). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.
+Paquetes: `packages/shared` (esquema Drizzle, cliente DB, utilidades), `db` (migrador SQL propio, `db/migrations/NNNN_*.sql`), `collectors/{open-meteo,aemet,saih,meteoalarm,avamet,scheduler}`, `api` (NestJS/Fastify), `web` (Next.js). Los tests importan `src` por alias de Vitest; `dist` solo se usa en Docker y en `run-once`/`start` — **rebuild (`pnpm typecheck`) antes de probar binarios**.

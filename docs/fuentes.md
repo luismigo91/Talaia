@@ -338,3 +338,22 @@ El mapa `EMMA_ID` → zona se generó del propio feed cruzando cada área con el
 | Estaciones de interés | Paiporta `c16m186e02`; Catarroja `c16m094e05`; Torrent `c16m244e03`, `c16m244e01`; Chiva `c18m111e01`, `c18m111e03`, `c18m111e04`; Turís `c20m248e02` |
 | Interés | Única red densa en l'Horta Sud y cabecera del Poyo; el 29‑10‑2024 registró >500 mm en Chiva/Cheste/Buñol/Godelleta |
 | Prioridad | Fase 4 (scraping frágil) |
+
+---
+
+## AVAMET · Meteoxarxa ✅ (verificado 26‑08‑2026)
+
+| Campo | Valor |
+|---|---|
+| URL | Tabla de precipitación por comarca: `https://www.avamet.org/mxo-mxo-prec.php?territori=c16` (92 KB, 25 estaciones de l'Horta Sud). Ficha de estación: `mx-fitxa.php?id=<id>` (coordenadas en `var lat` / `var lon`) |
+| Formato | **HTML sin API**. No hay JSON, ni `fetch`, ni endpoint de exportación: todo es PHP renderizado en servidor |
+| Autenticación | Ninguna. `robots.txt` no prohíbe estas rutas y acepta un `User-Agent` propio |
+| Licencia | **CC BY‑NC‑ND 4.0**: uso no comercial con **atribución visible**, que el frontend incluye |
+| Interés | Única señal del **barranc de l'Horteta** (Torrent, Paiporta, Picanya, Catarroja), que está fuera del SAIH |
+| Riesgo | HTML sin contrato: un rediseño lo rompe. Servidor de una asociación pequeña y sin gzip: una petición por ciclo y separación mínima de 1 s |
+
+- Identificadores: `c{comarca}m{municipio INE sin provincia}e{estación}` — Torrent `c16m244e03`, Paiporta `c16m186e02`, Albal `c16m007e02`. **Benetússer no tiene estación** ✅ (comprobado sobre el listado de la comarca).
+- La tabla comarcal trae los acumulados **ya calculados** por AVAMET (día, 1 h, 4 h, 8 h, 12 h, 24 h, 48 h, 72 h) y la hora de última lectura de cada estación en el `title` de la última celda, en hora local.
+- Datos amateur, sin control de calidad ni pluviómetros normalizados: entran como contexto y se muestran siempre marcados.
+- El histórico diario (`mx-meteoxarxa.php?territori=c16&data=AAAA-MM-DD`) **sí tiene el 29‑10‑2024** (Turís Canyapar 640,8 mm), a diferencia del SAIH ❓ pendiente de explotar para calibrar.
+- El export de microdatos crudos (`mx-consultes.php`) está **restringido a socios**.

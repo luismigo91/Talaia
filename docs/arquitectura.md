@@ -242,3 +242,19 @@ El scheduler evalúa el semáforo cada `RISK_INTERVAL_MIN` (5 min) con **la mism
 - **El silencio no baja el nivel**: si una evaluación se queda sin componentes (sensores mudos u obsoletos), se conserva el nivel anterior y se anota la advertencia.
 - **Canal**: ntfy por HTTP (`NTFY_URL`, `NTFY_TOKEN`), con prioridad según el nivel. Sin configurar, la transición se registra y no se envía nada: el sistema nunca falla por no tener canal. Si el envío falla, el evento queda con `notified=false` y el error en `notify_error`.
 - `GET /api/v1/risk/history` devuelve las transiciones; `pnpm --filter @talaia/scheduler risk-once` fuerza una evaluación.
+
+### Lecturas creíbles (fase 9)
+
+El semáforo no usa la última lectura de caudal, sino la última **creíble**. El histórico del SAIH tiene escalones imposibles —el Poyo pasa de 0,1 a 855 m³/s en cinco minutos, se sostiene media hora y vuelve a cero, con el `estado` de la CHJ marcándolos como buenos— y sin filtrarlos habrían dado cinco rojos en año y medio sin llover.
+
+La regla distingue el artefacto de la crecida por **cómo llega el valor**: una crecida sube por rampa (unos 65 m³/s cada cinco minutos en la DANA de 2024, la peor conocida), un artefacto salta. Un escalón mayor que `RISK_MAX_FLOW_JUMP` (250 m³/s) queda en cuarentena; si se sostiene una hora se acepta —puede ser una suelta de embalse— y si vuelve antes no ha contado nunca.
+
+El filtro vive **al leer**, no al escribir: `observations` conserva exactamente lo que publicó la CHJ, que es lo que permite calibrar y, llegado el caso, reportárselo.
+
+### Lluvia amateur (fase 9)
+
+Las estaciones de AVAMET a menos de `AVAMET_RADIUS_KM` (8 km) de una localidad cuentan como lluvia observada, con los mismos umbrales. Son la única señal del barranc de l'Horteta, que está fuera del SAIH. El detalle del componente dice siempre que la lectura es amateur y a qué distancia está, y el pie del frontend lleva la atribución que exige su licencia (CC BY‑NC‑ND 4.0).
+
+### Calibración (fase 9)
+
+`pnpm --filter @talaia/collector-saih backfill <desde>` descarga histórico por ventanas de 30 días y `pnpm --filter @talaia/scheduler calibrate` informa, por sensor vigilado: percentiles, horas por encima de cada umbral, mayores episodios y un veredicto sobre si el umbral separa lo normal de lo excepcional. **No ajusta nada solo**: decide una persona.
