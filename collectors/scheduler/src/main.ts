@@ -5,13 +5,16 @@ import { createDb, logger, waitForDb, type Db } from "@talaia/shared";
 import { run as runOpenMeteo } from "@talaia/collector-open-meteo";
 import { run as runSaih } from "@talaia/collector-saih";
 import { run as runMeteoalarm } from "@talaia/collector-meteoalarm";
+import { run as runAvamet } from "@talaia/collector-avamet";
 import {
   run as runAemet,
   AemetClient,
   resolveApiKey,
   runForecasts,
   collectAlerts,
+  collectObservations,
   ALERTS_SOURCE,
+  OBSERVATION_SOURCE,
 } from "@talaia/collector-aemet";
 import { runWithStatus, runRiskCycle } from "@talaia/shared";
 
@@ -48,6 +51,12 @@ const jobs: Job[] = [
     fn: runMeteoalarm,
   },
   {
+    // Estaciones amateur: la única señal del Horteta, que está fuera del SAIH.
+    name: "avamet",
+    intervalMin: minutes("AVAMET_INTERVAL_MIN", 10),
+    fn: runAvamet,
+  },
+  {
     name: "aemet-alerts",
     intervalMin: minutes("AEMET_ALERTS_INTERVAL_MIN", 10),
     fn: async (db) => {
@@ -57,6 +66,17 @@ const jobs: Job[] = [
           Promise.reject(new Error("falta AEMET_API_KEY")),
         );
       return runWithStatus(db, ALERTS_SOURCE, () => collectAlerts(db, c, "77"));
+    },
+  },
+  {
+    // La observación oficial es la referencia con la que contrastar la lluvia derivada del SAIH.
+    name: "aemet-observation",
+    intervalMin: minutes("AEMET_OBSERVATION_INTERVAL_MIN", 30),
+    fn: async (db) => {
+      const c = aemetClient();
+      return runWithStatus(db, OBSERVATION_SOURCE, () =>
+        c ? collectObservations(db, c) : Promise.reject(new Error("falta AEMET_API_KEY")),
+      );
     },
   },
   {

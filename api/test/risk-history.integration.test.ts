@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { NestFastifyApplication } from "@nestjs/platform-fastify";
 import {
   createDb,
+  listenRiskChanges,
   runRiskCycle,
   upsertObservations,
   type Notifier,
@@ -200,5 +201,29 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("histórico y notificaciones (i
       await pg`select last_success_at, records_written from source_status where source = 'risk'`;
     expect(row!.last_success_at).not.toBeNull();
     expect(Number(row!.records_written)).toBeGreaterThan(0);
+  });
+
+  it("un cambio de nivel se anuncia por Postgres para el stream en vivo", async () => {
+    const recibidos: string[] = [];
+    const stop = await listenRiskChanges((payload) => recibidos.push(payload), URL_);
+    try {
+      await upsertObservations(db, [flow(200)]);
+      await cycle(new SpyNotifier());
+      // el NOTIFY viaja por otra conexión: se espera un momento a que llegue
+      for (let i = 0; i < 40 && recibidos.length === 0; i++) {
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      expect(recibidos.length).toBeGreaterThan(0);
+      const evento = JSON.parse(recibidos[0]!) as {
+        stationId: string;
+        level: string;
+        direction: string;
+      };
+      expect(evento.level).toBe("rojo");
+      expect(evento.direction).toBe("subida");
+      expect(evento.stationId).toMatch(/^virtual:/);
+    } finally {
+      await stop();
+    }
   });
 });

@@ -2,6 +2,7 @@ import { getHistory, getRisk, safe } from "@/lib/api";
 import { byRisk, dateTimeMadrid } from "@/lib/format";
 import { LevelBadge } from "@/components/LevelBadge";
 import { StationCard } from "@/components/StationCard";
+import { LiveRefresh } from "@/components/LiveRefresh";
 
 // Renderizado en cada petición, pero con los datos cacheados 60 s en `fetch`: así el build
 // no depende de que la API esté levantada y aun así no se la machaca.
@@ -19,6 +20,8 @@ export default async function Page() {
         lluvia observada y prevista, y los avisos oficiales vigentes. Lo peor manda: el nivel es el
         máximo de las cuatro señales, nunca su media.
       </p>
+
+      <LiveRefresh />
 
       {"error" in risk ? (
         <p className="error">No se ha podido leer el semáforo: {risk.error}</p>
@@ -72,9 +75,20 @@ export default async function Page() {
       </section>
 
       <p className="foot">
-        Fuentes: SAIH Júcar (CHJ), AEMET OpenData, Meteoalarm y Open-Meteo. Los umbrales de caudal
-        son los oficiales de la CHJ y los de lluvia, los del Plan Meteoalerta de AEMET. Esto es un
-        proyecto personal: en una emergencia, la referencia es el 112 y Protección Civil.
+        Fuentes: SAIH Júcar (CHJ), AEMET OpenData, Meteoalarm, Open-Meteo y{" "}
+        <a href="https://www.avamet.org" rel="noreferrer noopener">
+          AVAMET
+        </a>{" "}
+        (estaciones amateur,{" "}
+        <a
+          href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.ca"
+          rel="license noreferrer"
+        >
+          CC BY-NC-ND 4.0
+        </a>
+        ). Los umbrales de caudal son los oficiales de la CHJ y los de lluvia, los del Plan
+        Meteoalerta de AEMET. Esto es un proyecto personal: en una emergencia, la referencia es el
+        112 y Protección Civil.
       </p>
     </>
   );

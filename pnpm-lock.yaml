@@ -104,6 +104,15 @@ importers:
         specifier: ^3.1.3
         version: 3.1.4
 
+  collectors/avamet:
+    dependencies:
+      '@talaia/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      drizzle-orm:
+        specifier: ^0.44.0
+        version: 0.44.7(postgres@3.4.9)
+
   collectors/meteoalarm:
     dependencies:
       '@talaia/shared':
@@ -136,6 +145,9 @@ importers:
       '@talaia/collector-aemet':
         specifier: workspace:*
         version: link:../aemet
+      '@talaia/collector-avamet':
+        specifier: workspace:*
+        version: link:../avamet
       '@talaia/collector-meteoalarm':
         specifier: workspace:*
         version: link:../meteoalarm

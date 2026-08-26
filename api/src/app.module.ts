@@ -10,6 +10,8 @@ import { ObservationsController } from "./observations/observations.controller.j
 import { RiskController } from "./risk/risk.controller.js";
 import { RiskHistoryController } from "./risk/history.controller.js";
 import { AlertsController } from "./alerts/alerts.controller.js";
+import { RiskStream } from "./risk/risk.stream.js";
+import { RiskStreamController } from "./risk/stream.controller.js";
 import { RiskService } from "./risk/risk.service.js";
 
 @Module({
@@ -24,7 +26,8 @@ import { RiskService } from "./risk/risk.service.js";
     RiskController,
     RiskHistoryController,
     AlertsController,
+    RiskStreamController,
   ],
-  providers: [CompareService, RiskService],
+  providers: [CompareService, RiskService, RiskStream],
 })
 export class AppModule {}

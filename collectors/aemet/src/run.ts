@@ -7,11 +7,20 @@ import {
   logger,
   runWithStatus,
   upsertForecasts,
+  upsertObservations,
   type Db,
   type ForecastRow,
   type VirtualStation,
 } from "@talaia/shared";
 import { AemetClient, endpoints } from "./client.js";
+import {
+  observationStations,
+  parseObservations,
+  upsertSensors,
+  upsertStation,
+  OBSERVATION_SOURCE,
+  type AemetObservation,
+} from "./observation.js";
 import { extractXmlFromTarGz, parseCap, toMultiPolygonWkt, type CapAlert } from "./cap.js";
 import { parseHourly, type AemetHourly } from "./hourly.js";
 
@@ -37,10 +46,12 @@ export async function run(db: Db, opts: RunOptions = {}) {
       await runWithStatus(db, forecastSource(s), () => Promise.reject(new Error(message)));
     }
     await runWithStatus(db, ALERTS_SOURCE, () => Promise.reject(new Error(message)));
+    await runWithStatus(db, OBSERVATION_SOURCE, () => Promise.reject(new Error(message)));
     return;
   }
   await runForecasts(db, client);
   await runWithStatus(db, ALERTS_SOURCE, () => collectAlerts(db, client, opts.area ?? AREA_CV));
+  await runWithStatus(db, OBSERVATION_SOURCE, () => collectObservations(db, client));
 }
 
 export async function runForecasts(db: Db, client: AemetClient) {
@@ -128,4 +139,49 @@ export async function upsertAlerts(db: Db, items: CapAlert[]): Promise<number> {
     n++;
   }
   return n;
+}
+
+/**
+ * Observación de las estaciones automáticas de AEMET: la única medida oficial de lluvia con
+ * la que contrastar la que deriva el collector del SAIH. Una estación caída no impide leer
+ * las demás; el ciclo solo falla si no responde ninguna.
+ */
+export async function collectObservations(db: Db, client: AemetClient, idemas?: string[]) {
+  const stations = idemas ?? observationStations();
+  const problems: string[] = [];
+  let written = 0;
+
+  for (const idema of stations) {
+    try {
+      const text = await client.getText(endpoints.observation(idema));
+      const payload = JSON.parse(text) as AemetObservation[];
+      const rows = Array.isArray(payload) ? payload : [payload];
+      const last = rows.at(-1);
+      if (!last) {
+        problems.push(`${idema} (sin filas)`);
+        continue;
+      }
+      if (!(await upsertStation(db, last))) {
+        problems.push(`${idema} (sin coordenadas en la respuesta)`);
+        continue;
+      }
+      const observations = parseObservations(rows);
+      await upsertSensors(db, idema, [...new Set(observations.map((o) => o.variable))]);
+      written += await upsertObservations(db, observations);
+    } catch (err) {
+      problems.push(`${idema} (${err instanceof Error ? err.message : String(err)})`);
+    }
+  }
+  if (problems.length === stations.length) {
+    throw new Error(`ninguna estación respondió: ${problems.join("; ")}`);
+  }
+  logger.info({ estaciones: stations.length, rows: written }, "aemet: observación escrita");
+  return {
+    recordsWritten: written,
+    ...(problems.length > 0
+      ? {
+          warning: `${problems.length}/${stations.length} estaciones sin datos: ${problems.join("; ")}`,
+        }
+      : {}),
+  };
 }

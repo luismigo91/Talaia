@@ -3,7 +3,13 @@ import { sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createDb } from "@talaia/shared";
 import { AemetClient } from "../src/client.js";
-import { collectAlerts, collectForecast, forecastSource, upsertAlerts } from "../src/run.js";
+import {
+  collectAlerts,
+  collectForecast,
+  collectObservations,
+  forecastSource,
+  upsertAlerts,
+} from "../src/run.js";
 import { extractXmlFromTarGz, parseCap } from "../src/cap.js";
 import { migrate } from "@talaia/db";
 import { resetDatabase } from "@talaia/db/testing";
@@ -81,5 +87,57 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("collector AEMET (integración)
 
     const a = await collectAlerts(db, client, "77");
     expect(a.recordsWritten).toBe(2);
+  });
+
+  it("observación: da de alta la estación con sus coordenadas y escribe las series", async () => {
+    const obs = readFileSync(fx("observacion-8337X.json"));
+    const fetchFn = (async (url: string) => {
+      if (url.includes("/api/")) {
+        return new Response(JSON.stringify({ estado: 200, datos: "https://x/sh/obs" }), {
+          status: 200,
+        });
+      }
+      return new Response(obs, { status: 200, headers: { "content-type": "application/json" } });
+    }) as unknown as typeof fetch;
+    const client = new AemetClient({ apiKey: "KEY", fetch: fetchFn, minIntervalMs: 0 });
+
+    const r = await collectObservations(db, client, ["8337X"]);
+    expect(r.recordsWritten).toBeGreaterThan(10);
+    expect(r.warning).toBeUndefined();
+
+    // la estación se autopobla con las coordenadas que trae la propia respuesta
+    const [station] = await db.execute<{ name: string; lat: number; lon: number; alt: number }>(
+      sql`select name, ST_Y(geom) as lat, ST_X(geom) as lon, elevation_m as alt
+          from stations where id = 'aemet:8337X'`,
+    );
+    expect(station!.name).toBe("TURIS");
+    expect(Number(station!.lat)).toBeCloseTo(39.389, 2);
+    expect(Number(station!.lon)).toBeCloseTo(-0.7125, 3);
+
+    // y sus variables entran en el catálogo de sensores, sin umbrales
+    const sensores = await db.execute<{ n: number }>(
+      sql`select count(*)::int n from sensors where source = 'aemet' and station_id = 'aemet:8337X'`,
+    );
+    expect(sensores[0]!.n).toBeGreaterThan(3);
+
+    const lluvia = await db.execute<{ value: number; ts: string }>(sql`
+      select value, ts from observations
+      where source = 'aemet:observation' and station_id = 'aemet:8337X' and variable = 'precip_mm'
+      order by ts
+    `);
+    expect(lluvia.map((r) => Number(r.value))).toEqual([0, 1.4]);
+
+    // repetir no duplica
+    await collectObservations(db, client, ["8337X"]);
+    const [n] = await db.execute<{ n: number }>(
+      sql`select count(*)::int n from observations where source = 'aemet:observation'`,
+    );
+    expect(n!.n).toBe(r.recordsWritten);
+  });
+
+  it("una estación caída no impide las demás; si fallan todas, el ciclo falla", async () => {
+    const fetchFn = (async () => new Response("nope", { status: 500 })) as unknown as typeof fetch;
+    const client = new AemetClient({ apiKey: "KEY", fetch: fetchFn, minIntervalMs: 0 });
+    await expect(collectObservations(db, client, ["8416"])).rejects.toThrow(/ninguna estación/);
   });
 });

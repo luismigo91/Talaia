@@ -3,6 +3,7 @@ import type { Db } from "./db/client.js";
 import { loadVirtualStations, type VirtualStation } from "./stations.js";
 import { thresholdLevel } from "./sensors.js";
 import { dedupeAlerts } from "./alerts.js";
+import { lastPlausible } from "./plausibility.js";
 import {
   levelFor,
   loadThresholds,
@@ -28,6 +29,32 @@ export function staleMinutes(env: NodeJS.ProcessEnv = process.env): number {
  * mitad del tiempo, y un embalse soltando agua que no cuenta es exactamente el verde falso que
  * queremos evitar.
  */
+/**
+ * Radio en el que cuentan las estaciones amateur de AVAMET. Son la única señal del barranc de
+ * l'Horteta, que está fuera del SAIH; se buscan por cercanía en lugar de mantener a mano una
+ * lista que quedaría desfasada en cuanto alguien monte o retire una estación.
+ */
+/**
+ * Salto máximo plausible de caudal entre dos muestras cincominutales.
+ *
+ * El histórico del Poyo tiene picos que van de 0,1 a 855 m³/s en cinco minutos, se sostienen
+ * media hora y vuelven a cero: físicamente imposible, y el `estado` de la CHJ los da por
+ * buenos. Sin este filtro el semáforo habría dado rojo cinco veces en año y medio sin una gota
+ * de lluvia, que es la forma más rápida de que nadie vuelva a mirar un aviso.
+ *
+ * El listón: en la DANA del 29-10-2024 el Poyo subió de ~0 a ~2.230 m³/s en 170 minutos, unos
+ * 65 m³/s por cada cinco. 250 deja casi cuatro veces de margen sobre la peor crecida conocida.
+ */
+export function maxFlowJump(env: NodeJS.ProcessEnv = process.env): number {
+  const raw = Number(env.RISK_MAX_FLOW_JUMP ?? 250);
+  return Number.isFinite(raw) && raw > 0 ? raw : 250;
+}
+
+export function avametRadiusKm(env: NodeJS.ProcessEnv = process.env): number {
+  const raw = Number(env.AVAMET_RADIUS_KM ?? 8);
+  return Number.isFinite(raw) && raw > 0 ? raw : 8;
+}
+
 export function maxAgeMsFor(kind: string, env: NodeJS.ProcessEnv = process.env): number {
   const base = staleMinutes(env);
   return (kind === "reservoir" ? Math.max(base, 90) : base) * 60_000;
@@ -67,6 +94,9 @@ type RainRow = {
   station_name: string;
   mm1h: number | string | null;
   mm12h: number | string | null;
+  /** Marca de procedencia: las lecturas amateur se etiquetan al mostrarlas. */
+  amateur?: boolean;
+  signal?: string;
 };
 type ForecastRow = { source: string; mm12h: number | string | null; mm24h: number | string | null };
 type AlertRow = {
@@ -112,7 +142,7 @@ async function riskFor(db: Db, station: VirtualStation, now: Date): Promise<Stat
 
   const flow = await flowComponents(db, hydro, now, warnings);
   components.push(...flow.components);
-  components.push(...(await rainObservedComponents(db, rain, thresholds, now)));
+  components.push(...(await rainObservedComponents(db, rain, thresholds, now, station)));
   components.push(...(await rainForecastComponents(db, station, thresholds, now)));
 
   const alerts = await alertsFor(db, station, now);
@@ -159,20 +189,42 @@ async function flowComponents(
 ): Promise<{ components: RiskComponent[]; anyFresh: boolean }> {
   if (points.length === 0) return { components: [], anyFresh: false };
   const ids = points.map((p) => p.sensorId);
-  const rows = await db.execute<ObsRow>(sql`
-      select s.id as sensor_id, o.value, o.ts
+  // Se traen las últimas seis horas de cada sensor y la lectura creíble se elige en código:
+  // distinguir un artefacto de una crecida exige mirar cómo llegó el valor, no cuánto vale.
+  // La ventana es más larga que el margen de frescura a propósito, para poder distinguir un
+  // sensor que lleva horas mudo de uno que nunca ha dado nada.
+  const rows = await db.execute<ObsRow & { variable: string }>(sql`
+      select s.id as sensor_id, s.variable, o.value, o.ts
       from sensors s
       join lateral (
         select value, ts from observations
         where source = s.source and station_id = s.station_id and variable = s.variable
-        order by ts desc limit 1
+          and ts >= now() - interval '6 hours'
+        order by ts desc limit 72
       ) o on true
       where s.id in ${sql`(${sql.join(
         ids.map((i) => sql`${i}`),
         sql`, `,
       )})`}
     `);
-  const byId = new Map(rows.map((r) => [r.sensor_id, r]));
+
+  const jump = maxFlowJump();
+  const series = new Map<string, (ObsRow & { variable: string })[]>();
+  for (const r of rows) series.set(r.sensor_id, [...(series.get(r.sensor_id) ?? []), r]);
+
+  const byId = new Map<string, ObsRow>();
+  for (const [sensorId, serie] of series) {
+    const variable = serie[0]!.variable;
+    const conFiltro = variable === "river_flow_m3s" || variable === "river_level_m";
+    const muestras = serie
+      .filter((r) => r.value !== null)
+      .map((r) => ({ value: Number(r.value), ts: new Date(r.ts) }));
+    if (muestras.length === 0) continue;
+    const elegida = conFiltro
+      ? lastPlausible(muestras, { maxJump: jump }).sample
+      : muestras.reduce((a, b) => (a.ts > b.ts ? a : b));
+    if (elegida) byId.set(sensorId, { sensor_id: sensorId, value: elegida.value, ts: elegida.ts });
+  }
   const components: RiskComponent[] = [];
   let anyFresh = false;
 
@@ -218,10 +270,14 @@ async function rainObservedComponents(
   points: WatchPointSpec[],
   thresholds: Map<string, ThresholdSpec>,
   now: Date,
+  station: VirtualStation,
 ): Promise<RiskComponent[]> {
   const rainPoints = points.filter((p) => p.variable === "precip_mm");
-  if (rainPoints.length === 0) return [];
-  const ids = rainPoints.map((p) => p.sensorId);
+  // Las estaciones amateur cercanas son una fuente más de lluvia observada: en el Horteta,
+  // la única que hay.
+  const amateur = await amateurRain(db, station, now);
+  if (rainPoints.length === 0 && amateur.length === 0) return [];
+  const ids = rainPoints.length > 0 ? rainPoints.map((p) => p.sensorId) : ["sin-sensores"];
   // `precip_mm` es horario y solo existe para horas completas, así que una ventana móvil de
   // 1 h no contendría ninguna fila: la señal horaria es la hora más lluviosa de las últimas 6.
   const rows = await db.execute<RainRow>(sql`
@@ -247,7 +303,9 @@ async function rainObservedComponents(
   ] as const) {
     const t = thresholds.get(signal);
     let worst: { level: RiskLevel; value: number; row: RainRow } | undefined;
-    for (const r of rows) {
+    // Oficiales y amateur compiten por el mismo umbral: manda la lectura más alta, venga
+    // de donde venga, y el detalle dice cuál es.
+    for (const r of [...rows, ...amateur.filter((a) => a.signal === signal)]) {
       const raw = pick(r);
       if (raw === null) continue;
       const value = round(Number(raw));
@@ -270,10 +328,18 @@ async function rainObservedComponents(
       unit: "mm",
       threshold,
       source: worst.row.sensor_id,
-      detail:
-        worst.level === "verde"
-          ? `${worst.value} mm ${label} en ${worst.row.station_name}, por debajo del primer umbral${threshold !== null ? ` (${threshold} mm)` : ""}`
-          : `${worst.value} mm ${label} en ${worst.row.station_name} ≥ ${threshold} mm (${worst.level})`,
+      // AVAMET publica acumulados móviles ya calculados y el SAIH horas completas: la frase
+      // tiene que decir la verdad de cada fuente.
+      detail: (() => {
+        const ventana = worst.row.amateur
+          ? signal === "observed_precip_1h"
+            ? "en la última hora"
+            : "en 12 h"
+          : label;
+        return worst.level === "verde"
+          ? `${worst.value} mm ${ventana} en ${worst.row.station_name}, por debajo del primer umbral${threshold !== null ? ` (${threshold} mm)` : ""}`
+          : `${worst.value} mm ${ventana} en ${worst.row.station_name} ≥ ${threshold} mm (${worst.level})`;
+      })(),
     });
   }
   return out;
@@ -399,4 +465,47 @@ function describe(level: RiskLevel, value: number, p: WatchPointSpec): string {
       : `${value} ${p.unit} en ${name}`;
   }
   return `${value} ${p.unit} ≥ ${t} ${p.unit} (${level}) en ${name}`;
+}
+
+/**
+ * Lluvia de las estaciones amateur de AVAMET cercanas a la localidad.
+ *
+ * AVAMET publica acumulados ya calculados (1 h y 12 h móviles), que se comparan con los mismos
+ * umbrales de AEMET. Es dato sin control de calidad: cuenta para el semáforo —en el Horteta no
+ * hay otra cosa— pero se muestra siempre indicando que es amateur.
+ */
+async function amateurRain(db: Db, station: VirtualStation, now: Date): Promise<RainRow[]> {
+  const radius = avametRadiusKm() * 1000;
+  const since = new Date(now.getTime() - 90 * 60_000).toISOString();
+  const rows = await db.execute<{
+    sensor_id: string;
+    station_name: string;
+    variable: string;
+    value: number | string | null;
+    km: number | string;
+  }>(sql`
+    select s.id as sensor_id, st.name as station_name, s.variable, o.value,
+           ST_Distance(st.geom::geography, ST_SetSRID(ST_Point(${station.lon}, ${station.lat}), 4326)::geography) / 1000 as km
+    from sensors s
+    join stations st on st.id = s.station_id
+    join lateral (
+      select value from observations
+      where source = s.source and station_id = s.station_id and variable = s.variable
+        and ts >= ${since}::timestamptz
+      order by ts desc limit 1
+    ) o on true
+    where s.source = 'avamet' and s.enabled
+      and s.variable in ('precip_1h_mm', 'precip_12h_mm')
+      and ST_DWithin(st.geom::geography,
+                     ST_SetSRID(ST_Point(${station.lon}, ${station.lat}), 4326)::geography,
+                     ${radius})
+  `);
+  return rows.map((r) => ({
+    sensor_id: r.sensor_id,
+    station_name: `${r.station_name} (amateur, a ${Math.round(Number(r.km) * 10) / 10} km)`,
+    mm1h: r.variable === "precip_1h_mm" ? r.value : null,
+    mm12h: r.variable === "precip_12h_mm" ? r.value : null,
+    amateur: true,
+    signal: r.variable === "precip_1h_mm" ? "observed_precip_1h" : "observed_precip_12h",
+  }));
 }

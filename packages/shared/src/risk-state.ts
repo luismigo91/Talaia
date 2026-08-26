@@ -224,12 +224,26 @@ async function applyEvaluation(
       sql`update risk_events set notify_error = ${message.slice(0, 500)} where id = ${event!.id}`,
     );
   }
+  // Avisa a quien esté escuchando (el stream SSE de la API) sin que nadie tenga que sondear.
+  await db.execute(sql`
+    select pg_notify('talaia_risk', ${JSON.stringify({
+      stationId: station.station.id,
+      station: station.station.name,
+      level: transition.level,
+      previous: transition.previous,
+      direction: transition.direction,
+      ts: now.toISOString(),
+    })})
+  `);
   return {
     stationId: station.station.id,
     level: transition.level,
     direction: transition.direction,
   };
 }
+
+/** Canal de Postgres por el que viajan los cambios de nivel. */
+export const RISK_CHANNEL = "talaia_risk";
 
 /** El detalle del componente que determina el nivel: el "por qué" del aviso. */
 export function leadingReason(station: StationRisk): string | null {

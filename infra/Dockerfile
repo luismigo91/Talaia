@@ -19,6 +19,7 @@ COPY collectors/open-meteo/package.json collectors/open-meteo/
 COPY collectors/aemet/package.json collectors/aemet/
 COPY collectors/saih/package.json collectors/saih/
 COPY collectors/meteoalarm/package.json collectors/meteoalarm/
+COPY collectors/avamet/package.json collectors/avamet/
 COPY collectors/scheduler/package.json collectors/scheduler/
 COPY api/package.json api/
 COPY web/package.json web/

@@ -187,4 +187,6 @@ export function decodeBody(body: Buffer, contentType: string | null): string {
 export const endpoints = {
   hourly: (ine: string) => `/api/prediccion/especifica/municipio/horaria/${ine}`,
   capLatest: (area: string) => `/api/avisos_cap/ultimoelaborado/area/${area}`,
+  /** Últimas 12 h de una estación automática. */
+  observation: (idema: string) => `/api/observacion/convencional/datos/estacion/${idema}`,
 };

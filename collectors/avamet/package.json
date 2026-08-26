@@ -1,5 +1,5 @@
 {
-  "name": "@talaia/collector-saih",
+  "name": "@talaia/collector-avamet",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,8 +14,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "run-once": "tsx src/cli.ts",
-    "backfill": "tsx src/backfill-cli.ts"
+    "run-once": "tsx src/cli.ts"
   },
   "dependencies": {
     "@talaia/shared": "workspace:*",
