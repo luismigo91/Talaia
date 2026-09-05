@@ -90,6 +90,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
         <main className="layout">{children}</main>
+        <footer className="site-footer">
+          <div className="inner">
+            <p className="foot" style={{ margin: 0 }}>
+              Fuentes: SAIH Júcar (CHJ), AEMET OpenData, Meteoalarm, Open-Meteo y{" "}
+              <a href="https://www.avamet.org" rel="noreferrer noopener">
+                AVAMET
+              </a>{" "}
+              (estaciones amateur,{" "}
+              <a
+                href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.es"
+                rel="license noreferrer"
+              >
+                CC BY-NC-ND 4.0
+              </a>
+              ). Datos con licencia CC BY-NC-ND: uso no comercial con atribución. En emergencia,
+              sigue siempre al 112 y a Protección Civil.
+            </p>
+          </div>
+        </footer>
         <PwaRegister />
       </body>
     </html>

@@ -7,5 +7,5 @@
 - [x] El semáforo usa la última lectura creíble para caudal y nivel.
 - [x] `collectors/avamet` con fixtures reales, alta automática de estaciones y job cada 10 min.
 - [x] La lluvia amateur cercana entra en el semáforo, marcada como tal.
-- [ ] Atribución de AVAMET visible en el frontend.
-- [ ] Archivar y fusionar en `openspec/specs/` (tras validación).
+- [x] Atribución de AVAMET visible en el frontend — `web/src/app/layout.tsx:92` footer global + `web/src/app/page.tsx:99` (implementado 05-09-2026).
+- [x] Archivar y fusionar en `openspec/specs/` (tras validación).

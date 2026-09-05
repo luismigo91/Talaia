@@ -20,4 +20,4 @@
 - [x] `next build` (rutas de metadata incluidas) y tests del frontend en verde
 - [x] Verificación visual (móvil 390 y escritorio) sin desbordes horizontales
 - [ ] Verificar `/verificacion` con datos reales tras desplegar la API
-- [ ] Archivar y fusionar en `openspec/specs/`
+- [x] Archivar y fusionar en `openspec/specs/`

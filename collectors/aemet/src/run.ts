@@ -35,11 +35,16 @@ export interface RunOptions {
 
 /** Ejecuta predicción (una consulta por INE distinto) y avisos. Nunca lanza. */
 export async function run(db: Db, opts: RunOptions = {}) {
+  const { isAemetDisabled } = await import("./client.js");
+  if (isAemetDisabled()) {
+    logger.info("aemet: deshabilitado por AEMET_ENABLED=false — se omite sin marcar error");
+    return;
+  }
   let client: AemetClient;
   try {
     client = opts.client ?? new AemetClient();
   } catch (err) {
-    // Sin clave: registramos el error en todas las fuentes lógicas y salimos.
+    // Sin clave o deshabilitado: registramos el error en todas las fuentes lógicas y salimos.
     const message = err instanceof Error ? err.message : String(err);
     const stations = await loadVirtualStations(db);
     for (const s of stationsByIne(stations).keys()) {

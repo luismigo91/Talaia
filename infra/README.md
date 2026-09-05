@@ -40,12 +40,18 @@ Al añadir el servicio `web` respecto al despliegue anterior, basta con redeploy
 
 *Create Service → Application* por cada uno (`api`, `collectors`, `web`), proveedor Git (este repo, rama `main`), *Build Type* **Dockerfile**, *Docker Context Path* `.`, y *Docker File* = `infra/Dockerfile.api` / `infra/Dockerfile.collectors` / `infra/Dockerfile.web` (cada servicio tiene el suyo; **no hay que indicar Build Stage**). La DB, como *Compose* con solo `db` o como servicio PostgreSQL con imagen `timescale/timescaledb-ha:pg16`. Dominio solo en `web` (puerto 3001). *Watch Paths* para limitar reconstrucciones: `api/**,packages/**,db/**` (api), `collectors/**,packages/**,db/**` (collectors), `web/**,packages/**` (web).
 
+## Observabilidad
+
+- `GET /api/v1/health` — devuelve `{ ok, db, sources, warnings }`. `ok=false` si alguna fuente está `stale` (30 min para SAIH/AVAMET/GVA/Meteoalarm, 120 min para Open-Meteo/AEMET). Útil para uptime checks en Dokploy.
+- `GET /api/v1/status` — frescura por fuente (`age_seconds`, `stale`, `threshold_seconds`, `last_error`). El frontend lo usa para avisos de falta de datos; el semáforo no baja el nivel por silencio, solo avisa.
+
 ## Desarrollo local
 
 ```bash
 cp .env.example .env            # rellenar POSTGRES_PASSWORD (AEMET_API_KEY opcional)
 docker compose -f infra/docker-compose.yml -f infra/docker-compose.override.yml up --build
-curl localhost:3000/api/v1/risk # la API (el override publica 3000)
+curl localhost:3000/api/v1/health  # health con fuentes
+curl localhost:3000/api/v1/risk    # semáforo
 ```
 
 El override de desarrollo publica los puertos `5432` (db) y `3000` (api). Para ver el frontend en local, lo más cómodo es `API_URL=http://127.0.0.1:3000 pnpm --filter @talaia/web dev` (puerto 3001).

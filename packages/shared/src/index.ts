@@ -17,3 +17,4 @@ export * from "./plausibility.js";
 export * from "./notify.js";
 export * from "./webpush.js";
 export * from "./alerts.js";
+export * from "./env-check.js";

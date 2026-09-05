@@ -33,6 +33,7 @@ interface Step1 {
 
 /** Lee la clave: fichero (`AEMET_API_KEY_FILE`, secret) o variable `AEMET_API_KEY`. */
 export function resolveApiKey(env: NodeJS.ProcessEnv = process.env): string | undefined {
+  if (isAemetDisabled(env)) return undefined;
   const file = env.AEMET_API_KEY_FILE;
   if (file) {
     try {
@@ -44,6 +45,17 @@ export function resolveApiKey(env: NodeJS.ProcessEnv = process.env): string | un
   }
   const k = env.AEMET_API_KEY?.trim();
   return k || undefined;
+}
+
+/** `AEMET_ENABLED=false` desactiva el collector sin tocar la clave (útil si OpenData se retira). */
+export function isAemetDisabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  const raw = env.AEMET_ENABLED?.trim().toLowerCase();
+  return raw === "false" || raw === "0" || raw === "no" || raw === "off";
+}
+
+/** Base URL configurable: `AEMET_BASE_URL` o la oficial `https://opendata.aemet.es/opendata`. */
+export function resolveBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
+  return env.AEMET_BASE_URL?.trim().replace(/\/$/, "") || "https://opendata.aemet.es/opendata";
 }
 
 /**
@@ -63,14 +75,22 @@ export class AemetClient {
 
   constructor(opts: AemetClientOptions = {}) {
     const key = opts.apiKey ?? resolveApiKey();
-    if (!key)
+    if (!key) {
+      if (isAemetDisabled()) {
+        throw new AemetError(
+          "AEMET deshabilitado por AEMET_ENABLED=false (OpenData retirado o no deseado)",
+          undefined,
+          "",
+        );
+      }
       throw new AemetError(
-        "falta la clave de AEMET (AEMET_API_KEY o AEMET_API_KEY_FILE)",
+        "falta la clave de AEMET (AEMET_API_KEY o AEMET_API_KEY_FILE) — si OpenData se ha retirado, pon AEMET_ENABLED=false",
         undefined,
         "",
       );
+    }
     this.apiKey = key;
-    this.baseUrl = opts.baseUrl ?? "https://opendata.aemet.es/opendata";
+    this.baseUrl = opts.baseUrl ?? resolveBaseUrl();
     this.fetchFn = opts.fetch ?? fetch;
     this.minIntervalMs = opts.minIntervalMs ?? 1600;
     this.retryAfterMs = opts.retryAfterMs ?? 61_000;

@@ -25,4 +25,4 @@
 - [x] Verificación end-to-end: crecida simulada del Poyo → dos avisos urgentes en ntfy; bajada confirmada en tres ciclos; sin datos frescos el nivel se conserva.
 - [x] `pnpm typecheck && pnpm lint && pnpm test && pnpm test:integration` en verde.
 - [x] `docs/arquitectura.md` y `CLAUDE.md`.
-- [ ] Archivar y fusionar en `openspec/specs/` (tras validación).
+- [x] Archivar y fusionar en `openspec/specs/` (tras validación).

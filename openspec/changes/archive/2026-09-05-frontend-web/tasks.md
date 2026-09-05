@@ -30,4 +30,4 @@
 - [x] Suite completa en verde y build de producción.
 - [x] Comprobación real contra la API local con datos reales.
 - [x] `docs/arquitectura.md` y `CLAUDE.md`.
-- [ ] Archivar y fusionar en `openspec/specs/` (tras validación).
+- [x] Archivar y fusionar en `openspec/specs/` (tras validación).

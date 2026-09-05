@@ -9,4 +9,4 @@
 - [x] Verificado en local: manifest/SW/iconos, insignia, alta de suscripción, ciclo invocando el envío.
 - [ ] Verificar en un móvil real sobre HTTPS: instalar la PWA, activar avisos y recibir un push (necesita el deploy + VAPID en el entorno).
 - [ ] Script de Scriptable de ejemplo para el widget (documentación).
-- [ ] Archivar y fusionar en `openspec/specs/`.
+- [x] Archivar y fusionar en `openspec/specs/`.

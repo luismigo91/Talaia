@@ -15,14 +15,17 @@ Fuentes: geocoder de Open-Meteo, https://www.aemet.es/es/eltiempo/prediccion/mun
 
 ---
 
-## 1. AEMET OpenData
+## 1. AEMET OpenData — ⚠️ RETIRADO / DESHABILITABLE (desde 09‑2026)
+
+> **Estado 05‑09‑2026**: AEMET ha retirado o dejado de servir OpenData en la URL histórica. El collector queda **deshabilitable sin código** con `AEMET_ENABLED=false` (no marca error en `source_status` ni ensucia `health`). Si AEMET reabre el servicio o migra a nueva base (`AEMET_BASE_URL`), basta con re‑habilitar y/o apuntar la URL. Mientras tanto Talaia opera sin AEMET: la predicción la cubre Open‑Meteo (6 modelos), los avisos Meteoalarm (republica AEMET sin clave) y la observación SAIH+AVAMET.
 
 | Campo | Valor |
 |---|---|
-| URL base | `https://opendata.aemet.es/opendata` ✅ |
+| URL base | `https://opendata.aemet.es/opendata` ✅ (histórica) → configurable por `AEMET_BASE_URL` |
 | Docs | Swagger: https://opendata.aemet.es/dist/index.html · Spec OpenAPI: https://opendata.aemet.es/AEMET_OpenData_specification.json · FAQ: https://opendata.aemet.es/centrodedescargas/docs/FAQs170621.pdf |
 | Formato | JSON (predicción, observación), tar.gz de XML CAP 1.2 (avisos), GIF (radar) |
 | Autenticación | Header `api_key: <JWT>` (también acepta `?api_key=`). Clave gratuita, validez indefinida: https://opendata.aemet.es/centrodedescargas/altaUsuario |
+| Deshabilitado | `AEMET_ENABLED=false` omite todo el collector (predicción+avisos+observación) sin registrar fallo |
 | Cuota | **40 peticiones/min por usuario** (FAQ 3.5). Cada consulta son 2 peticiones (endpoint + URL `datos`). Sin cuota diaria documentada ❓ |
 | Frecuencia | Predicción horaria: 4 veces/día 📄. Observación: horaria, ~1 h de retraso ❓. Avisos: continuo. Radar regional: 10 min |
 | Codificación | Primer paso UTF‑8; URLs `datos`/`metadatos` en **ISO‑8859‑15** ✅ (leer bytes y decodificar según header `charset`, fallback latin‑9). CAP XML en UTF‑8 |

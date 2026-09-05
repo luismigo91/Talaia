@@ -1,6 +1,8 @@
 import { migrate } from "@talaia/db";
-import { logger } from "@talaia/shared";
+import { checkEnv, logger } from "@talaia/shared";
 import { createApp } from "./app.js";
+
+checkEnv();
 
 const port = Number(process.env.API_PORT ?? 3000);
 const runMigrations = process.env.RUN_MIGRATIONS !== "false";

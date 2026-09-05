@@ -6,4 +6,4 @@
 - [x] Route handler `/api/risk-stream` y componente `LiveRefresh` en el frontend.
 - [x] Tests unitarios y de integración; verificación real de extremo a extremo del SSE.
 - [ ] Capturar fixtures reales de observación cuando haya `AEMET_API_KEY`.
-- [ ] Archivar y fusionar en `openspec/specs/` (tras validación).
+- [x] Archivar y fusionar en `openspec/specs/` (tras validación).

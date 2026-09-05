@@ -22,4 +22,4 @@
 - [x] Ejecución real: 5 avisos de nuestras zonas de entre 512 de España; el de lluvias eleva el semáforo a amarillo y el de temperaturas máximas no.
 - [x] Suite completa, lint y formato en verde; ejecución real contra el feed.
 - [x] `docs/fuentes.md` (ficha verificada) y `CLAUDE.md`.
-- [ ] Archivar y fusionar en `openspec/specs/` (tras validación).
+- [x] Archivar y fusionar en `openspec/specs/` (tras validación) — archivado 05-09-2026.

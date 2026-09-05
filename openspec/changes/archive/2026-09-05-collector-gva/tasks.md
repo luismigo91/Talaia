@@ -8,4 +8,4 @@
 - [x] Tests unitarios y de integración (semáforo elevado por la GVA, comodín provincial, TTL).
 - [x] Ejecución real contra la API (sin emergencias activas: 0 avisos, éxito registrado).
 - [ ] **Capturar una respuesta real con `z2` poblado en el próximo episodio y confirmar la fixture.**
-- [ ] Archivar y fusionar en `openspec/specs/` (tras validación).
+- [x] Archivar y fusionar en `openspec/specs/` (tras validación).
