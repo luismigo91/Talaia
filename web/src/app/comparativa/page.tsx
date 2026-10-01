@@ -13,7 +13,7 @@ const VARIABLES = ["precip_mm", "precip_prob_pct", "temp_c", "wind_ms", "gust_ms
 export default async function ComparativaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ station?: string; variable?: string }>;
+  searchParams: Promise<{ station?: string; variable?: string; modo?: string }>;
 }) {
   const params = await searchParams;
   const stations = await safe(getStations);
@@ -35,6 +35,11 @@ export default async function ComparativaPage({
 
   const compare = await safe(() => getCompare(station.id, variable));
   const acumulada = variable === "precip_mm";
+  // La lluvia se dibuja acumulada por defecto (la curva termina en el total de la
+  // tabla); `modo=horaria` muestra lo que cae en cada hora para ver el reparto.
+  const horaria = acumulada && params.modo === "horaria";
+  const modoHref = (modo: string) =>
+    `/comparativa?station=${encodeURIComponent(station.id)}&variable=${variable}&modo=${modo}`;
 
   return (
     <>
@@ -43,14 +48,17 @@ export default async function ComparativaPage({
       <p className="subtitle">
         Qué dice cada fuente para las próximas 24 horas en {station.name}. Cada una con su última
         emisión: cuando discrepan, esa discrepancia <em>es</em> la información.
-        {acumulada && " La curva es lluvia acumulada: termina en el total de la tabla."}
+        {acumulada &&
+          (horaria
+            ? " La curva es lluvia por hora: cada punto es lo que cae esa hora."
+            : " La curva es lluvia acumulada: termina en el total de la tabla.")}
       </p>
 
       <div className="controls">
         {stations.data.map((s) => (
           <Link
             key={s.id}
-            href={`/comparativa?station=${encodeURIComponent(s.id)}&variable=${variable}`}
+            href={`/comparativa?station=${encodeURIComponent(s.id)}&variable=${variable}${horaria ? "&modo=horaria" : ""}`}
             aria-current={s.id === station.id}
           >
             {s.name}
@@ -68,6 +76,16 @@ export default async function ComparativaPage({
           </Link>
         ))}
       </div>
+      {acumulada && (
+        <div className="controls">
+          <Link href={modoHref("acumulada")} aria-current={!horaria}>
+            Acumulada
+          </Link>
+          <Link href={modoHref("horaria")} aria-current={horaria}>
+            Por horas
+          </Link>
+        </div>
+      )}
 
       {"error" in compare ? (
         <p className="error">No se ha podido cargar la comparativa: {compare.error}</p>
@@ -78,7 +96,7 @@ export default async function ComparativaPage({
         </p>
       ) : (
         <>
-          <CompareChart data={compare.data} cumulative={acumulada} />
+          <CompareChart data={compare.data} cumulative={acumulada && !horaria} />
           <div className="table-scroll">
             <table style={{ marginTop: "1.25rem" }}>
               <thead>
