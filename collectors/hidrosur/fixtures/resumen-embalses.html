@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="manifest" href="https://www.redhidrosurmedioambiente.es/saih/manifest.json">
+
+    <!-- Favicons -->
+    <link rel="shortcut icon" href="https://www.redhidrosurmedioambiente.es/saih/assets/images/iconpanel.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://www.redhidrosurmedioambiente.es/saih/assets/images/icon-32x32.png?v=2">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://www.redhidrosurmedioambiente.es/saih/assets/images/icon-16x16.png?v=2">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="keywords" content="Resumen de niveles de embalses" />
+    <meta name="description" content="Resumen de niveles de embalses" />
+
+    <meta property="og:site_name" content="Red Hidrosur" />
+<meta property="og:title" content="Resumen de niveles de embalses" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://www.redhidrosurmedioambiente.es/saih/resumen/embalses" />
+<meta property="og:description" content="Resumen de niveles de embalses" />
+<meta property="og:updated_time" content="2026-10-01T18:00:00+02:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@SAIHRedHidrosur" />
+<meta name="twitter:creator" content="@SAIHRedHidrosur" />
+<meta name="twitter:creator:id" content="750246706898501632" />
+<meta name="dcterms.title" content="Resumen de niveles de embalses" />
+<meta name="dcterms.creator" content="Red Hidrosur" />
+<meta name="dcterms.description" content="Resumen de niveles de embalses" />
+<meta name="dcterms.publisher" content="Red Hidrosur" />
+<meta name="dcterms.date" content="2026-10-01T18:00:00+02:00" />
+<meta name="dcterms.type" content="Text" />
+<meta name="dcterms.format" content="text/html" />
+<meta name="dcterms.identifier" content="https://www.redhidrosurmedioambiente.es/saih/resumen/embalses" />
+<meta name="dcterms.language" content="es" />
+
+    <link rel="image_src" href="https://www.redhidrosurmedioambiente.es/saih/assets/images/sistema.jpg" />
+
+    <!-- Bootstrap + estilos generales -->
+    <link rel="stylesheet" href="https://www.redhidrosurmedioambiente.es/saih/assets/css/bootstrap.min.css">
+    <script src="https://www.redhidrosurmedioambiente.es/saih/assets/js/jquery.min.js"></script>
+    <script src="https://www.redhidrosurmedioambiente.es/saih/assets/js/bootstrap.min.js"></script>
+    <!-- JS principal: menús, submenús, etc. -->
+    <script src="https://www.redhidrosurmedioambiente.es/saih/assets/js/redhidrosur.js?v=1768207363"></script>
+
+    
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://www.redhidrosurmedioambiente.es/saih/assets/css/redhidrosur.css?v=1790577749">
+    <link rel="stylesheet" href="https://www.redhidrosurmedioambiente.es/saih/assets/css/estilos.css?v=1786094333">
+    <link rel="stylesheet" href="https://www.redhidrosurmedioambiente.es/saih/assets/css/novedades-videos.css?v=1786095514">
+
+    
+    
+    
+    
+    <title>Resumen de niveles de embalses | S.A.I.H. Hidrosur</title>
+
+
+</head>
+
+<body class="">  <!-- 👈 clase navidad -->
+<div class="sr-only" style="background-color:white;">
+    <a class="sr-only-focusable" href="#central" style="color:black;background:white;">Skip to main content</a>
+</div>
+
+<div id="cabecera" class="cabecera "> <!-- 👈 cabecera-navidad -->
+    <div id="junta" class="col-sm-4">
+        <img class="img-responsive img-center"
+             src="https://www.redhidrosurmedioambiente.es/saih/assets/images/juntadeandalucia.png?v=1768207352"
+             alt="Junta de Andalucia">
+    </div>
+    <!-- Aviso parpadeante opcional
+    <div id="parpadeante" class="parpadeante" role="alert" aria-live="polite">
+        <b style="color:red;">AVISO IMPORTANTE: Estamos de mantenimiento </b>
+    </div>
+    -->
+</div>
+
+<nav id="navegacion" class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <a class="navbar-brand" href="https://www.redhidrosurmedioambiente.es/saih/">
+                <i class="icon-home icon-white"> </i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                     fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                    <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0
+                             .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0
+                             0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354
+                             1.146a.5.5 0 0 0-.708 0l-6
+                             6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0
+                             .5.5h4a.5.5 0 0 0 .5-.5z"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+
+                <!-- TODO: A partir de aquí dejo el menú tal cual lo tenías.
+                     No toco nada porque funciona igual en CI4 siempre que
+                     tengas cargado el helper 'informes' -->
+                
+                <!-- === Menú "Informes" (idéntico a tu CI3) === -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">Informes<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info Anual_2024-2025.pdf" target="_blank">Informe Anual 2024/2025</a></li><li id="infmensuales"><a class="trigger right-caret" href="javascript:;">Informes mensuales </a><ul class="dropdown-menu sub-menu"><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_AGO2026.pdf" target="_blank">Ago - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_JUL2026.pdf" target="_blank">Jul - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_JUN2026.pdf" target="_blank">Jun - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_MAY2026.pdf" target="_blank">May - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_ABR2026.pdf" target="_blank">Abr - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_MAR2026.pdf" target="_blank">Mar - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_FEB2026.pdf" target="_blank">Feb - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_ENE2026.pdf" target="_blank">Ene - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_DIC2025.pdf" target="_blank">Dic - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_NOV2025.pdf" target="_blank">Nov - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_OCT2025.pdf" target="_blank">Oct - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/Informes/Info_Periodico_SEP2025.pdf" target="_blank">Sep - 2025</a></li>                        </ul>
+
+                        <li><a href="https://www.redhidrosurmedioambiente.es/saih/informe/nieve">Informe de nieve</a></li>
+                        <li><a href="https://www.redhidrosurmedioambiente.es/saih/informe/embalses">Informe de embalses</a></li>
+
+                        <li><a class="trigger right-caret" href="javascript:;">Informe de escasez y sequ&iacute;a &nbsp;</a>
+                            <ul class="dropdown-menu sub-menu">
+                                <li id="infmensuales"><a class="trigger right-caret" href="javascript:;">Escenario de escasez </a><ul class="dropdown-menu sub-menu"><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_AGO2026.pdf" target="_blank">Ago - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_JUL2026.pdf" target="_blank">Jul - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_JUN2026.pdf" target="_blank">Jun - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_MAY2026.pdf" target="_blank">May - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_ABR2026.pdf" target="_blank">Abr - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_MAR2026.pdf" target="_blank">Mar - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_FEB2026.pdf" target="_blank">Feb - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_ENE2026.pdf" target="_blank">Ene - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_DIC2025.pdf" target="_blank">Dic - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_NOV2025.pdf" target="_blank">Nov - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_OCT2025.pdf" target="_blank">Oct - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_SEP2025.pdf" target="_blank">Sep - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_AGO2025.pdf" target="_blank">Ago - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_JUL2025.pdf" target="_blank">Jul - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_JUN2025.pdf" target="_blank">Jun - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_MAY2025.pdf" target="_blank">May - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_ABR2025.pdf" target="_blank">Abr - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_MAR2025.pdf" target="_blank">Mar - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_FEB2025.pdf" target="_blank">Feb - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_ENE2025.pdf" target="_blank">Ene - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_DIC2024.pdf" target="_blank">Dic - 2024</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTE/UTE_NOV2024.pdf" target="_blank">Nov - 2024</a></li>                                </ul>
+
+                                <li class="dropdown-menu sub-menu">
+                                    <li id="infmensuales"><a class="trigger right-caret" href="javascript:;">Estado de sequía </a><ul class="dropdown-menu sub-menu"><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_AGO2026.pdf" target="_blank">Ago - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_JUL2026.pdf" target="_blank">Jul - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_JUN2026.pdf" target="_blank">Jun - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_MAY2026.pdf" target="_blank">May - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_ABR2026.pdf" target="_blank">Abr - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_MAR2026.pdf" target="_blank">Mar - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_FEB2026.pdf" target="_blank">Feb - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_ENE2026.pdf" target="_blank">Ene - 2026</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_DIC2025.pdf" target="_blank">Dic - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_NOV2025.pdf" target="_blank">Nov - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_OCT2025.pdf" target="_blank">Oct - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_SEP2025.pdf" target="_blank">Sep - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_AGO2025.pdf" target="_blank">Ago - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_JUL2025.pdf" target="_blank">Jul - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_JUN2025.pdf" target="_blank">Jun - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_MAY2025.pdf" target="_blank">May - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_ABR2025.pdf" target="_blank">Abr - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS _MAR2025.pdf" target="_blank">Mar - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_FEB2025.pdf" target="_blank">Feb - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_ENE2025.pdf" target="_blank">Ene - 2025</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_DIC2024.pdf" target="_blank">Dic - 2024</a></li><li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/UTS/UTS_NOV2024.pdf" target="_blank">Nov - 2024</a></li>                                    </ul>
+
+                                    <li><a href="https://www.redhidrosurmedioambiente.es/saih/assets/pdf/InformeSequia.pdf" target="_blank">Informe actual completo</a></li>
+                                    <li><a href="https://www.redhidrosurmedioambiente.es/saih/informes/sequia/about">Acerca de este informe</a></li>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="menu-item dropdown "><a href="#" class="dropdown-toggle" data-toggle="dropdown">Previsi&oacute;n <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+		                    <li><a class="trigger right-caret" href="javascript:;">Mapas de previsi&oacute;n &nbsp;</a>
+        						<ul class="dropdown-menu sub-menu">
+                        			<li><a href="https://www.redhidrosurmedioambiente.es/saih/prediccion/harmonie" >Harmonie</a></li>
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/prediccion/centro/europeo" >Centro europeo</a></li>
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/visor/visorGP" >GFS</a></li>
+                                    <li><a href="https://www.redhidrosurmedioambiente.es/saih/prediccion/visor_aemet" >Avisos AEMET</a></li>
+                      			</ul>
+                    		</li>
+							<li><a class="trigger right-caret" href="javascript:;">Previsi&oacute;n num&eacute;rica &nbsp;</a>
+        						<ul class="dropdown-menu sub-menu">
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/prediccion/numerico/precip" >Pluviometr&iacute;a</a></li>
+                        			<li><a href="https://www.redhidrosurmedioambiente.es/saih/prediccion/numerico/temp" >Temperatura</a></li>
+                      			</ul>
+                    		</li>
+                		</ul>
+               		</li>
+
+
+					<li class="dropdown ">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">Datos<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<!--li><a href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real" >Informaci&oacute;n por sistemas</a></li>
+							<li><a href="https://www.redhidrosurmedioambiente.es/saih/raster/ultima/hora">Mapas &uacute;ltima hora</a></li-->
+							<li><a class="trigger right-caret" href="javascript:;">Embalses &nbsp;</a>
+        						<ul class="dropdown-menu sub-menu">
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/resumen/embalses" >Datos de última hora</a></li>
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/resumen/variacion" >Variaci&oacute;n de volumen</a></li>
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/resumen/volumen/comparado" >Volumen semanal</a></li>	
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/resumen/vol_maxmin" >Máx/Mín Hist&oacute;ricos</a></li>				
+                      			</ul>
+                    		</li>
+							<li><a class="trigger right-caret" href="javascript:;">Aforos &nbsp;</a>
+								<ul class="dropdown-menu sub-menu">
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/resumen/rios" >Datos de última hora</a></li>	
+							
+								</ul>
+                    		</li>
+							<li><a class="trigger right-caret" href="javascript:;">Precipitaci&oacute;n &nbsp;</a>
+								<ul class="dropdown-menu sub-menu">
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/resumen/precipitacion" >Datos de última hora</a></li>	
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/resumen/precipitacion/comparada" >Precipitaci&oacute;n comparada</a></li>
+                					<li><a href="https://www.redhidrosurmedioambiente.es/saih/resumen/precipitacion/historica" >Precipitaci&oacute;n Hist&oacute;rica</a></li>
+            					</ul>
+				
+                    		</li>
+							<li><a class="trigger right-caret" href="javascript:;">Temperaturas &nbsp;</a>
+								<ul class="dropdown-menu sub-menu">
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/resumen/temperaturas" >Datos de última hora</a></li>							
+								</ul>
+							</li>
+							<div class="divider my-3"></div>
+							<li><a href="https://www.redhidrosurmedioambiente.es/saih/datos/a/la/carta">Datos a la carta</a></li>
+							<li><a href="https://www.redhidrosurmedioambiente.es/saih/grafica/a/la/carta" >Gráficas</a></li>
+							<li><a class="trigger right-caret" href="javascript:;">Mapas &nbsp;</a>
+								<ul class="dropdown-menu sub-menu">
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/distribucion/pluviometrica" >Pluviometr&iacute;a</a></li>
+									<li><a href="https://www.redhidrosurmedioambiente.es/saih/distribucion/temperatura" >Temperatura</a></li>
+								</ul>
+							</li>
+							<li><a href="https://www.redhidrosurmedioambiente.es/saih/listado/estaciones" >Listado de estaciones</a></li>
+							<!--li><a href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real" >Informaci&oacute;n por sistemas</a></li--> 
+					</ul>
+					</li>
+
+					<li><a href="https://www.redhidrosurmedioambiente.es/saih/contacto">Contacto</a></li> 	
+	
+				</ul>
+
+            <ul class="nav navbar-nav navbar-right">
+
+				
+
+<li class="dropdown nav-news-link">
+
+    <!--
+        Acceso principal desde la barra de navegación.
+    -->
+    <a
+        href="#"
+        class="dropdown-toggle"
+        data-toggle="dropdown"
+        role="button"
+        aria-haspopup="true"
+        aria-expanded="false"
+        title="Consultar novedades y vídeos explicativos"
+    >
+
+        <span
+            class="nav-news-indicator"
+            aria-hidden="true"
+        ></span>
+
+        <span
+            class="glyphicon glyphicon-bullhorn"
+            aria-hidden="true"
+        ></span>
+
+        <span class="nav-news-link__text">
+            &nbsp;Novedades
+        </span>
+
+        <span class="caret"></span>
+
+    </a>
+
+
+    <!--
+        Desplegable de novedades.
+    -->
+    <ul
+        class="dropdown-menu nav-news-menu"
+        role="menu"
+    >
+
+        <li class="nav-news-menu__header">
+
+            <strong>
+                Novedades en la web
+            </strong>
+
+            <span>
+                Vídeos explicativos
+            </span>
+
+        </li>
+
+
+        <li
+            role="separator"
+            class="divider"
+        ></li>
+
+
+        
+            
+
+            <li
+                class=""
+            >
+
+
+                
+                    <!--
+                        Novedad disponible:
+                        abre el vídeo en una pestaña nueva.
+                    -->
+                    <a
+                        href="https&#x3A;&#x2F;&#x2F;www.redhidrosurmedioambiente.es&#x2F;saih&#x2F;assets&#x2F;videos&#x2F;1.mp4"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="nav-news-item"
+                        title="Abrir vídeo en una pestaña nueva"
+                    >
+
+                
+
+                    <span
+                        class="
+                            glyphicon
+                            glyphicon-facetime-video
+                            nav-news-item__icon
+                        "
+                        aria-hidden="true"
+                    ></span>
+
+
+                    <span class="nav-news-item__content">
+
+                        <strong>
+                            Actualización Panel Accesos directos                        </strong>
+
+
+                        
+                            <small>
+                                Se actualiza el panel lateral de la Pantalla Principal y se incluyen accesos a Aplicaciones.                            </small>
+
+                        
+
+                        
+                            <em>
+                                Ver vídeo
+                            </em>
+
+                        
+                    </span>
+
+                </a>
+
+            </li>
+
+        
+            
+
+            <li
+                class=""
+            >
+
+
+                
+                    <!--
+                        Novedad disponible:
+                        abre el vídeo en una pestaña nueva.
+                    -->
+                    <a
+                        href="https&#x3A;&#x2F;&#x2F;www.redhidrosurmedioambiente.es&#x2F;saih&#x2F;assets&#x2F;videos&#x2F;2.mp4"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="nav-news-item"
+                        title="Abrir vídeo en una pestaña nueva"
+                    >
+
+                
+
+                    <span
+                        class="
+                            glyphicon
+                            glyphicon-facetime-video
+                            nav-news-item__icon
+                        "
+                        aria-hidden="true"
+                    ></span>
+
+
+                    <span class="nav-news-item__content">
+
+                        <strong>
+                            Nuevo visor de Avisos de la AEMET                        </strong>
+
+
+                        
+                            <small>
+                                Se incorpora un nevo visor con los Avisos y el radar de la AEMET.                            </small>
+
+                        
+
+                        
+                            <em>
+                                Ver vídeo
+                            </em>
+
+                        
+                    </span>
+
+                </a>
+
+            </li>
+
+        
+            
+
+            <li
+                class=""
+            >
+
+
+                
+                    <!--
+                        Novedad disponible:
+                        abre el vídeo en una pestaña nueva.
+                    -->
+                    <a
+                        href="https&#x3A;&#x2F;&#x2F;www.redhidrosurmedioambiente.es&#x2F;saih&#x2F;assets&#x2F;videos&#x2F;3.mp4"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="nav-news-item"
+                        title="Abrir vídeo en una pestaña nueva"
+                    >
+
+                
+
+                    <span
+                        class="
+                            glyphicon
+                            glyphicon-facetime-video
+                            nav-news-item__icon
+                        "
+                        aria-hidden="true"
+                    ></span>
+
+
+                    <span class="nav-news-item__content">
+
+                        <strong>
+                            Avisos por previsión                        </strong>
+
+
+                        
+                            <small>
+                                Seguimiento de precipitaciones tras avisos y previsiones de la AEMET.                            </small>
+
+                        
+
+                        
+                            <em>
+                                Ver vídeo
+                            </em>
+
+                        
+                    </span>
+
+                </a>
+
+            </li>
+
+        
+    </ul>
+
+</li>
+
+
+                <li class="nav-situation-link">
+                    <a
+                        href="https://www.redhidrosurmedioambiente.es/saih/situacion-hidrologica/cargando"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Consultar la situación hidrológica"
+                    >
+                        <span
+                            class="glyphicon glyphicon-tint"
+                            aria-hidden="true"
+                        ></span>
+
+                        Situación hidrológica
+                    </a>
+                </li>
+
+                <li class="">
+                    <a href="https://www.redhidrosurmedioambiente.es/saih/acceso" >Inicio sesi&oacute;n</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</nav>
+
+	<div id="central" class="col-sm-12">
+
+        <script>
+        // (instalación PWA, lo dejo como lo tenías, solo comentado arriba)
+        let deferredPrompt;
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof init === 'function') {
+            init();
+        }
+
+        
+        
+            });
+
+        </script>
+<link rel="stylesheet" href="https://www.redhidrosurmedioambiente.es/saih/assets/css/resumen.css?v=1">
+
+<div id="resumenEmbalses" class="col-sm-12 resumen-embalses-page" style="margin-bottom:20px;">
+
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="col-sm-6">
+            <h4><b>Volumen de embalses por provincias</b></h4>
+        </div>
+
+        <!-- Aquí metemos la parcial como en CI3 -->
+                <div class="col-sm-6 "
+         style="text-align:right;padding-top:20px;">
+        <b>Datos actualizados a: 01-10-2026 18:00:00</b>
+    </div>
+    </div>
+
+    <div class="table-responsive saih-table-card">
+    <table class="table table-condensed resumen-embalses-table saih-data-table saih-data-table--grouped">
+        <tbody>
+        <tr class="provincia-fechas"><th style="text-align:center;border-left:1px solid transparent;border-top:2px solid transparent;background-color:white;" colspan="4">&nbsp;</th><th style="text-align:center" colspan="2">Fecha Actual: 01/10/2026</th><th style="text-align:center" colspan="2">Sem. Anterior: 24/09/2026</th><th style="text-align:center" colspan="2">Año Anterior: 01/10/2025</th><th style="text-align:center;border-right:1px solid transparent;border-top:2px solid transparent;background-color:white;">&nbsp;</th></tr><tr class="provincia-titulo"><th style="text-align:center" colspan="2">CÁDIZ</th><th style="text-align:center">Porcentaje actual</th><th style="text-align:center">Capacidad total (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">GRÁFICA</th></tr><tr class="embalse-fila"><td style="text-align:center">3</td><td class="especialResumenEmbalses">EMBALSE DE CHARCO REDONDO</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="63.81" max="100"></progress><span class="progress-embalse-text">63,81%</span></div></td><td style="text-align:center">79,17</td><td style="text-align:center">0,00</td><td style="text-align:center">50,52</td><td style="text-align:center">0,00</td><td style="text-align:center">51,30</td><td style="text-align:center">0,00</td><td style="text-align:center">46,75</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/003E01/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">8</td><td class="especialResumenEmbalses">EMBALSE DE GUADARRANQUE</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="80.34" max="100"></progress><span class="progress-embalse-text">80,34%</span></div></td><td style="text-align:center">83,15</td><td style="text-align:center">0,00</td><td style="text-align:center">66,80</td><td style="text-align:center">0,00</td><td style="text-align:center">67,28</td><td style="text-align:center">0,00</td><td style="text-align:center">63,74</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/008L02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">269</td><td class="especialResumenEmbalses">EMBALSE DE ZAHARA - EL GASTOR</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="65.66" max="100"></progress><span class="progress-embalse-text">65,66%</span></div></td><td style="text-align:center">222,70</td><td style="text-align:center">0,00</td><td style="text-align:center">146,22</td><td style="text-align:center">0,00</td><td style="text-align:center">147,14</td><td style="text-align:center">0,00</td><td style="text-align:center">49,98</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/269E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">270</td><td class="especialResumenEmbalses">EMBALSE DE BORNOS</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="64.68" max="100"></progress><span class="progress-embalse-text">64,68%</span></div></td><td style="text-align:center">200,20</td><td style="text-align:center">0,00</td><td style="text-align:center">129,49</td><td style="text-align:center">0,00</td><td style="text-align:center">130,45</td><td style="text-align:center">0,00</td><td style="text-align:center">114,98</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/270E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">271</td><td class="especialResumenEmbalses">EMBALSE ARCOS DE LA FRONTERA</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="92.33" max="100"></progress><span class="progress-embalse-text">92,33%</span></div></td><td style="text-align:center">14,60</td><td style="text-align:center">0,00</td><td style="text-align:center">13,48</td><td style="text-align:center">0,00</td><td style="text-align:center">13,52</td><td style="text-align:center">0,00</td><td style="text-align:center">13,45</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/271L02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">272</td><td class="especialResumenEmbalses">EMBALSE DE HURONES</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="64.80" max="100"></progress><span class="progress-embalse-text">64,80%</span></div></td><td style="text-align:center">135,30</td><td style="text-align:center">0,00</td><td style="text-align:center">87,68</td><td style="text-align:center">0,00</td><td style="text-align:center">89,37</td><td style="text-align:center">0,00</td><td style="text-align:center">85,08</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/272E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">273</td><td class="especialResumenEmbalses">EMBALSE DE GUADALCACÍN</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="84.43" max="100"></progress><span class="progress-embalse-text">84,43%</span></div></td><td style="text-align:center">800,30</td><td style="text-align:center">0,00</td><td style="text-align:center">675,72</td><td style="text-align:center">0,00</td><td style="text-align:center">680,00</td><td style="text-align:center">0,00</td><td style="text-align:center">328,31</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/273E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">275</td><td class="especialResumenEmbalses">EMBALSE DE BARBATE</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="75.60" max="100"></progress><span class="progress-embalse-text">75,60%</span></div></td><td style="text-align:center">207,72 **</td><td style="text-align:center">0,00</td><td style="text-align:center">157,04</td><td style="text-align:center">0,00</td><td style="text-align:center">158,48</td><td style="text-align:center">0,00</td><td style="text-align:center">87,75</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/275E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">276</td><td class="especialResumenEmbalses">EMBALSE DE CELEMÍN</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="75.13" max="100"></progress><span class="progress-embalse-text">75,13%</span></div></td><td style="text-align:center">43,98 **</td><td style="text-align:center">0,00</td><td style="text-align:center">33,04</td><td style="text-align:center">0,00</td><td style="text-align:center">33,62</td><td style="text-align:center">0,00</td><td style="text-align:center">17,67</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/276E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">277</td><td class="especialResumenEmbalses">EMBALSE DE ALMODÓVAR</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="67.57" max="100"></progress><span class="progress-embalse-text">67,57%</span></div></td><td style="text-align:center">4,44 **</td><td style="text-align:center">0,00</td><td style="text-align:center">3,00</td><td style="text-align:center">0,00</td><td style="text-align:center">3,06</td><td style="text-align:center">0,00</td><td style="text-align:center">3,17</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/277E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="total-provincia"><th colspan="2" style="text-align:center;color:#355866 !important;">TOTAL</th><th style="text-align:center;color:#355866 !important;"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="76.078389783206" max="100"></progress><div class="progress-embalse-label">76,08%</div></div></th><th style="text-align:center;color:#355866 !important;">1.791,56</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">1.362,99</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">1.374,22</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">810,88</th><th style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/total/provincia/6/volumen" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></th></tr><tr class="separador-provincia"><td colspan="11" style="text-align:center;border-left:1px solid transparent;border-right:1px solid transparent;">&nbsp;</td></tr><tr class="provincia-fechas"><th style="text-align:center;border-left:1px solid transparent;border-top:2px solid transparent;background-color:white;" colspan="4">&nbsp;</th><th style="text-align:center" colspan="2">Fecha Actual: 01/10/2026</th><th style="text-align:center" colspan="2">Sem. Anterior: 24/09/2026</th><th style="text-align:center" colspan="2">Año Anterior: 01/10/2025</th><th style="text-align:center;border-right:1px solid transparent;border-top:2px solid transparent;background-color:white;">&nbsp;</th></tr><tr class="provincia-titulo"><th style="text-align:center" colspan="2">MÁLAGA</th><th style="text-align:center">Porcentaje actual</th><th style="text-align:center">Capacidad total (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">GRÁFICA</th></tr><tr class="embalse-fila"><td style="text-align:center">16</td><td class="especialResumenEmbalses">EMBALSE DE LA CONCEPCIÓN</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="52.68" max="100"></progress><span class="progress-embalse-text">52,68%</span></div></td><td style="text-align:center">57,54</td><td style="text-align:center">0,00</td><td style="text-align:center">30,31</td><td style="text-align:center">0,00</td><td style="text-align:center">31,36</td><td style="text-align:center">0,00</td><td style="text-align:center">38,51</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/016E01/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">19</td><td class="especialResumenEmbalses">EMBALSE DE CASASOLA</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="33.06" max="100"></progress><span class="progress-embalse-text">33,06%</span></div></td><td style="text-align:center">21,72</td><td style="text-align:center">0,00</td><td style="text-align:center">7,18</td><td style="text-align:center">0,00</td><td style="text-align:center">7,26</td><td style="text-align:center">0,00</td><td style="text-align:center">12,00</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/019E01/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">20</td><td class="especialResumenEmbalses">EMBALSE DEL LIMONERO</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="100.00" max="100"></progress><span class="progress-embalse-text">100,00%</span></div></td><td style="text-align:center">14,00 *</td><td style="text-align:center">0,00</td><td style="text-align:center">14,00</td><td style="text-align:center">0,00</td><td style="text-align:center">14,06</td><td style="text-align:center">0,00</td><td style="text-align:center">12,38</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/020E01/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">29</td><td class="especialResumenEmbalses">EMBALSE DEL  GUADALTEBA</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="93.28" max="100"></progress><span class="progress-embalse-text">93,28%</span></div></td><td style="text-align:center">153,30</td><td style="text-align:center">0,00</td><td style="text-align:center">143,00</td><td style="text-align:center">0,00</td><td style="text-align:center">143,10</td><td style="text-align:center">0,00</td><td style="text-align:center">80,42</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/029L02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">30</td><td class="especialResumenEmbalses">EMBALSE DEL GUADALHORCE</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="85.05" max="100"></progress><span class="progress-embalse-text">85,05%</span></div></td><td style="text-align:center">125,72</td><td style="text-align:center">0,00</td><td style="text-align:center">106,92</td><td style="text-align:center">0,00</td><td style="text-align:center">108,60</td><td style="text-align:center">0,00</td><td style="text-align:center">46,73</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/030E01/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">31</td><td class="especialResumenEmbalses">EMBALSE CONDE DE GUADALHORCE</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="62.73" max="100"></progress><span class="progress-embalse-text">62,73%</span></div></td><td style="text-align:center">66,49</td><td style="text-align:center">0,00</td><td style="text-align:center">41,71</td><td style="text-align:center">0,00</td><td style="text-align:center">42,61</td><td style="text-align:center">0,00</td><td style="text-align:center">32,04</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/031L02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">37</td><td class="especialResumenEmbalses">EMBALSE DE LA VIÑUELA</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="84.56" max="100"></progress><span class="progress-embalse-text">84,56%</span></div></td><td style="text-align:center">164,37</td><td style="text-align:center">0,00</td><td style="text-align:center">138,99</td><td style="text-align:center">0,00</td><td style="text-align:center">139,65</td><td style="text-align:center">0,00</td><td style="text-align:center">70,95</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/037E01/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="total-provincia"><th colspan="2" style="text-align:center;color:#355866 !important;">TOTAL</th><th style="text-align:center;color:#355866 !important;"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="79.933348807905" max="100"></progress><div class="progress-embalse-label">79,93%</div></div></th><th style="text-align:center;color:#355866 !important;">603,14</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">482,11</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">486,64</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">293,03</th><th style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/total/provincia/2/volumen" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></th></tr><tr class="nota-aclaracion"><td colspan="11" style="text-align:left; font-size:12px; padding:4px 10px; background:#fffbe6; border-left:1px solid #ddd; border-right:1px solid #ddd;"><b>Nota:</b> <i>El volumen indicado para el embalse del <b>Limonero</b> corresponde a situación de explotación normal. <b>Adicionalmente y durante todo el año, debe tener disponible un volumen de 13,79 hm<sup>3</sup> de seguridad ante avenidas</b>.</i></td></tr><tr class="nota-aclaracion"><td colspan="11" style="text-align:left; font-size:12px; padding:4px 10px; background:#fffbe6; border-left:1px solid #ddd; border-right:1px solid #ddd;"><b>Nota:</b> <i>El volumen máximo de explotación normal de <b>Casasola</b> es de 11,84 hm<sup>3</sup> en periodo NOV–MAR y de 15,11 hm<sup>3</sup> en periodo ABR–OCT. Siempre hay un volumen de seguridad adicional respecto al máximo indicado de 9,88 hm<sup>3</sup> en periodo NOV–MAR y de 6,61 hm<sup>3</sup> en periodo ABR–OCT.</i></td></tr><tr class="separador-provincia"><td colspan="11" style="text-align:center;border-left:1px solid transparent;border-right:1px solid transparent;">&nbsp;</td></tr><tr class="provincia-fechas"><th style="text-align:center;border-left:1px solid transparent;border-top:2px solid transparent;background-color:white;" colspan="4">&nbsp;</th><th style="text-align:center" colspan="2">Fecha Actual: 01/10/2026</th><th style="text-align:center" colspan="2">Sem. Anterior: 24/09/2026</th><th style="text-align:center" colspan="2">Año Anterior: 01/10/2025</th><th style="text-align:center;border-right:1px solid transparent;border-top:2px solid transparent;background-color:white;">&nbsp;</th></tr><tr class="provincia-titulo"><th style="text-align:center" colspan="2">GRANADA</th><th style="text-align:center">Porcentaje actual</th><th style="text-align:center">Capacidad total (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">GRÁFICA</th></tr><tr class="embalse-fila"><td style="text-align:center">51</td><td class="especialResumenEmbalses">EMBALSE DE RULES</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="87.13" max="100"></progress><span class="progress-embalse-text">87,13%</span></div></td><td style="text-align:center">105,36</td><td style="text-align:center">0,00</td><td style="text-align:center">91,80</td><td style="text-align:center">0,00</td><td style="text-align:center">92,90</td><td style="text-align:center">0,00</td><td style="text-align:center">75,46</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/051L03/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">64</td><td class="especialResumenEmbalses">EMBALSE DE BEZNAR</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="69.04" max="100"></progress><span class="progress-embalse-text">69,04%</span></div></td><td style="text-align:center">52,90</td><td style="text-align:center">0,00</td><td style="text-align:center">36,52</td><td style="text-align:center">0,00</td><td style="text-align:center">36,92</td><td style="text-align:center">0,00</td><td style="text-align:center">38,22</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/064E01/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="total-provincia"><th colspan="2" style="text-align:center;color:#355866 !important;">TOTAL</th><th style="text-align:center;color:#355866 !important;"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="81.081764185518" max="100"></progress><div class="progress-embalse-label">81,08%</div></div></th><th style="text-align:center;color:#355866 !important;">158,26</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">128,32</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">129,82</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">113,68</th><th style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/total/provincia/3/volumen" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></th></tr><tr class="separador-provincia"><td colspan="11" style="text-align:center;border-left:1px solid transparent;border-right:1px solid transparent;">&nbsp;</td></tr><tr class="provincia-fechas"><th style="text-align:center;border-left:1px solid transparent;border-top:2px solid transparent;background-color:white;" colspan="4">&nbsp;</th><th style="text-align:center" colspan="2">Fecha Actual: 01/10/2026</th><th style="text-align:center" colspan="2">Sem. Anterior: 24/09/2026</th><th style="text-align:center" colspan="2">Año Anterior: 01/10/2025</th><th style="text-align:center;border-right:1px solid transparent;border-top:2px solid transparent;background-color:white;">&nbsp;</th></tr><tr class="provincia-titulo"><th style="text-align:center" colspan="2">ALMERÍA</th><th style="text-align:center">Porcentaje actual</th><th style="text-align:center">Capacidad total (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">GRÁFICA</th></tr><tr class="embalse-fila"><td style="text-align:center">58</td><td class="especialResumenEmbalses">EMBALSE DE BENINAR</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="16.50" max="100"></progress><span class="progress-embalse-text">16,50%</span></div></td><td style="text-align:center">62,90</td><td style="text-align:center">0,00</td><td style="text-align:center">10,38</td><td style="text-align:center">0,00</td><td style="text-align:center">10,59</td><td style="text-align:center">0,00</td><td style="text-align:center">7,53</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/058E01/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">84</td><td class="especialResumenEmbalses">EMBALSE CUEVAS DEL ALMANZORA</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="8.99" max="100"></progress><span class="progress-embalse-text">8,99%</span></div></td><td style="text-align:center">157,87</td><td style="text-align:center">0,00</td><td style="text-align:center">14,19</td><td style="text-align:center">0,00</td><td style="text-align:center">14,03</td><td style="text-align:center">0,00</td><td style="text-align:center">10,09</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/084E01/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="total-provincia"><th colspan="2" style="text-align:center;color:#355866 !important;">TOTAL</th><th style="text-align:center;color:#355866 !important;"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="11.12922951488" max="100"></progress><div class="progress-embalse-label">11,13%</div></div></th><th style="text-align:center;color:#355866 !important;">220,77</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">24,57</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">24,62</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">17,62</th><th style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/total/provincia/4/volumen" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></th></tr><tr class="separador-provincia"><td colspan="11" style="text-align:center;border-left:1px solid transparent;border-right:1px solid transparent;">&nbsp;</td></tr><tr class="provincia-fechas"><th style="text-align:center;border-left:1px solid transparent;border-top:2px solid transparent;background-color:white;" colspan="4">&nbsp;</th><th style="text-align:center" colspan="2">Fecha Actual: 01/10/2026</th><th style="text-align:center" colspan="2">Sem. Anterior: 24/09/2026</th><th style="text-align:center" colspan="2">Año Anterior: 01/10/2025</th><th style="text-align:center;border-right:1px solid transparent;border-top:2px solid transparent;background-color:white;">&nbsp;</th></tr><tr class="provincia-titulo"><th style="text-align:center" colspan="2">HUELVA</th><th style="text-align:center">Porcentaje actual</th><th style="text-align:center">Capacidad total (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">GRÁFICA</th></tr><tr class="embalse-fila"><td style="text-align:center">371</td><td class="especialResumenEmbalses">EMBALSE DE CHANZA</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="56.28" max="100"></progress><span class="progress-embalse-text">56,28%</span></div></td><td style="text-align:center">341,38</td><td style="text-align:center">0,00</td><td style="text-align:center">192,14</td><td style="text-align:center">0,00</td><td style="text-align:center">193,73</td><td style="text-align:center">--</td><td style="text-align:center">219,96</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/371L02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">373</td><td class="especialResumenEmbalses">EMBALSE DE PIEDRAS</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="47.29" max="100"></progress><span class="progress-embalse-text">47,29%</span></div></td><td style="text-align:center">59,50</td><td style="text-align:center">0,00</td><td style="text-align:center">28,14</td><td style="text-align:center">0,00</td><td style="text-align:center">32,36</td><td style="text-align:center">0,00</td><td style="text-align:center">28,22</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/373E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">374</td><td class="especialResumenEmbalses">EMBALSE DE LOS MACHOS</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="21.17" max="100"></progress><span class="progress-embalse-text">21,17%</span></div></td><td style="text-align:center">12,00</td><td style="text-align:center">0,00</td><td style="text-align:center">2,54</td><td style="text-align:center">0,00</td><td style="text-align:center">2,55</td><td style="text-align:center">0,00</td><td style="text-align:center">3,64</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/374E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">375</td><td class="especialResumenEmbalses">EMBALSE DE CUEVA DE LA MORA</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="64.00" max="100"></progress><span class="progress-embalse-text">64,00%</span></div></td><td style="text-align:center">2,00</td><td style="text-align:center">0,00</td><td style="text-align:center">1,28</td><td style="text-align:center">0,00</td><td style="text-align:center">1,33</td><td style="text-align:center">--</td><td style="text-align:center">1,51</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/375L02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">376</td><td class="especialResumenEmbalses">EMBALSE DE SOTIEL - OLIVARGAS</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="74.62" max="100"></progress><span class="progress-embalse-text">74,62%</span></div></td><td style="text-align:center">29,00</td><td style="text-align:center">0,00</td><td style="text-align:center">21,64</td><td style="text-align:center">0,00</td><td style="text-align:center">22,00</td><td style="text-align:center">0,00</td><td style="text-align:center">23,77</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/376L02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">377</td><td class="especialResumenEmbalses">EMBALSE DE CORUMBEL BAJO</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="74.11" max="100"></progress><span class="progress-embalse-text">74,11%</span></div></td><td style="text-align:center">18,00</td><td style="text-align:center">0,00</td><td style="text-align:center">13,34</td><td style="text-align:center">0,00</td><td style="text-align:center">13,51</td><td style="text-align:center">--</td><td style="text-align:center">13,72</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/377E02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">379</td><td class="especialResumenEmbalses">EMBALSE DE JARRAMA</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="61.87" max="100"></progress><span class="progress-embalse-text">61,87%</span></div></td><td style="text-align:center">42,64</td><td style="text-align:center">0,00</td><td style="text-align:center">26,38</td><td style="text-align:center">0,00</td><td style="text-align:center">26,79</td><td style="text-align:center">0,00</td><td style="text-align:center">28,71</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/379L03/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="embalse-fila"><td style="text-align:center">380</td><td class="especialResumenEmbalses">EMBALSE DE ANDÉVALO</td><td style="text-align:center"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="85.12" max="100"></progress><span class="progress-embalse-text">85,12%</span></div></td><td style="text-align:center">634,40</td><td style="text-align:center">0,00</td><td style="text-align:center">540,00</td><td style="text-align:center">0,00</td><td style="text-align:center">542,23</td><td style="text-align:center">--</td><td style="text-align:center">334,84</td><td style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/380L02/calculada" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></td></tr><tr class="total-provincia"><th colspan="2" style="text-align:center;color:#355866 !important;">TOTAL</th><th style="text-align:center;color:#355866 !important;"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="72.477434762758" max="100"></progress><div class="progress-embalse-label">72,48%</div></div></th><th style="text-align:center;color:#355866 !important;">1.138,92</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">825,46</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">834,50</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">654,37</th><th style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/total/provincia/5/volumen" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></th></tr><tr class="separador-provincia"><td colspan="11" style="text-align:center;border-left:1px solid transparent;border-right:1px solid transparent;">&nbsp;</td></tr><tr class="provincia-fechas"><th style="text-align:center;border-left:1px solid transparent;border-top:2px solid transparent;background-color:white;" colspan="4">&nbsp;</th><th style="text-align:center" colspan="2">Fecha Actual: 01/10/2026</th><th style="text-align:center" colspan="2">Sem. Anterior: 24/09/2026</th><th style="text-align:center" colspan="2">Año Anterior: 01/10/2025</th><th style="text-align:center;border-right:1px solid transparent;border-top:1px solid transparent;background-color:white;">&nbsp;</th></tr><tr class="provincia-titulo"><th style="text-align:center" colspan="2">D.H. Cuencas Mediterráneas Andaluzas</th><th style="text-align:center">Porcentaje actual</th><th style="text-align:center">Capacidad total (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">GRÁFICA</th></tr><tr class="total-provincia"><th colspan="2" style="text-align:center;color:#355866 !important;">TOTAL</th><th style="text-align:center;color:#355866 !important;"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="65.734082429729" max="100"></progress><div class="progress-embalse-label">65,73%</div></div></th><th style="text-align:center;color:#355866 !important;">1.144,49</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">752,32</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">759,66</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">534,82</th><th style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/total/demarcacion/1/volumen" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></th></tr><tr class="separador-provincia"><td colspan="11" style="text-align:center;border-left:1px solid transparent;border-bottom:1px solid transparent;border-right:1px solid transparent;">&nbsp;</td></tr><tr class="provincia-fechas"><th style="text-align:center;border-left:1px solid transparent;border-top:2px solid transparent;background-color:white;" colspan="4">&nbsp;</th><th style="text-align:center" colspan="2">Fecha Actual: 01/10/2026</th><th style="text-align:center" colspan="2">Sem. Anterior: 24/09/2026</th><th style="text-align:center" colspan="2">Año Anterior: 01/10/2025</th><th style="text-align:center;border-right:1px solid transparent;border-top:1px solid transparent;background-color:white;">&nbsp;</th></tr><tr class="provincia-titulo"><th style="text-align:center" colspan="2">D.H. Cuenca Guadalete-Barbate</th><th style="text-align:center">Porcentaje actual</th><th style="text-align:center">Capacidad total (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">GRÁFICA</th></tr><tr class="total-provincia"><th colspan="2" style="text-align:center;color:#355866 !important;">TOTAL</th><th style="text-align:center;color:#355866 !important;"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="76.457121111684" max="100"></progress><div class="progress-embalse-label">76,46%</div></div></th><th style="text-align:center;color:#355866 !important;">1.629,24</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">1.245,67</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">1.255,64</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">700,39</th><th style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/total/demarcacion/2/volumen" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></th></tr><tr class="separador-provincia"><td colspan="11" style="text-align:center;border-left:1px solid transparent;border-bottom:1px solid transparent;border-right:1px solid transparent;">&nbsp;</td></tr><tr class="provincia-fechas"><th style="text-align:center;border-left:1px solid transparent;border-top:2px solid transparent;background-color:white;" colspan="4">&nbsp;</th><th style="text-align:center" colspan="2">Fecha Actual: 01/10/2026</th><th style="text-align:center" colspan="2">Sem. Anterior: 24/09/2026</th><th style="text-align:center" colspan="2">Año Anterior: 01/10/2025</th><th style="text-align:center;border-right:1px solid transparent;border-top:1px solid transparent;background-color:white;">&nbsp;</th></tr><tr class="provincia-titulo"><th style="text-align:center" colspan="2">D.H. Tinto, Odiel, Piedras y Chanza</th><th style="text-align:center">Porcentaje actual</th><th style="text-align:center">Capacidad total (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">Pluv. acum. año hidro. (<span style="text-transform:lowercase;">mm</span>)</th><th style="text-align:center">Vol (<span style="text-transform:lowercase;">Hm<sup>3</sup></span>)</th><th style="text-align:center">GRÁFICA</th></tr><tr class="total-provincia"><th colspan="2" style="text-align:center;color:#355866 !important;">TOTAL</th><th style="text-align:center;color:#355866 !important;"><div class="progress-embalse-wrapper"><progress class="progress-embalse" value="72.477434762758" max="100"></progress><div class="progress-embalse-label">72,48%</div></div></th><th style="text-align:center;color:#355866 !important;">1.138,92</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">825,46</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">834,50</th><th style="text-align:center;color:#355866 !important;">&nbsp;</th><th style="text-align:center;color:#355866 !important;">654,37</th><th style="text-align:center"><a class="resumen-table-action" data-target="#myModal" data-remote="true" href="https://www.redhidrosurmedioambiente.es/saih/mapa/tiempo/real/grafica/total/demarcacion/3/volumen" data-toggle="modal"><img class="resumen-table-graph-icon" alt="gráfica" src="https://www.redhidrosurmedioambiente.es/saih/assets/images/grafica.png"></a></th></tr><tr class="separador-provincia"><td colspan="11" style="text-align:center;border-left:1px solid transparent;border-bottom:1px solid transparent;border-right:1px solid transparent;">&nbsp;</td></tr>        </tbody>
+    </table>
+    </div> <!-- .saih-table-card -->
+</div>
+
+<!--
+  Estilo piloto de tablas agrupadas.
+  Cuando validemos el diseño se moverá a assets/css/resumen.css
+  junto con el patrón ya fijado en la tabla de ríos.
+-->
+<style>
+#resumenEmbalses.resumen-embalses-page {
+    overflow: visible;
+}
+
+#resumenEmbalses .saih-table-card {
+    margin-top: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #dbe5e9;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(34, 67, 80, 0.08);
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+#resumenEmbalses .saih-data-table {
+    width: 100%;
+    min-width: 1380px;
+    margin: 0;
+    border: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    color: #354f5b;
+    font-family: 'Open Sans', Arial, sans-serif;
+}
+
+/* Banda superior de fechas: segundo nivel de información. */
+#resumenEmbalses .provincia-fechas th {
+    padding: 6px 8px;
+    border: 0 !important;
+    border-bottom: 1px solid #dce7eb !important;
+    background: #edf4f6 !important;
+    color: #617b86 !important;
+    font-size: 11.5px !important;
+    font-weight: 700;
+    letter-spacing: .015em;
+    line-height: 1.25;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+#resumenEmbalses .provincia-fechas th:first-child,
+#resumenEmbalses .provincia-fechas th:last-child {
+    border-bottom-color: transparent !important;
+    background: #fff !important;
+}
+
+/* Separadores de los tres bloques temporales: actual / semana / año anterior. */
+#resumenEmbalses .provincia-fechas th:nth-child(2),
+#resumenEmbalses .provincia-fechas th:nth-child(3),
+#resumenEmbalses .provincia-fechas th:nth-child(4) {
+    border-left: 1px solid #c5d7de !important;
+}
+
+#resumenEmbalses .provincia-fechas th:nth-child(4) {
+    border-right: 1px solid #c5d7de !important;
+}
+
+/* Continuidad visual de los grupos de dos columnas bajo cada fecha. */
+#resumenEmbalses .provincia-titulo th:nth-child(4),
+#resumenEmbalses .provincia-titulo th:nth-child(6),
+#resumenEmbalses .provincia-titulo th:nth-child(8),
+#resumenEmbalses tr.embalse-fila td:nth-child(5),
+#resumenEmbalses tr.embalse-fila td:nth-child(7),
+#resumenEmbalses tr.embalse-fila td:nth-child(9),
+#resumenEmbalses .total-provincia th:nth-child(4),
+#resumenEmbalses .total-provincia th:nth-child(6),
+#resumenEmbalses .total-provincia th:nth-child(8) {
+    border-left: 1px solid #cbdbe1 !important;
+}
+
+/* Cabecera principal de cada provincia/demarcación. */
+#resumenEmbalses .provincia-titulo th {
+    padding: 9px 8px;
+    border-top: 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,.28) !important;
+    border-left: 0 !important;
+    border-right: 1px solid rgba(255,255,255,.16) !important;
+    background: #5f8998 !important;
+    color: #fff !important;
+    font-size: 11.5px !important;
+    font-weight: 700;
+    letter-spacing: .02em;
+    line-height: 1.25;
+    vertical-align: middle;
+}
+
+#resumenEmbalses .provincia-titulo th:last-child {
+    border-right: 0 !important;
+}
+
+#resumenEmbalses .provincia-titulo th:first-child {
+    font-size: 12px !important;
+}
+
+/* Filas de embalses: misma densidad y tipografía que el patrón de ríos. */
+#resumenEmbalses tr.embalse-fila td {
+    padding: 8px 9px;
+    border-top: 1px solid #e6edef !important;
+    border-bottom: 0 !important;
+    border-left: 0 !important;
+    border-right: 1px solid #eef2f4 !important;
+    background: #fff;
+    color: #405d68;
+    font-size: 11.5px;
+    line-height: 1.3;
+    vertical-align: middle;
+    transition: background .12s ease;
+}
+
+#resumenEmbalses tr.embalse-fila:nth-child(even) td {
+    background: #fbfcfc;
+}
+
+#resumenEmbalses tr.embalse-fila:hover td {
+    background: #eef5f7;
+}
+
+#resumenEmbalses tr.embalse-fila td:last-child {
+    border-right: 0 !important;
+}
+
+#resumenEmbalses tr.embalse-fila .especialResumenEmbalses {
+    min-width: 240px;
+    padding-left: 9px;
+    color: #355866;
+    font-weight: 600;
+}
+
+/* Totales: cierre visual del bloque, sin volver a la rejilla pesada. */
+#resumenEmbalses .total-provincia th {
+    padding: 8px 9px;
+    border-top: 1px solid #cfdce1 !important;
+    border-bottom: 1px solid #d9e4e8 !important;
+    border-left: 0 !important;
+    border-right: 1px solid #e3eaed !important;
+    background: #edf3f5 !important;
+    color: #355866 !important;
+    font-size: 12.5px !important;
+    font-weight: 700;
+    line-height: 1.3;
+    vertical-align: middle;
+}
+
+#resumenEmbalses .total-provincia th:last-child {
+    border-right: 0 !important;
+}
+
+/* Notas de Málaga: conservamos el carácter informativo, más integrado. */
+#resumenEmbalses .nota-aclaracion td {
+    padding: 7px 10px !important;
+    border-top: 1px solid #efe3a4 !important;
+    border-bottom: 0 !important;
+    border-left: 3px solid #e2c44c !important;
+    border-right: 0 !important;
+    background: #fffbea !important;
+    color: #675f42;
+    font-size: 11px !important;
+    line-height: 1.45;
+}
+
+/* Notas generales bajo la tabla: mismo lenguaje visual, variante informativa azul. */
+#resumenEmbalses + .resumen-embalses-notes {
+    margin: 4px 10px 18px;
+    border: 1px solid #d7e6eb;
+    border-left: 3px solid #6f9eae;
+    border-radius: 7px;
+    background: #f1f7f9;
+    color: #506b76;
+    overflow: hidden;
+}
+
+.resumen-embalses-notes .resumen-embalses-note {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    padding: 7px 10px;
+    font-size: 11.5px;
+    line-height: 1.4;
+}
+
+.resumen-embalses-notes .resumen-embalses-note + .resumen-embalses-note {
+    border-top: 1px solid #deeaee;
+}
+
+.resumen-embalses-notes .resumen-embalses-note__mark {
+    flex: 0 0 auto;
+    min-width: 18px;
+    color: #3f7488;
+    font-weight: 800;
+}
+
+/* Hueco real entre grupos, sin bordes visibles. */
+#resumenEmbalses .separador-provincia td {
+    height: 18px;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+/* Barras de llenado: misma paleta que el resto de la interfaz. */
+#resumenEmbalses .progress-embalse-wrapper {
+    position: relative;
+    width: 100%;
+    min-width: 115px;
+    max-width: 165px;
+    height: 20px;
+    margin: 0 auto;
+}
+
+#resumenEmbalses .progress-embalse {
+    display: block;
+    width: 100%;
+    height: 20px;
+    border: 0;
+    border-radius: 5px;
+    background: #edf2f4;
+    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+#resumenEmbalses .progress-embalse::-webkit-progress-bar {
+    border: 1px solid #9fb6bf;
+    border-radius: 5px;
+    background: #edf2f4;
+}
+
+#resumenEmbalses .progress-embalse::-webkit-progress-value {
+    border-radius: 4px;
+    background: #57b6cf;
+}
+
+#resumenEmbalses .progress-embalse::-moz-progress-bar {
+    border-radius: 4px;
+    background: #57b6cf;
+}
+
+#resumenEmbalses .progress-embalse-text,
+#resumenEmbalses .progress-embalse-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    margin: 0;
+    color: #264f5f;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+/* Acción de gráfica: mismo control ya aprobado en ríos. */
+#resumenEmbalses .resumen-table-action {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 29px;
+    height: 29px;
+    border: 1px solid #d4e0e4;
+    border-radius: 7px;
+    background: #f7fafb;
+    text-decoration: none !important;
+    transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+#resumenEmbalses .resumen-table-action:hover,
+#resumenEmbalses .resumen-table-action:focus {
+    border-color: #91adb8;
+    background: #eaf3f6;
+    box-shadow: 0 2px 6px rgba(34,67,80,.10);
+    outline: none;
+}
+
+#resumenEmbalses .resumen-table-graph-icon {
+    display: block;
+    width: 15px;
+    height: auto;
+    margin: 0;
+    opacity: .78;
+}
+
+@media (max-width: 767px) {
+    #resumenEmbalses .saih-table-card {
+        border-radius: 8px;
+    }
+
+    #resumenEmbalses .saih-data-table {
+        min-width: 1380px;
+    }
+}
+</style>
+
+    <div class="resumen-embalses-notes" role="note" aria-label="Notas de la tabla de embalses">
+
+                    <div class="resumen-embalses-note">
+                <span class="resumen-embalses-note__mark">--</span>
+                <span>Período incompleto</span>
+            </div>
+        
+                    <div class="resumen-embalses-note">
+                <span class="resumen-embalses-note__mark">*</span>
+                <span>Se actualiza la capacidad del embalse en noviembre de 2025.</span>
+            </div>
+
+            <div class="resumen-embalses-note">
+                <span class="resumen-embalses-note__mark">**</span>
+                <span>Se actualiza la capacidad del embalse en diciembre de 2025.</span>
+            </div>
+        
+    </div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content"></div>
+    </div>
+</div>
+
+
+        </div> <!-- #central -->
+    </div> <!-- .container -->
+
+    <footer class="footer">
+
+      <div id="pie">
+
+        <!-- ============================================
+             Información principal del pie
+             ============================================ -->
+        <div class="pie-principal">
+
+          <div class="col-sm-2 pie-logo">
+            <img class="img-responsive"
+                 src="https://www.redhidrosurmedioambiente.es/saih/assets/images/unioneuropea.gif"
+                 title="Logo de la Unión Europea"
+                 alt="Unión Europea. Fondo Europeo de Desarrollo Regional">
+          </div>
+
+
+          <div class="col-sm-2 pie-actualizacion
+                      colorBlanco">
+
+            
+              Datos actualizados a: 01-10-2026 18:00:00
+            
+          </div>
+
+
+          <div class="col-sm-8 pie-aviso">
+
+            Los datos de esta página web son obtenidos por estaciones
+            automáticas y no están verificados. Se ruega precaución
+            en su uso pues carecen de valor oficial.
+
+          </div>
+
+        </div>
+
+
+        <!-- ============================================
+             Enlaces inferiores
+             ============================================ -->
+        <div class="pie-enlaces">
+
+          <a href="https://www.redhidrosurmedioambiente.es/saih/contacto">
+            Contacto
+          </a>
+
+          <span class="pie-separador">|</span>
+
+          <a href="https://www.redhidrosurmedioambiente.es/saih/avisos/legal">
+            Aviso Legal
+          </a>
+
+          <span class="pie-separador">|</span>
+
+          <a href="https://www.redhidrosurmedioambiente.es/saih/avisos/politica/privacidad">
+            Política de Privacidad
+          </a>
+
+          <span class="pie-separador">|</span>
+
+          <a href="https://www.redhidrosurmedioambiente.es/saih/avisos/politica/cookies">
+            Política de Cookies
+          </a>
+
+          <span class="pie-separador">|</span>
+
+          <a href="https://www.redhidrosurmedioambiente.es/saih/mapa/del/sitio">
+            <i class="fa fa-sitemap" aria-hidden="true"></i>
+            Mapa del sitio
+          </a>
+
+        </div>
+
+      </div>
+
+    </footer>
+
+  </body>
+</html>

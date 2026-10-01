@@ -9,7 +9,7 @@ El sistema DEBE almacenar la relación localización → sensores vigilados en u
 
 #### Scenario: Cobertura de las localizaciones con catálogo SAIH
 - **Dado** el catálogo sembrado
-- **Entonces** cada estación virtual en el ámbito del SAIH Júcar tiene al menos un `flow_primary` y un sensor de lluvia; Tortosa (Ebro, CHE), Málaga y Rincón (Cuencas Mediterráneas Andaluzas) no tienen `watch_points` hasta que haya collectors de esos SAIH, y su semáforo combina lluvia prevista y avisos.
+- **Entonces** cada estación virtual en el ámbito del SAIH Júcar o del SAIH Hidrosur tiene al menos un `flow_primary` y un sensor de lluvia; Tortosa (Ebro, CHE) no tiene `watch_points` hasta que haya collector de ese SAIH, y su semáforo combina lluvia prevista y avisos.
 
 #### Scenario: Poyo compartido
 - **Dado** que Albal y Benetússer dependen del mismo aforo

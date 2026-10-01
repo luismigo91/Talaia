@@ -125,6 +125,15 @@ importers:
         specifier: ^0.44.0
         version: 0.44.7(postgres@3.4.9)
 
+  collectors/hidrosur:
+    dependencies:
+      '@talaia/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      drizzle-orm:
+        specifier: ^0.44.0
+        version: 0.44.7(postgres@3.4.9)
+
   collectors/meteoalarm:
     dependencies:
       '@talaia/shared':
@@ -163,6 +172,9 @@ importers:
       '@talaia/collector-gva':
         specifier: workspace:*
         version: link:../gva
+      '@talaia/collector-hidrosur':
+        specifier: workspace:*
+        version: link:../hidrosur
       '@talaia/collector-meteoalarm':
         specifier: workspace:*
         version: link:../meteoalarm

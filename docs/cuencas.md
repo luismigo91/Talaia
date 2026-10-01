@@ -98,7 +98,7 @@ Misma cuenca que Albal, un tramo aguas arriba (Paiporta → Benetússer → Cata
 
 **Cauces**: el **Guadalmedina** (atorna la ciudad, encauzado; presa del Limonero aguas arriba) y el **Guadalhorce** al oeste (desembocadura junto al aeropuerto), ambos de respuesta rápida y cuenca pequeña; ramblas y arroyos urbanos (Jaboneros, Gálica, Las Cañas) sin sensor público conocido.
 
-**Sensores**: ninguno en el catálogo — Málaga está en la Demarcación de las Cuencas Mediterráneas Andaluzas y su SAIH (Hidrosur, `redhidrosur`) es otro portal (fuera de la fase 15). Semáforo con lluvia prevista + avisos (Meteoalarm, zona 612903 Sol y Guadalhorce).
+**Sensores** (SAIH Hidrosur, fase 16): Guadalhorce en Cártama 38 (`flow_primary`), Aljaima 46, Bobadilla 127 y Campanillas 106; volumen del Limonero 20; lluvia en Farola 22 y Limonero 120 (local) y Coín 35 (cabecera). Sin umbrales de caudal publicados: el caudal entra como contexto hasta calibrar; la lluvia usa los globales de AEMET.
 
 **Contexto**: inundaciones del Guadalmedina (1915, 1989, 2004); la DANA del 29-10-2024 también puso a Málaga en aviso rojo. El riesgo urbano viene de convección intensa sobre cuencas pequeñas, justo el caso que el SAIH Júcar no cubre aquí.
 
@@ -108,7 +108,7 @@ Misma cuenca que Albal, un tramo aguas arriba (Paiporta → Benetússer → Cata
 
 **Cauces**: arroyos costeros de la **Axarquía** (Benagalbón, Totalán, Granadillas, Pizarro), cortos y de fuerte pendiente desde los Montes de Málaga al mar; sin regulación ni, que se sepa, aforo público.
 
-**Sensores**: ninguno en el catálogo (misma demarcación y mismo hueco que Málaga). Semáforo con lluvia prevista + avisos (Meteoalarm, zona 612904 Axarquía).
+**Sensores** (SAIH Hidrosur, fase 16): Benamargosa 43 (`flow_primary`), Río Grande 104; lluvia en La Araña 101 y Torrox 44 (local) y Viñuela 37 (cabecera) más volumen de La Viñuela. Sin umbrales de caudal: contexto hasta calibrar.
 
 ---
 
@@ -121,7 +121,7 @@ Misma cuenca que Albal, un tramo aguas arriba (Paiporta → Benetússer → Cata
 | Mareny de Barraquetes | 13070 | 13080, 14551, 2443, 2701 | **306**, 802, 387 |
 | Benaguasil | 12808 | 12905, 13896, 13897, 16693 | 233, 408, 409, 225, 226 |
 | Tortosa | — (Ebro, CHE) | — | — (prevista + avisos) |
-| Málaga | — (Hidrosur) | — | — (prevista + avisos) |
-| Rincón de la Victoria | — (Hidrosur) | — | — (prevista + avisos) |
+| Málaga | hidrosur:38 | hidrosur:46, hidrosur:127, hidrosur:106 | hidrosur:22, hidrosur:120, hidrosur:35 |
+| Rincón de la Victoria | hidrosur:43 | hidrosur:104 | hidrosur:101, hidrosur:44, hidrosur:37 |
 
 Notas de implementación (collector SAIH, implementado el 25‑08‑2026): **todo** se lee con `/admin/variables/valor/{id}/{desde}/{hasta}`, incluida la lluvia — los `idVariable` de intensidad y acumulado de cada pluviómetro se descubren en `/chart-lluvia/{idEstacionRemota}` (variables JS `varLluvia` y `varLluvia24`) y están fijados arriba, así que `/lluviasIntervalo` (solo acumulados diarios) no se usa. El rango de la URL se interpreta en **hora local `Europe/Madrid`** y la respuesta llega en UTC. La intensidad está en **mm/h** en múltiplos de 2,4 (cazoleta de 0,2 mm/5 min); el collector deriva de ella `precip_mm` horario. En `/mapa-embalses` y `/mapa-aforos` las claves `fldNCoordGPSLat/Lon` son en realidad **UTM 30N ETRS89 (EPSG:25830)**; en `/lluvias` son lat/lon reales. El catálogo completo (29 estaciones, 57 sensores verificados) vive en la tabla `sensors` (`db/migrations/0006_saih.sql`).

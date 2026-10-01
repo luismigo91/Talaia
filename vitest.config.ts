@@ -19,6 +19,9 @@ const alias = {
     new URL("./collectors/avamet/src/index.ts", import.meta.url),
   ),
   "@talaia/collector-gva": fileURLToPath(new URL("./collectors/gva/src/index.ts", import.meta.url)),
+  "@talaia/collector-hidrosur": fileURLToPath(
+    new URL("./collectors/hidrosur/src/index.ts", import.meta.url),
+  ),
   "@talaia/collector-meteoalarm": fileURLToPath(
     new URL("./collectors/meteoalarm/src/index.ts", import.meta.url),
   ),

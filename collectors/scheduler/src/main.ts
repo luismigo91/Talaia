@@ -7,6 +7,7 @@ import { run as runSaih } from "@talaia/collector-saih";
 import { run as runMeteoalarm } from "@talaia/collector-meteoalarm";
 import { run as runAvamet } from "@talaia/collector-avamet";
 import { run as runGva } from "@talaia/collector-gva";
+import { run as runHidrosur } from "@talaia/collector-hidrosur";
 import {
   run as runAemet,
   AemetClient,
@@ -62,6 +63,12 @@ const jobs: Job[] = [
     name: "gva",
     intervalMin: minutes("GVA_INTERVAL_MIN", 5),
     fn: runGva,
+  },
+  {
+    // SAIH Hidrosur: caudal y lluvia observada de Málaga y la Axarquía.
+    name: "hidrosur",
+    intervalMin: minutes("HIDROSUR_INTERVAL_MIN", 30),
+    fn: runHidrosur,
   },
   {
     name: "aemet-alerts",

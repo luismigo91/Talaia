@@ -13,14 +13,14 @@ Anticipar riesgo de inundación en las **localizaciones objetivo** (origen: la z
 | `virtual:mareny-barraquetes` | Mareny de Barraquetes (pedanía de Sueca, costa de la Ribera Baixa) | Sueca `46235` | 39.2458, −0.2646 | `774604` | Xúquer bajo, Albufera, marjal; lluvia local y mar |
 | `virtual:benaguasil` | Benaguasil (Camp de Túria) | Benaguasil `46051` | 39.6, −0.583 | `774602` | Túria (margen derecha) aguas abajo de Benagéber/Loriguilla; barrancos locales |
 | `virtual:tortosa` | Tortosa (Baix Ebre) | Tortosa `43155` | 40.8108, 0.525 | `694305` | Ebro bajo (CHE, sin SAIH en catálogo); prevista + avisos |
-| `virtual:malaga` | Málaga | Málaga `29067` | 36.7203, −4.4197 | `612903` | Guadalmedina/Guadalhorce (Hidrosur, sin SAIH); prevista + avisos |
-| `virtual:rincon-de-la-victoria` | Rincón de la Victoria (Axarquía) | Rincón de la Victoria `29082` | 36.7161, −4.2922 | `612904` | arroyos de la Axarquía (Hidrosur, sin SAIH); prevista + avisos |
+| `virtual:malaga` | Málaga | Málaga `29067` | 36.7203, −4.4197 | `612903` | Guadalmedina/Guadalhorce (Hidrosur, fase 16); prevista + avisos + observación |
+| `virtual:rincon-de-la-victoria` | Rincón de la Victoria (Axarquía) | Rincón de la Victoria `29082` | 36.7161, −4.2922 | `612904` | arroyos de la Axarquía (Hidrosur, fase 16); prevista + avisos + observación |
 
 Albal es la localización principal (el semáforo se calibra primero ahí). El Mareny no es municipio: la predicción municipal de AEMET es la de Sueca (núcleo a ~7 km); la puntual viene de Open-Meteo. Los cauces y sensores SAIH a vigilar por localidad están en `docs/cuencas.md`.
 
 ## Estado actual
 
-Quince incrementos implementados y verificados contra las fuentes reales (25‑08 → 01‑10‑2026), los doce primeros **archivados** en `openspec/specs/`. Los tres últimos (`openspec/changes/anticipacion-hidrologica/`, `openspec/changes/preaviso-escalada/`, `openspec/changes/nuevas-localizaciones/`) están implementados y pendientes de archivar.
+Dieciséis incrementos implementados y verificados contra las fuentes reales (25‑08 → 01‑10‑2026), los doce primeros **archivados** en `openspec/specs/`. Los cuatro últimos (`openspec/changes/anticipacion-hidrologica/`, `openspec/changes/preaviso-escalada/`, `openspec/changes/nuevas-localizaciones/`, `openspec/changes/collector-hidrosur/`) están implementados y pendientes de archivar.
 
 | # | Incremento | Qué aporta |
 |---|---|---|
@@ -39,6 +39,7 @@ Quince incrementos implementados y verificados contra las fuentes reales (25‑0
 | 13 | Anticipación | Tendencia entre corridas de los modelos; caudal anticipado desde la lluvia de cabecera (`runoff_models`, sin semilla: ver hallazgo) |
 | 14 | Preaviso | Próximo cambio por avisos (`upcoming_alerts`, `next_change`); comparativa acumulada + modo por horas; tarjeta con lo que manda |
 | 15 | Nuevas localizaciones | Tortosa, Málaga y Rincón de la Victoria (prevista + avisos; Ebro e Hidrosur sin SAIH en catálogo) |
+| 16 | SAIH Hidrosur | Caudal y lluvia observada en Málaga y la Axarquía (sin clave; caudal sin umbrales hasta calibrar). Ebro pendiente de clave |
 
 **Hallazgo de la calibración**: el histórico del Poyo trae **picos espurios** —de 0,1 a 855 m³/s en cinco minutos, sostenidos media hora y de vuelta a cero, con `estado` normal—. El semáforo usa ahora la última lectura *creíble* (`lastPlausible`): un salto mayor de 250 m³/s queda en cuarentena y solo se acepta si se sostiene una hora. Sin eso habría dado rojo cinco veces en año y medio sin llover.
 
@@ -51,6 +52,8 @@ Quince incrementos implementados y verificados contra las fuentes reales (25‑0
 - `NTFY_URL` si se quieren recibir las notificaciones; sin ella las transiciones solo se registran.
 - Capturar una respuesta real de la GVA con emergencias activas (`z2` poblado) en el próximo episodio, para confirmar la fixture de test.
 - Tras el primer episodio con caudal real en el Poyo: `backfill` + `calibrate-runoff --apply` para activar el caudal anticipado.
+- `SAIHEBRO_API_KEY` (clave personal en `saihebro.com/datos/opendata`) para el collector del Ebro en Tortosa; sin ella no hay caudal del Ebro.
+- Tras episodios con caudal en Hidrosur: calibrar umbrales de `hidrosur:*:river_flow_m3s` (hoy sin umbrales, contexto).
 
 ## Estructura del monorepo
 
@@ -72,6 +75,8 @@ openspec/     Especificaciones (OpenSpec): specs/ = comportamiento vigente; chan
 | Open-Meteo | Predicción multi-modelo (ECMWF, GFS, ICON, AROME…) | REST sin clave. Uso no comercial | MVP |
 | Meteoalarm | Avisos AEMET republicados en CAP (API v1 JSON) | Feed público sin clave | **Implementado** (fase 5) |
 | SAIH Júcar (CHJ) | Nivel/caudal de barrancos, embalses, pluviómetros en tiempo real | Sin API pública ni auth; endpoints internos `/admin/…` | **Implementado** (fase 2) |
+| SAIH Hidrosur (Junta de Andalucía) | Nivel/caudal de ríos, lluvia y embalses de Málaga y la Axarquía | Sin clave; tablas + gráficas 48 h | **Implementado** (fase 16) |
+| SAIH Ebro (CHE) | Ebro bajo en Tortosa | Open Data con clave personal | **Pendiente de `SAIHEBRO_API_KEY`** |
 | MITECO / embalses.net | Estado de embalses | Boletín semanal | **Descartado**: ya hay 6 embalses del SAIH cada 5 min |
 | GVA Emergències / 112 CV | Fases del plan de emergencias (Situación 0‑3) | API JSON pública `wpr.112cv.gva.es` | **Implementado** (fase 10) |
 | Copernicus EFAS | Alerta europea de inundación | GRIB/NetCDF | **Descartado para alerta**: ciego al Poyo (<500 km²). Solo histórico para calibrar |

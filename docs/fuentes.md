@@ -10,8 +10,11 @@ Fichas por fuente. Verificado el **25‑08‑2026** (marcas: ✅ verificado con 
 | `virtual:benetusser` | Benetússer | `46054` | 39.4227, −0.3969 | 15 m | `774602` | Contiguo a Albal; zona según PDF de AEMET (misma columna que Albal) |
 | `virtual:mareny-barraquetes` | Mareny de Barraquetes | `46235` (Sueca) | 39.2458, −0.2646 | ~2 m | `774604` | Pedanía costera de Sueca; sin municipio propio en AEMET. Coordenadas de Nominatim/OSM |
 | `virtual:benaguasil` | Benaguasil | `46051` | 39.6, −0.583 | 103 m | `774602` | Camp de Túria, margen derecha del Túria. Zona según PDF de AEMET (misma columna que Albal) |
+| `virtual:tortosa` | Tortosa | `43155` | 40.8108, 0.525 | 49 m | `694305` | Prelitoral sur de Tarragona (página AEMET 01-10-2026). Ebro (CHE): sin SAIH en catálogo |
+| `virtual:malaga` | Málaga | `29067` | 36.7203, −4.4197 | 8 m | `612903` | Sol y Guadalhorce (página AEMET 01-10-2026). Guadalmedina/Guadalhorce (Hidrosur) |
+| `virtual:rincon-de-la-victoria` | Rincón de la Victoria | `29082` | 36.7161, −4.2922 | 12 m | `612904` | Axarquía (página AEMET 01-10-2026). Arroyos de la Axarquía (Hidrosur) |
 
-Fuentes: geocoder de Open-Meteo, https://www.aemet.es/es/eltiempo/prediccion/municipios/benetusser-id46054 y `sueca-id46235` (200; un id falso da 404), PDF de zonas de AEMET.
+Fuentes: geocoder de Open-Meteo, https://www.aemet.es/es/eltiempo/prediccion/municipios/benetusser-id46054 y `sueca-id46235` (200; un id falso da 404), `tortosa-id43155`, `malaga-id29067`, `rincon-de-la-victoria-id29082`, PDF de zonas de AEMET.
 
 ---
 
@@ -341,6 +344,37 @@ El mapa `EMMA_ID` → zona se generó del propio feed cruzando cada área con el
 | Estaciones de interés | Paiporta `c16m186e02`; Catarroja `c16m094e05`; Torrent `c16m244e03`, `c16m244e01`; Chiva `c18m111e01`, `c18m111e03`, `c18m111e04`; Turís `c20m248e02` |
 | Interés | Única red densa en l'Horta Sud y cabecera del Poyo; el 29‑10‑2024 registró >500 mm en Chiva/Cheste/Buñol/Godelleta |
 | Prioridad | Fase 4 (scraping frágil) |
+
+---
+
+## 9. SAIH Hidrosur (Junta de Andalucía) ✅ (fase 16, 01‑10‑2026)
+
+| Campo | Valor |
+|---|---|
+| URL | Visor: https://www.redhidrosurmedioambiente.es/saih/ |
+| Formato | HTML con tablas de última hora + gráficas por estación con JS inline (`var labels`, `var serie1`, `sensorTipo`) |
+| Autenticación | Ninguna |
+| Frecuencia | Dato **horario**; "Datos actualizados a" en cada página (01-10-2026 18:00 ✅) |
+| Retención pública | Histórico horario de **48 h** por gráfica; "Datos a la carta" con formulario por estación y rango (backfill pendiente) |
+
+### Endpoints ✅
+
+| Endpoint | Devuelve |
+|---|---|
+| `GET /resumen/rios` | Tabla: n.º, nombre, nivel medio (m), caudal medio (m³/s), tendencia, máximos históricos + enlace `grafica/{codigo}` por fila |
+| `GET /resumen/embalses` | Tabla: % actual, capacidad (hm³), volúmenes actual/semana anterior/año anterior + enlace a gráfica |
+| `GET /resumen/precipitacion` | Solo las 21 estaciones con más lluvia (no sirve para seguir una estación concreta) |
+| `GET /mapa/tiempo/real/grafica/{codigo}` | `sensorTipo` (`R` río/nivel, `P` pluviómetro, `E` embalse), 48–49 etiquetas `dd/mm/aa HH:MM` en hora local y `serie1`. Vacía (`labels = []`) = sin lluvia en 48 h |
+
+Códigos: ríos y embalses salen de los enlaces de las propias tablas (`038R03`, `020E01`; el sufijo varía por estación); pluviómetros regulares (`{n}P01`, verificado por `sensorTipo`). La gráfica de río trae **nivel, no caudal**: `river_flow_m3s` entra solo con el último valor de la tabla. La de embalse trae cota, no %/hm³: embalses solo con último valor. **Sin umbrales publicados** por estación: el caudal entra como contexto hasta calibrar (misma doctrina que el Poyo).
+
+### Estaciones para Málaga y Rincón ✅
+
+Ríos: Guadalhorce en Cártama 38 (`flow_primary` Málaga), Aljaima 46, Bobadilla 127, Campanillas 106, Benamargosa 43 (`flow_primary` Rincón), Río Grande 104. Pluviómetros: Farola 22, Limonero 120, Coín 35, La Araña 101, Torrox 44, Viñuela 37. Embalses: Limonero 20, Guadalhorce 30, Viñuela 37. Licencia: dato operativo de administración pública; uso no comercial con atribución en el pie.
+
+### Ebro (CHE) — pendiente de clave
+
+El portal público (`chebro.es`, Liferay) no expone datos raspables; el SAIH del Ebro tiene API Open Data con **clave personal** (`saihebro.com/datos/opendata`, zonas H1–H22, Bajo Ebro = H8). Sin `SAIHEBRO_API_KEY` no hay collector: Tortosa sigue con prevista + avisos.
 
 ---
 
