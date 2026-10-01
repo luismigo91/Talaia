@@ -8,12 +8,12 @@
 El collector DEBE pedir a `https://api.open-meteo.com/v1/forecast` todas las estaciones virtuales en una sola petición (`latitude` y `longitude` con valores separados por comas, en el orden de `stations.id`), tratando la respuesta como array en ese mismo orden, con `models=meteofrance_arome_france_hd,icon_eu,ecmwf_ifs,gfs_seamless,arpege_europe,ukmo_global_deterministic_10km`, `hourly=precipitation,precipitation_probability,temperature_2m,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,cape`, `wind_speed_unit=ms`, `timezone=UTC`, `forecast_days=3`, en **una sola petición**.
 
 #### Scenario: Petición única
-- **Dado** 4 estaciones virtuales
+- **Dado** 7 estaciones virtuales
 - **Cuando** se ejecuta `run()`
-- **Entonces** se hace exactamente 1 petición al endpoint de forecast (más las de `meta.json`) y se escriben filas para las 4 `station_id`.
+- **Entonces** se hace exactamente 1 petición al endpoint de forecast (más las de `meta.json`) y se escriben filas para las 7 `station_id`.
 
 #### Scenario: Orden de la respuesta
-- **Dado** que el array devuelto tiene 4 elementos
+- **Dado** que el array devuelto tiene 7 elementos
 - **Entonces** el elemento i se asigna a la estación i; si la longitud no coincide, `run()` falla con `last_error` sin escribir nada.
 
 ### Requirement: Hora de emisión por modelo

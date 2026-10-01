@@ -51,11 +51,11 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("collector SAIH (integración)"
     expect(Number(geo!.lat)).toBeCloseTo(39.47, 1);
     expect(Number(geo!.lon)).toBeCloseTo(-0.58, 1);
 
-    // las estaciones virtuales del MVP no se ven afectadas
+    // las estaciones virtuales no se ven afectadas por la siembra del catálogo SAIH
     const [n] = await db.execute<{ n: number }>(
       sql`select count(*)::int n from stations where source = 'virtual'`,
     );
-    expect(n!.n).toBe(4);
+    expect(n!.n).toBe(7);
   });
 
   it("escribe observaciones y deriva precipitación horaria, de forma idempotente", async () => {

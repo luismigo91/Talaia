@@ -4,7 +4,7 @@
 
 ## ADDED Requirements
 
-### Requirement: Pantalla de inicio con las cuatro localizaciones
+### Requirement: Pantalla de inicio con todas las localizaciones
 La página `/` DEBE mostrar una tarjeta por localización objetivo, con su nombre, su nivel y la señal que lo determina (si el máximo es rojo, rojo con su motivo), ordenadas con la principal primero y las de mayor riesgo antes que las de menor. El desglose completo de componentes vive en `/l/{id}`, enlazado desde la tarjeta con el número de señales.
 
 #### Scenario: Orden por riesgo

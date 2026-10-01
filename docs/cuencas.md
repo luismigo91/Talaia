@@ -84,6 +84,34 @@ Misma cuenca que Albal, un tramo aguas arriba (Paiporta → Benetússer → Cata
 
 ---
 
+## 5. Tortosa (`virtual:tortosa`) — Ebro bajo (CHE, sin cobertura SAIH)
+
+**Cauces**: el **Ebro** a su paso por Tortosa (~12 m sobre el mar, a ~40 km de la desembocadura), regulado aguas arriba por **Mequinenza** (1.530 hm³), **Ribarroja** (210 hm³) y **Flix**; afluentes bajos (Matarraña, Algars, Canaletes) y barrancos locales. Como el Xúquer en Tous, la regulación rompe la relación lluvia-caudal: aunque hubiera aforo, no se calibraría `runoff_models` ahí (doctrina de la fase 13).
+
+**Sensores**: ninguno en el catálogo — el SAIH del Ebro es de la CHE (`saihebro.com`), otro portal con otros endpoints, y merece su propio collector (fuera de la fase 15). El semáforo combina lluvia prevista (Open-Meteo, 6 modelos) y avisos oficiales (Meteoalarm, zona 694305 Prelitoral sur de Tarragona).
+
+**Contexto**: riada del Ebro de 1937 y avenidas de 1961, 1982 y 2003; el tramo bajo (Tortosa–Amposta–Deltebre) es el expuesto cuando Mequinenza desembalsa o confluyen crecida y lluvia local. AEMET mantiene hoy (01-10-2026) "Aviso especial. Chubascos muy fuertes y persistentes" en el municipio.
+
+---
+
+## 6. Málaga (`virtual:malaga`) — Guadalmedina y Guadalhorce (Hidrosur, sin cobertura SAIH)
+
+**Cauces**: el **Guadalmedina** (atorna la ciudad, encauzado; presa del Limonero aguas arriba) y el **Guadalhorce** al oeste (desembocadura junto al aeropuerto), ambos de respuesta rápida y cuenca pequeña; ramblas y arroyos urbanos (Jaboneros, Gálica, Las Cañas) sin sensor público conocido.
+
+**Sensores**: ninguno en el catálogo — Málaga está en la Demarcación de las Cuencas Mediterráneas Andaluzas y su SAIH (Hidrosur, `redhidrosur`) es otro portal (fuera de la fase 15). Semáforo con lluvia prevista + avisos (Meteoalarm, zona 612903 Sol y Guadalhorce).
+
+**Contexto**: inundaciones del Guadalmedina (1915, 1989, 2004); la DANA del 29-10-2024 también puso a Málaga en aviso rojo. El riesgo urbano viene de convección intensa sobre cuencas pequeñas, justo el caso que el SAIH Júcar no cubre aquí.
+
+---
+
+## 7. Rincón de la Victoria (`virtual:rincon-de-la-victoria`) — arroyos de la Axarquía (Hidrosur, sin cobertura SAIH)
+
+**Cauces**: arroyos costeros de la **Axarquía** (Benagalbón, Totalán, Granadillas, Pizarro), cortos y de fuerte pendiente desde los Montes de Málaga al mar; sin regulación ni, que se sepa, aforo público.
+
+**Sensores**: ninguno en el catálogo (misma demarcación y mismo hueco que Málaga). Semáforo con lluvia prevista + avisos (Meteoalarm, zona 612904 Axarquía).
+
+---
+
 ## Resumen de sensores "clave" por localización (para `watch_points`)
 
 | Localización | Caudal principal | Caudales secundarios | Lluvia clave |
@@ -92,5 +120,8 @@ Misma cuenca que Albal, un tramo aguas arriba (Paiporta → Benetússer → Cata
 | Benetússer | 13873 | — | 371, 232 (+ AVAMET Torrent/Paiporta) |
 | Mareny de Barraquetes | 13070 | 13080, 14551, 2443, 2701 | **306**, 802, 387 |
 | Benaguasil | 12808 | 12905, 13896, 13897, 16693 | 233, 408, 409, 225, 226 |
+| Tortosa | — (Ebro, CHE) | — | — (prevista + avisos) |
+| Málaga | — (Hidrosur) | — | — (prevista + avisos) |
+| Rincón de la Victoria | — (Hidrosur) | — | — (prevista + avisos) |
 
 Notas de implementación (collector SAIH, implementado el 25‑08‑2026): **todo** se lee con `/admin/variables/valor/{id}/{desde}/{hasta}`, incluida la lluvia — los `idVariable` de intensidad y acumulado de cada pluviómetro se descubren en `/chart-lluvia/{idEstacionRemota}` (variables JS `varLluvia` y `varLluvia24`) y están fijados arriba, así que `/lluviasIntervalo` (solo acumulados diarios) no se usa. El rango de la URL se interpreta en **hora local `Europe/Madrid`** y la respuesta llega en UTC. La intensidad está en **mm/h** en múltiplos de 2,4 (cazoleta de 0,2 mm/5 min); el collector deriva de ella `precip_mm` horario. En `/mapa-embalses` y `/mapa-aforos` las claves `fldNCoordGPSLat/Lon` son en realidad **UTM 30N ETRS89 (EPSG:25830)**; en `/lluvias` son lat/lon reales. El catálogo completo (29 estaciones, 57 sensores verificados) vive en la tabla `sensors` (`db/migrations/0006_saih.sql`).

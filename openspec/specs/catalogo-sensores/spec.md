@@ -25,7 +25,7 @@ La migración DEBE sembrar la fuente `saih` y las estaciones de `docs/cuencas.md
 
 #### Scenario: Convivencia con estaciones virtuales
 - **Dado** que existen `virtual:albal` y `saih:227`
-- **Entonces** `loadVirtualStations()` sigue devolviendo solo las cuatro localizaciones objetivo.
+- **Entonces** `loadVirtualStations()` sigue devolviendo solo las siete localizaciones objetivo.
 
 ### Requirement: Umbrales oficiales
 Los sensores de caudal y nivel DEBEN llevar los umbrales `fldFUmbralBajo/Medio/Alto` publicados por la CHJ. Los de lluvia DEBEN quedar con umbrales nulos (el portal no los define).

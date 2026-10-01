@@ -31,7 +31,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Talaia — vigilancia de l'Horta Sud i la Ribera",
+    default: "Talaia — vigilancia de inundaciones",
     template: "%s",
   },
   description: DESCRIPTION,
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Talaia",
-    title: "Talaia — vigilancia de l'Horta Sud i la Ribera",
+    title: "Talaia — vigilancia de inundaciones",
     description: DESCRIPTION,
     url: SITE_URL,
     locale: "es_ES",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Talaia — vigilancia de l'Horta Sud i la Ribera",
+    title: "Talaia — vigilancia de inundaciones",
     description: DESCRIPTION,
     images: ["/og.png"],
   },
@@ -75,7 +75,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Logo size={30} />
               <span>
                 <span className="word">Talaia</span>
-                <small>l&apos;Horta Sud i la Ribera</small>
+                <small>vigilancia de inundaciones</small>
               </span>
             </Link>
             <nav>

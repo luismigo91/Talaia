@@ -16,7 +16,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
     beforeAll(async () => {
       await resetDatabase(pg);
       const applied = await migrate(URL_);
-      expect(applied.length).toBe(13);
+      expect(applied.length).toBe(15);
     });
     afterAll(close);
 
@@ -42,7 +42,10 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
         "virtual:albal",
         "virtual:benaguasil",
         "virtual:benetusser",
+        "virtual:malaga",
         "virtual:mareny-barraquetes",
+        "virtual:rincon-de-la-victoria",
+        "virtual:tortosa",
       ]);
       expect(stations[0]!.primary).toBe(true);
       expect(stations[0]!.ine).toBe("46007");
@@ -92,13 +95,13 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
       await pg`delete from forecasts`;
     });
 
-    it("collector con fixture: escribe 4 estaciones y es idempotente por corrida", async () => {
+    it("collector con fixture: escribe por estación virtual y es idempotente por corrida", async () => {
       const body = readFileSync(
         new URL("../../collectors/open-meteo/fixtures/forecast-2loc.json", import.meta.url),
         "utf8",
       );
       const two = JSON.parse(body) as unknown[];
-      const four = JSON.stringify([...two, ...two]);
+      const seven = JSON.stringify([...two, ...two, ...two, ...two.slice(0, 1)]);
       const meta = readFileSync(
         new URL("../../collectors/open-meteo/fixtures/meta-dwd_icon_eu.json", import.meta.url),
         "utf8",
@@ -106,7 +109,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
       let calls = 0;
       const fetchFn = (async (url: string) => {
         calls++;
-        return new Response(String(url).includes("/static/meta.json") ? meta : four, {
+        return new Response(String(url).includes("/static/meta.json") ? meta : seven, {
           status: 200,
         });
       }) as unknown as typeof fetch;
@@ -117,7 +120,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)(
       const perStation = await db.execute<{ station_id: string; n: number }>(
         sql`select station_id, count(*)::int n from forecasts group by 1 order by 1`,
       );
-      expect(perStation).toHaveLength(4);
+      expect(perStation).toHaveLength(7);
       const ts = await latestForecastTs(db, "open-meteo:icon_eu");
       expect(ts?.toISOString()).toBe(
         new Date(JSON.parse(meta).last_run_initialisation_time * 1000).toISOString(),

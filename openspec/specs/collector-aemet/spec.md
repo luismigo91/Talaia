@@ -37,12 +37,12 @@ Si el cuerpo obtenido es idéntico (SHA‑256) al último guardado en `source_st
 - **Entonces** `records_written = 0` y `last_success_at` se actualiza.
 
 ### Requirement: Predicción horaria por localización objetivo
-El collector DEBE consultar `/api/prediccion/especifica/municipio/horaria/{ine}` para cada `meta.ine` distinto de las estaciones virtuales (`46007`, `46054`, `46235`, `46051`), en secuencia, y escribir las filas con `station_id` de cada estación virtual asociada a ese INE, `source='aemet'`, `forecast_ts` = `elaborado` (hora `Europe/Madrid` → UTC) y `ts` = inicio del intervalo horario en UTC.
+El collector DEBE consultar `/api/prediccion/especifica/municipio/horaria/{ine}` para cada `meta.ine` distinto de las estaciones virtuales (`46007`, `46054`, `46235`, `46051`, `43155`, `29067`, `29082`), en secuencia, y escribir las filas con `station_id` de cada estación virtual asociada a ese INE, `source='aemet'`, `forecast_ts` = `elaborado` (hora `Europe/Madrid` → UTC) y `ts` = inicio del intervalo horario en UTC.
 
-#### Scenario: Cuatro localizaciones
-- **Dado** las cuatro estaciones virtuales sembradas
+#### Scenario: Siete localizaciones
+- **Dado** las siete estaciones virtuales sembradas
 - **Cuando** se ejecuta `run()`
-- **Entonces** se hacen exactamente 4 consultas (8 peticiones HTTP) y existen filas de `precip_mm` para `virtual:albal`, `virtual:benetusser`, `virtual:mareny-barraquetes` (con los datos del municipio `46235`) y `virtual:benaguasil`.
+- **Entonces** se hacen exactamente 7 consultas (14 peticiones HTTP) y existen filas de `precip_mm` para `virtual:albal`, `virtual:benetusser`, `virtual:mareny-barraquetes` (con los datos del municipio `46235`), `virtual:benaguasil`, `virtual:tortosa`, `virtual:malaga` y `virtual:rincon-de-la-victoria`.
 
 #### Scenario: Fallo en una localización
 - **Dado** que la consulta de `46235` devuelve 404

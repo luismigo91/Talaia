@@ -7,9 +7,9 @@
 ### Requirement: Tabla `watch_points`
 El sistema DEBE almacenar la relación localización → sensores vigilados en una tabla `watch_points` con `station_id` (FK a `stations`), `sensor_id` (FK a `sensors`), `role` ∈ `flow_primary|flow_secondary|reservoir|rain_upstream|rain_local`, `lag_minutes` opcional y `note`, con clave primaria `(station_id, sensor_id)`.
 
-#### Scenario: Cobertura de las cuatro localizaciones
+#### Scenario: Cobertura de las localizaciones con catálogo SAIH
 - **Dado** el catálogo sembrado
-- **Entonces** cada estación virtual tiene al menos un `flow_primary` y un sensor de lluvia.
+- **Entonces** cada estación virtual en el ámbito del SAIH Júcar tiene al menos un `flow_primary` y un sensor de lluvia; Tortosa (Ebro, CHE), Málaga y Rincón (Cuencas Mediterráneas Andaluzas) no tienen `watch_points` hasta que haya collectors de esos SAIH, y su semáforo combina lluvia prevista y avisos.
 
 #### Scenario: Poyo compartido
 - **Dado** que Albal y Benetússer dependen del mismo aforo

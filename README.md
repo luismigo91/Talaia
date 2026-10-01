@@ -8,4 +8,4 @@ Portal personal de vigilancia meteorológica e hidrológica para **Albal** (l'Ho
 - Cuencas y sensores a vigilar por localidad: [`docs/cuencas.md`](docs/cuencas.md)
 - Especificaciones vigentes: [`openspec/specs/`](openspec/specs/) · propuestas: [`openspec/changes/`](openspec/changes/)
 
-Estado: **desplegado en Dokploy** (`talaia.luismi.dev`) — 13 incrementos (MVP + SAIH + semáforo + notificaciones + Meteoalarm + frontend + retención + observación/SSE + calibración/AVAMET + GVA + PWA + profundidad web + anticipación). Tests en verde; pendiente proveer `AEMET_API_KEY` real.
+Estado: **desplegado en Dokploy** (`talaia.luismi.dev`) — 15 incrementos (MVP + SAIH + semáforo + notificaciones + Meteoalarm + frontend + retención + observación/SSE + calibración/AVAMET + GVA + PWA + profundidad web + anticipación + preaviso + nuevas localizaciones). Tests en verde; pendiente proveer `AEMET_API_KEY` real.

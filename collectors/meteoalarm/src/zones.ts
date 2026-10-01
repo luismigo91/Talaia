@@ -14,6 +14,8 @@ export const EMMA_TO_AEMET_ZONE: Record<string, string> = {
   ES085: "612101", // Aracena
   ES086: "612102", // Andévalo y Condado
   ES087: "612103", // Litoral de Huelva
+  ES094: "612903", // Sol y Guadalhorce (Málaga; verificado en el feed el 01-10-2026)
+  ES095: "612904", // Axarquía (Rincón de la Victoria; verificado en el feed el 01-10-2026)
   ES096: "614101", // Sierra norte de Sevilla
   ES097: "614102", // Campiña sevillana
   ES099: "622201", // Pirineo oscense

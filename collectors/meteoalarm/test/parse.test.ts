@@ -14,6 +14,9 @@ describe("mapa de zonas", () => {
   it("traduce las zonas de las localizaciones objetivo", () => {
     expect(EMMA_TO_AEMET_ZONE.ES247).toBe("774602"); // Litoral norte de Valencia
     expect(EMMA_TO_AEMET_ZONE.ES249).toBe("774604"); // Litoral sur de Valencia
+    expect(EMMA_TO_AEMET_ZONE.ES193).toBe("694305"); // Prelitoral sur de Tarragona
+    expect(EMMA_TO_AEMET_ZONE.ES094).toBe("612903"); // Sol y Guadalhorce
+    expect(EMMA_TO_AEMET_ZONE.ES095).toBe("612904"); // Axarquía
   });
 
   it("las zonas costeras apuntan a la misma zona terrestre", () => {

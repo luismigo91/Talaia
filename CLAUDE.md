@@ -4,7 +4,7 @@
 
 ## Objetivo
 
-Anticipar riesgo de inundación en las **localizaciones objetivo**, todas en la zona afectada por la DANA del 29‑10‑2024, priorizando las fuentes oficiales del Estado y de la Generalitat Valenciana:
+Anticipar riesgo de inundación en las **localizaciones objetivo** (origen: la zona valenciana afectada por la DANA del 29‑10‑2024; desde la fase 15 también Ebre y Málaga), priorizando las fuentes oficiales del Estado y de la Generalitat Valenciana:
 
 | id estación virtual | Localidad | Municipio AEMET (INE) | Coordenadas | Zona avisos | Contexto hidrológico |
 |---|---|---|---|---|---|
@@ -12,12 +12,15 @@ Anticipar riesgo de inundación en las **localizaciones objetivo**, todas en la 
 | `virtual:benetusser` | Benetússer (l'Horta Sud) | Benetússer `46054` | 39.4227, −0.3969 | `774602` | barranc del Poyo / Horteta, tramo bajo |
 | `virtual:mareny-barraquetes` | Mareny de Barraquetes (pedanía de Sueca, costa de la Ribera Baixa) | Sueca `46235` | 39.2458, −0.2646 | `774604` | Xúquer bajo, Albufera, marjal; lluvia local y mar |
 | `virtual:benaguasil` | Benaguasil (Camp de Túria) | Benaguasil `46051` | 39.6, −0.583 | `774602` | Túria (margen derecha) aguas abajo de Benagéber/Loriguilla; barrancos locales |
+| `virtual:tortosa` | Tortosa (Baix Ebre) | Tortosa `43155` | 40.8108, 0.525 | `694305` | Ebro bajo (CHE, sin SAIH en catálogo); prevista + avisos |
+| `virtual:malaga` | Málaga | Málaga `29067` | 36.7203, −4.4197 | `612903` | Guadalmedina/Guadalhorce (Hidrosur, sin SAIH); prevista + avisos |
+| `virtual:rincon-de-la-victoria` | Rincón de la Victoria (Axarquía) | Rincón de la Victoria `29082` | 36.7161, −4.2922 | `612904` | arroyos de la Axarquía (Hidrosur, sin SAIH); prevista + avisos |
 
 Albal es la localización principal (el semáforo se calibra primero ahí). El Mareny no es municipio: la predicción municipal de AEMET es la de Sueca (núcleo a ~7 km); la puntual viene de Open-Meteo. Los cauces y sensores SAIH a vigilar por localidad están en `docs/cuencas.md`.
 
 ## Estado actual
 
-Trece incrementos implementados y verificados contra las fuentes reales (25‑08 → 11‑09‑2026), los doce primeros **archivados** en `openspec/specs/`. El decimotercero (`openspec/changes/anticipacion-hidrologica/`) está implementado y pendiente de archivar.
+Quince incrementos implementados y verificados contra las fuentes reales (25‑08 → 01‑10‑2026), los doce primeros **archivados** en `openspec/specs/`. Los tres últimos (`openspec/changes/anticipacion-hidrologica/`, `openspec/changes/preaviso-escalada/`, `openspec/changes/nuevas-localizaciones/`) están implementados y pendientes de archivar.
 
 | # | Incremento | Qué aporta |
 |---|---|---|
@@ -34,6 +37,8 @@ Trece incrementos implementados y verificados contra las fuentes reales (25‑08
 | 11 | PWA móvil | Instalable, offline, Web Push del cambio de nivel y endpoint de insignia para widgets |
 | 12 | Profundidad web | Verificación predicción vs. pluviómetros, embalses, método, historia |
 | 13 | Anticipación | Tendencia entre corridas de los modelos; caudal anticipado desde la lluvia de cabecera (`runoff_models`, sin semilla: ver hallazgo) |
+| 14 | Preaviso | Próximo cambio por avisos (`upcoming_alerts`, `next_change`); comparativa acumulada + modo por horas; tarjeta con lo que manda |
+| 15 | Nuevas localizaciones | Tortosa, Málaga y Rincón de la Victoria (prevista + avisos; Ebro e Hidrosur sin SAIH en catálogo) |
 
 **Hallazgo de la calibración**: el histórico del Poyo trae **picos espurios** —de 0,1 a 855 m³/s en cinco minutos, sostenidos media hora y de vuelta a cero, con `estado` normal—. El semáforo usa ahora la última lectura *creíble* (`lastPlausible`): un salto mayor de 250 m³/s queda en cuarentena y solo se acepta si se sostiene una hora. Sin eso habría dado rojo cinco veces en año y medio sin llover.
 

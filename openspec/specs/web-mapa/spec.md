@@ -5,7 +5,7 @@
 ## ADDED Requirements
 
 ### Requirement: Mapa con localizaciones y sensores
-La página `/mapa` DEBE mostrar un mapa con las cuatro localizaciones objetivo y los sensores del catálogo, cada sensor coloreado según su nivel de umbral y con su último valor accesible al pulsarlo.
+La página `/mapa` DEBE mostrar un mapa con todas las localizaciones objetivo y los sensores del catálogo, cada sensor coloreado según su nivel de umbral y con su último valor accesible al pulsarlo.
 
 #### Scenario: Sensor con umbral superado
 - **Dado** un sensor de caudal en `naranja`
@@ -23,4 +23,4 @@ El estilo del mapa DEBE definirse en el propio código con teselas públicas, y 
 - **Entonces** el mapa se dibuja igualmente.
 
 ### Requirement: Encuadre inicial útil
-El mapa DEBE abrirse encuadrando las cuatro localizaciones y sus sensores, no en un punto arbitrario.
+El mapa DEBE abrirse encuadrando todas las localizaciones y sus sensores, no en un punto arbitrario.

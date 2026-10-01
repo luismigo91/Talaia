@@ -28,7 +28,7 @@ export default async function Page() {
 
   return (
     <>
-      <p className="eyebrow">Atalaya · l&apos;Horta Sud i la Ribera</p>
+      <p className="eyebrow">Atalaya · vigilancia de inundaciones</p>
       <h1>Semáforo de riesgo</h1>
       <p className="subtitle">
         Nivel por localización, calculado en servidor a partir del caudal de los barrancos, la

@@ -358,7 +358,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("semáforo de riesgo (integraci
     expect(bene.components[0]!.source).toBe("saih:13873");
   });
 
-  it("GET /api/v1/risk devuelve las 4 localizaciones con Albal primero", async () => {
+  it("GET /api/v1/risk devuelve las 7 localizaciones con Albal primero", async () => {
     const r = await app
       .getHttpAdapter()
       .getInstance()
@@ -367,7 +367,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("semáforo de riesgo (integraci
     const body = r.json() as {
       stations: { station: { id: string; primary: boolean }; level: string }[];
     };
-    expect(body.stations).toHaveLength(4);
+    expect(body.stations).toHaveLength(7);
     expect(body.stations[0]!.station.id).toBe("virtual:albal");
     expect(body.stations[0]!.station.primary).toBe(true);
     expect(

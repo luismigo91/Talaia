@@ -101,10 +101,10 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("API (integración)", () => {
     expect(r.json()).toMatchObject({ ok: true, db: true });
   });
 
-  it("GET /stations devuelve 4 con albal primaria", async () => {
+  it("GET /stations devuelve 7 con albal primaria", async () => {
     const r = await get("/api/v1/stations");
     const { stations } = r.json() as { stations: { id: string; primary: boolean; ine: string }[] };
-    expect(stations).toHaveLength(4);
+    expect(stations).toHaveLength(7);
     expect(stations[0]).toMatchObject({ id: "virtual:albal", primary: true, ine: "46007" });
   });
 

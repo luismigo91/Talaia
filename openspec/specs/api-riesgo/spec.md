@@ -5,7 +5,7 @@
 ## Requirements
 
 ### Requirement: Endpoint de riesgo
-`GET /api/v1/risk` DEBE devolver el semáforo de las cuatro localizaciones objetivo, ordenadas con la principal primero, y aceptar `station` para filtrar por una. Cada elemento DEBE incluir `station`, `level`, `components`, `alerts`, `warnings`, `stale` y `computed_at`.
+`GET /api/v1/risk` DEBE devolver el semáforo de las siete localizaciones objetivo, ordenadas con la principal primero, y aceptar `station` para filtrar por una. Cada elemento DEBE incluir `station`, `level`, `components`, `alerts`, `warnings`, `stale` y `computed_at`.
 
 #### Scenario: Todas las localizaciones
 - **Dado** `GET /api/v1/risk`

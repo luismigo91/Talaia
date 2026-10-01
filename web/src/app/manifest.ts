@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 /** Manifest de la PWA: hace a Talaia instalable y en pantalla completa. */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Talaia — vigilancia de l'Horta Sud i la Ribera",
+    name: "Talaia — vigilancia de inundaciones",
     short_name: "Talaia",
     description:
       "Semáforo de riesgo de inundación para Albal, Benetússer, el Mareny de Barraquetes y Benaguasil.",
