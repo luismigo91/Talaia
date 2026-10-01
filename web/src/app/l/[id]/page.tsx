@@ -1,9 +1,25 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getObservations, getRisk, getSensors, safe, type ObservationSeries } from "@/lib/api";
-import { ago, formatValue, KIND_LABEL, label, timeMadrid, VARIABLE_LABEL } from "@/lib/format";
+import {
+  getForecastRuns,
+  getObservations,
+  getRisk,
+  getSensors,
+  safe,
+  type ObservationSeries,
+} from "@/lib/api";
+import {
+  ago,
+  formatValue,
+  KIND_LABEL,
+  label,
+  timeMadrid,
+  TREND_ARROW,
+  VARIABLE_LABEL,
+} from "@/lib/format";
 import { LevelBadge } from "@/components/LevelBadge";
 import { Sparkline } from "@/components/Sparkline";
+import { ForecastRunsTable } from "@/components/ForecastRunsTable";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +54,11 @@ export default async function LocalidadPage({
   const { rango } = await searchParams;
   const stationId = decodeURIComponent(id);
   const hours = rango === "7d" ? 168 : 24;
-  const [risk, sensors] = await Promise.all([safe(getRisk), safe(getSensors)]);
+  const [risk, sensors, runs] = await Promise.all([
+    safe(getRisk),
+    safe(getSensors),
+    safe(() => getForecastRuns(stationId, 24, 48)),
+  ]);
   if ("error" in risk) {
     return (
       <>
@@ -100,7 +120,17 @@ export default async function LocalidadPage({
                     <td>
                       <LevelBadge level={c.level} />
                     </td>
-                    <td>{c.detail}</td>
+                    <td>
+                      {c.detail}
+                      {c.trend && (
+                        <span
+                          className="trend"
+                          title={`Corridas anteriores: ${formatValue(c.trend.previous, "mm")} (${c.trend.sources} fuentes)`}
+                        >
+                          {TREND_ARROW[c.trend.direction]}
+                        </span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -156,6 +186,22 @@ export default async function LocalidadPage({
           })}
         </section>
       )}
+
+      <section className="block">
+        <h1>Cómo han ido cambiando las previsiones</h1>
+        <p className="subtitle">
+          La misma ventana vista desde cada emisión: si la mediana sube corrida a corrida, el
+          episodio crece.{" "}
+          <Link href={`/comparativa?station=${encodeURIComponent(stationId)}`}>
+            Ver la comparativa completa →
+          </Link>
+        </p>
+        {"error" in runs ? (
+          <p className="empty">No se han podido cargar las corridas: {runs.error}</p>
+        ) : (
+          <ForecastRunsTable runs={runs.data} />
+        )}
+      </section>
 
       <section className="block">
         <h1>Sensores vigilados</h1>

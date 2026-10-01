@@ -41,12 +41,17 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("semáforo de riesgo (integraci
     unit: "mm",
     quality: 0,
   });
-  const forecast = (source: string, mmPerHour: number, hours = 24): ForecastRow[] =>
+  const forecast = (
+    source: string,
+    mmPerHour: number,
+    hours = 24,
+    forecastTs = minsAgo(60),
+  ): ForecastRow[] =>
     Array.from({ length: hours }, (_, i) => ({
       source,
       stationId: "virtual:albal",
       variable: "precip_mm",
-      forecastTs: minsAgo(60),
+      forecastTs,
       ts: hoursAhead(i + 0.5),
       value: mmPerHour,
       unit: "mm",
@@ -69,7 +74,15 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("semáforo de riesgo (integraci
     await pg`delete from observations`;
     await pg`delete from forecasts`;
     await pg`delete from alerts`;
+    await pg`delete from runoff_models`;
   });
+
+  /** Modelo lluvia‑caudal de prueba para el Poyo: Q = 0,5·P^1,8, ventana 3 h, 120 min. */
+  const poyoModel = () =>
+    pg`insert into runoff_models (id, station_id, flow_sensor_id, rain_sensor_ids, window_hours, lag_minutes, coef_a, coef_b, min_rain_mm, meta)
+       values ('test:poyo', 'virtual:albal', 'saih:13873',
+               array['saih:371:precip_mm','saih:232:precip_mm','saih:789:precip_mm'],
+               3, 120, 0.5, 1.8, 1, '{"source":"test"}'::jsonb)`;
 
   const albal = async () => (await service.risk({ station: "virtual:albal", now }))[0]!;
 
@@ -199,6 +212,91 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("semáforo de riesgo (integraci
     const c12 = r.components.find((c) => c.kind === "rain_forecast" && c.detail.includes("12 h"))!;
     expect(c12.level).toBe("naranja"); // mediana 120 ≥ 100
     expect(r.level).toBe("naranja");
+  });
+
+  it("la lluvia de cabecera anticipa el caudal del Poyo con el modelo calibrado", async () => {
+    await poyoModel();
+    // 3 h × 20 mm en Chiva y Turís, Siete Aguas seca: media de cabecera = 40 mm en 3 h
+    const hours = [minsAgo(70), minsAgo(130), minsAgo(190)];
+    await upsertObservations(db, [
+      ...hours.map((ts) => rain("saih:371", 20, ts)),
+      ...hours.map((ts) => rain("saih:789", 20, ts)),
+      ...hours.map((ts) => rain("saih:232", 0, ts)),
+    ]);
+    const r = await albal();
+    const c = r.components.find((c) => c.kind === "flow_projected")!;
+    expect(c).toBeDefined();
+    // media 40 mm → 0,5·40^1,8 ≈ 386 m³/s → supera el rojo (150) pero se queda en naranja
+    expect(c.value).toBeGreaterThan(150);
+    expect(c.level).toBe("naranja");
+    expect(c.threshold).toBe(70);
+    expect(c.horizon_minutes).toBe(120);
+    expect(c.source).toBe("saih:13873");
+    expect(c.detail).toMatch(/^la lluvia en cabecera anticipa/);
+    expect(c.detail).toContain("dentro de ~120 min");
+    expect(c.detail).toContain("el rojo exige caudal medido");
+    expect(r.level).toBe("naranja");
+  });
+
+  it("una proyección moderada da su nivel real y explica la ventana", async () => {
+    await poyoModel();
+    // 4 mm/h en las tres estaciones durante 3 h → 12 mm de media → 0,5·12^1,8 ≈ 44 m³/s → amarillo (≥ 30)
+    const hours = [minsAgo(70), minsAgo(130), minsAgo(190)];
+    await upsertObservations(
+      db,
+      ["saih:371", "saih:232", "saih:789"].flatMap((st) => hours.map((ts) => rain(st, 4, ts))),
+    );
+    const r = await albal();
+    const c = r.components.find((c) => c.kind === "flow_projected")!;
+    expect(c.level).toBe("amarillo");
+    expect(c.value).toBeCloseTo(43.7, 0);
+    expect(c.detail).toContain("12 mm de media en 3 h");
+    expect(c.detail).toContain("CHIVA");
+  });
+
+  it("sin lluvia apreciable, o sin modelo, no hay caudal anticipado", async () => {
+    await poyoModel();
+    await upsertObservations(db, [rain("saih:371", 0.5, minsAgo(70))]);
+    expect((await albal()).components.some((c) => c.kind === "flow_projected")).toBe(false);
+    await pg`delete from runoff_models`;
+    await upsertObservations(db, [rain("saih:371", 40, minsAgo(70))]);
+    const r = await albal();
+    expect(r.components.some((c) => c.kind === "flow_projected")).toBe(false);
+    expect(r.components.some((c) => c.kind === "rain_observed")).toBe(true);
+  });
+
+  it("un modelo deshabilitado no se usa", async () => {
+    await poyoModel();
+    await pg`update runoff_models set enabled = false`;
+    await upsertObservations(db, [rain("saih:371", 40, minsAgo(70))]);
+    expect((await albal()).components.some((c) => c.kind === "flow_projected")).toBe(false);
+  });
+
+  it("la tendencia compara con las corridas de hace medio día para la misma ventana", async () => {
+    const sources = ["open-meteo:icon_eu", "open-meteo:ecmwf_ifs", "open-meteo:gfs_seamless"];
+    await upsertForecasts(db, [
+      // hace 7 h: 2 mm/h → 24 mm en 12 h
+      ...sources.flatMap((s) => forecast(s, 2, 24, minsAgo(7 * 60))),
+      // hace 1 h: 10 mm/h → 120 mm en 12 h
+      ...sources.flatMap((s) => forecast(s, 10, 24, minsAgo(60))),
+    ]);
+    const r = await albal();
+    const c12 = r.components.find((c) => c.kind === "rain_forecast" && c.detail.includes("12 h"))!;
+    expect(c12.level).toBe("naranja"); // el nivel lo sigue marcando la corrida vigente
+    expect(c12.value).toBe(120);
+    expect(c12.trend).toMatchObject({ previous: 24, delta: 96, direction: "sube", sources: 3 });
+    expect(c12.detail).toContain("al alza: las corridas de hace 7 h daban 24 mm");
+  });
+
+  it("una corrida de hace solo 3 h no cuenta como anterior: sin tendencia", async () => {
+    await upsertForecasts(db, [
+      ...forecast("open-meteo:icon_eu", 2, 24, minsAgo(3 * 60)),
+      ...forecast("open-meteo:icon_eu", 10, 24, minsAgo(60)),
+    ]);
+    const r = await albal();
+    const c12 = r.components.find((c) => c.kind === "rain_forecast" && c.detail.includes("12 h"))!;
+    expect(c12.trend).toBeNull();
+    expect(c12.detail).not.toContain("corridas");
   });
 
   it("un aviso de lluvias eleva el nivel; uno de viento no", async () => {

@@ -23,6 +23,8 @@ Esta tabla es la semilla de la futura tabla `watch_points` (localización → se
 
 **Referencias físicas**: capacidad del encauzamiento bajo Paiporta 800 m³/s (BOE‑A‑2012‑193); último dato del sensor en la DANA 2.283 m³/s (18:55); pico estimado ~2.800 m³/s ❓.
 
+**Relación lluvia‑caudal** (fase 13, 11‑09‑2026): con todo el histórico publicado por el SAIH (2025‑01 → 2026‑09) **el aforo de Riba‑roja no ha registrado ninguna crecida**: 0,0–0,3 m³/s con 97 mm en Siete Aguas (05‑03‑2025, ≤ 11 mm/h) y 1,9 m³/s con 85 mm en un día sobre el propio aforo (28‑12‑2025). La rambla solo responde a convección intensa, y no ha habido ninguna en el periodo. Por eso `runoff_models` no tiene fila para el Poyo: el componente `flow_projected` se activará con `calibrate-runoff --apply` tras el primer episodio real.
+
 ---
 
 ## 2. Benetússer (`virtual:benetusser`) — barranc del Poyo, tramo bajo

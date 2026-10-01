@@ -12,14 +12,26 @@ export const REVALIDATE = Number(process.env.API_REVALIDATE_SECONDS ?? 60);
 
 export type Level = "verde" | "amarillo" | "naranja" | "rojo";
 
+export interface ForecastTrend {
+  previous: number;
+  delta: number;
+  direction: "sube" | "baja" | "estable";
+  previous_forecast_ts: string;
+  sources: number;
+}
+
 export interface RiskComponent {
-  kind: "flow" | "reservoir" | "rain_observed" | "rain_forecast" | "alert";
+  kind: "flow" | "reservoir" | "rain_observed" | "rain_forecast" | "alert" | "flow_projected";
   level: Level;
   value: number | null;
   unit: string | null;
   threshold: number | null;
   source: string | null;
   detail: string;
+  /** Solo en `rain_forecast`: la mediana frente a las corridas anteriores. */
+  trend?: ForecastTrend | null;
+  /** Solo en `flow_projected`: minutos hasta que la lluvia llegaría al aforo. */
+  horizon_minutes?: number;
 }
 
 export interface StationRisk {
@@ -147,6 +159,24 @@ export interface Verify {
   }[];
 }
 
+export interface ForecastRuns {
+  station: { id: string; name: string; lat: number; lon: number };
+  variable: string;
+  unit: string;
+  horizon_hours: 12 | 24;
+  from: string;
+  to: string;
+  lookback_hours: number;
+  series: {
+    source: string;
+    name: string;
+    runs: { forecast_ts: string; total: number; hours_covered: number }[];
+    delta: number | null;
+  }[];
+  /** Mediana entre fuentes por tramo de antigüedad de la corrida (0 = las últimas). */
+  medians: { age_hours: number; sources: number; median: number }[];
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -183,6 +213,11 @@ export const getObservations = (sensor: string, hours = 24) =>
 export const getCompare = (station: string, variable: string, hours = 24) =>
   get<Compare>(
     `/api/v1/compare?station=${encodeURIComponent(station)}&variable=${encodeURIComponent(variable)}&hours=${hours}`,
+  );
+
+export const getForecastRuns = (station: string, horizon: 12 | 24 = 24, lookback = 48) =>
+  get<ForecastRuns>(
+    `/api/v1/forecast-runs?station=${encodeURIComponent(station)}&horizon=${horizon}&lookback=${lookback}`,
   );
 
 export const getVerify = (station: string, days = 7) =>

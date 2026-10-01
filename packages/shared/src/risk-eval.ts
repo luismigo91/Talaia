@@ -4,6 +4,7 @@ import { loadVirtualStations, type VirtualStation } from "./stations.js";
 import { thresholdLevel } from "./sensors.js";
 import { dedupeAlerts } from "./alerts.js";
 import { lastPlausible } from "./plausibility.js";
+import { loadRunoffModels, projectFlow } from "./runoff.js";
 import {
   levelFor,
   loadThresholds,
@@ -61,13 +62,33 @@ export function maxAgeMsFor(kind: string, env: NodeJS.ProcessEnv = process.env):
 }
 
 export interface RiskComponent {
-  kind: "flow" | "reservoir" | "rain_observed" | "rain_forecast" | "alert";
+  kind: "flow" | "reservoir" | "rain_observed" | "rain_forecast" | "alert" | "flow_projected";
   level: RiskLevel;
   value: number | null;
   unit: string | null;
   threshold: number | null;
   source: string | null;
   detail: string;
+  /**
+   * Solo en `rain_forecast`: cómo ha cambiado la mediana respecto a las corridas anteriores de
+   * los mismos modelos para la misma ventana. No mueve el nivel; dice si el episodio crece.
+   */
+  trend?: ForecastTrend | null;
+  /** Solo en `flow_projected`: minutos hasta que la lluvia observada llegaría al aforo. */
+  horizon_minutes?: number;
+}
+
+export interface ForecastTrend {
+  /** Mediana entre fuentes de la corrida anterior, para la misma ventana. */
+  previous: number;
+  /** `value − previous`, en mm. */
+  delta: number;
+  /** Sentido del cambio: `sube`/`baja` si la diferencia es apreciable, `estable` si no. */
+  direction: "sube" | "baja" | "estable";
+  /** Emisión más reciente entre las corridas anteriores usadas. */
+  previous_forecast_ts: string;
+  /** Cuántas fuentes tenían corrida anterior comparable. */
+  sources: number;
 }
 
 export interface StationRisk {
@@ -98,7 +119,13 @@ type RainRow = {
   amateur?: boolean;
   signal?: string;
 };
-type ForecastRow = { source: string; mm12h: number | string | null; mm24h: number | string | null };
+export type ForecastRunRow = {
+  source: string;
+  run: "latest" | "previous";
+  forecast_ts: string | Date;
+  mm12h: number | string | null;
+  mm24h: number | string | null;
+};
 type AlertRow = {
   id: string;
   source: string;
@@ -142,6 +169,7 @@ async function riskFor(db: Db, station: VirtualStation, now: Date): Promise<Stat
 
   const flow = await flowComponents(db, hydro, now, warnings);
   components.push(...flow.components);
+  components.push(...(await projectedFlowComponents(db, station, now)));
   components.push(...(await rainObservedComponents(db, rain, thresholds, now, station)));
   components.push(...(await rainForecastComponents(db, station, thresholds, now)));
 
@@ -261,6 +289,95 @@ async function flowComponents(
 }
 
 /**
+ * Caudal anticipado: lo que la lluvia ya caída en la cabecera hará en el aforo dentro de un
+ * rato, según la relación lluvia‑caudal calibrada en `runoff_models`.
+ *
+ * El aforo de Riba‑roja avisa cuando el agua ya está a media hora de Albal; la lluvia en Chiva
+ * llega unas dos horas antes. La proyección se evalúa contra los umbrales oficiales del propio
+ * aforo, pero **no puede dar rojo**: es una estimación con pocos episodios detrás y el rojo
+ * exige agua medida. Sin modelo para la localización no hay componente: no se inventa nada.
+ */
+async function projectedFlowComponents(
+  db: Db,
+  station: VirtualStation,
+  now: Date,
+): Promise<RiskComponent[]> {
+  const models = await loadRunoffModels(db, station.id);
+  if (models.length === 0) return [];
+  const out: RiskComponent[] = [];
+  for (const m of models) {
+    // `precip_mm` es horario (ts = inicio de la hora) y solo existe para horas completas: las
+    // últimas W horas completas son las que empezaron hace menos de W+1 horas.
+    const since = new Date(now.getTime() - (m.windowHours + 1) * 3_600_000).toISOString();
+    const rows = await db.execute<{ sensor_id: string; station_name: string; mm: number | string }>(
+      sql`
+        select s.id as sensor_id, st.name as station_name, sum(o.value) as mm
+        from sensors s
+        join stations st on st.id = s.station_id
+        join observations o
+          on o.source = s.source and o.station_id = s.station_id and o.variable = s.variable
+        where s.id in ${sql`(${sql.join(
+          m.rainSensorIds.map((i) => sql`${i}`),
+          sql`, `,
+        )})`}
+          and o.ts > ${since}::timestamptz and o.ts < ${now.toISOString()}::timestamptz
+        group by s.id, st.name
+      `,
+    );
+    if (rows.length === 0) continue;
+    const mean = rows.reduce((a, r) => a + Number(r.mm), 0) / rows.length;
+    if (mean < m.minRainMm) continue;
+
+    const [gauge] = await db.execute<{
+      name: string;
+      unit: string;
+      threshold_low: number | string | null;
+      threshold_mid: number | string | null;
+      threshold_high: number | string | null;
+    }>(sql`
+      select st.name, s.unit, s.threshold_low, s.threshold_mid, s.threshold_high
+      from sensors s join stations st on st.id = s.station_id
+      where s.id = ${m.flowSensorId}
+    `);
+    if (!gauge) continue;
+    const spec = {
+      thresholdLow: gauge.threshold_low === null ? null : Number(gauge.threshold_low),
+      thresholdMid: gauge.threshold_mid === null ? null : Number(gauge.threshold_mid),
+      thresholdHigh: gauge.threshold_high === null ? null : Number(gauge.threshold_high),
+    };
+    const q = round(projectFlow(m, mean));
+    const raw = thresholdLevel(q, spec);
+    if (raw === null) continue;
+    const capped = raw === "rojo";
+    const level: RiskLevel = capped ? "naranja" : raw;
+    const threshold =
+      level === "naranja"
+        ? spec.thresholdMid
+        : level === "amarillo"
+          ? spec.thresholdLow
+          : spec.thresholdLow;
+    const names = rows.map((r) => r.station_name).join(", ");
+    const base = `la lluvia en cabecera anticipa ~${q} ${gauge.unit} en ${gauge.name} dentro de ~${m.lagMinutes} min: ${round(mean)} mm de media en ${m.windowHours} h entre ${names}`;
+    out.push({
+      kind: "flow_projected",
+      level,
+      value: q,
+      unit: gauge.unit,
+      threshold,
+      source: m.flowSensorId,
+      horizon_minutes: m.lagMinutes,
+      detail:
+        level === "verde"
+          ? `${base}, por debajo del primer umbral${threshold !== null ? ` (${threshold} ${gauge.unit})` : ""}`
+          : capped
+            ? `${base}; supera el umbral rojo (${spec.thresholdHigh} ${gauge.unit}) pero la proyección se queda en naranja: el rojo exige caudal medido`
+            : `${base} ≥ ${threshold} ${gauge.unit} (${level})`,
+    });
+  }
+  return out;
+}
+
+/**
  * Lluvia observada: se evalúa cada pluviómetro por separado y se toma el peor.
  * Promediar entre estaciones diluiría justo la señal que importa (en la DANA,
  * Turís marcó 771 mm mientras a 20 km apenas llovía).
@@ -346,9 +463,25 @@ async function rainObservedComponents(
 }
 
 /**
+ * Separación mínima entre la corrida vigente y la "anterior" con la que se compara. Los
+ * modelos emiten cada 3–6 h y dos emisiones seguidas apenas difieren: la tendencia se lee
+ * frente a lo que se preveía hace media jornada, no hace una hora.
+ */
+export function trendGapHours(env: NodeJS.ProcessEnv = process.env): number {
+  const raw = Number(env.RISK_TREND_GAP_HOURS ?? 5);
+  return Number.isFinite(raw) && raw > 0 ? raw : 5;
+}
+
+/**
  * Lluvia prevista: acumulado por fuente con su última emisión. El nivel lo marca la
  * mediana entre fuentes; el máximo viaja en el detalle. Un modelo desatado no debe
  * encender el semáforo, pero tampoco desaparecer de la vista.
+ *
+ * Además compara con la corrida anterior de cada modelo para la **misma ventana**: guardamos
+ * cada emisión con su `forecast_ts`, así que sabemos qué decían los mismos modelos hace medio
+ * día para estas mismas horas. Una mediana que sube corrida a corrida es un episodio que
+ * crece, y eso es más fiable que el valor de una sola emisión. La tendencia no cambia el
+ * nivel: informa.
  */
 async function rainForecastComponents(
   db: Db,
@@ -356,33 +489,53 @@ async function rainForecastComponents(
   thresholds: Map<string, ThresholdSpec>,
   now: Date,
 ): Promise<RiskComponent[]> {
-  const rows = await db.execute<ForecastRow>(sql`
+  const nowIso = now.toISOString();
+  const h12 = new Date(now.getTime() + 12 * 3_600_000).toISOString();
+  const h24 = new Date(now.getTime() + 24 * 3_600_000).toISOString();
+  const gap = trendGapHours();
+  const rows = await db.execute<ForecastRunRow>(sql`
       with latest as (
         select source, max(forecast_ts) as forecast_ts
         from forecasts
         where station_id = ${station.id} and variable = 'precip_mm'
-          and ts >= ${now.toISOString()}::timestamptz
+          and ts >= ${nowIso}::timestamptz
         group by source
+      ),
+      previous as (
+        select f.source, max(f.forecast_ts) as forecast_ts
+        from forecasts f
+        join latest l on l.source = f.source
+        where f.station_id = ${station.id} and f.variable = 'precip_mm'
+          and f.forecast_ts <= l.forecast_ts - (${gap}::int) * interval '1 hour'
+          and f.forecast_ts >= ${nowIso}::timestamptz - interval '36 hours'
+        group by f.source
+      ),
+      runs as (
+        select source, forecast_ts, 'latest' as run from latest
+        union all
+        select source, forecast_ts, 'previous' as run from previous
       )
-      select f.source,
-             sum(f.value) filter (where f.ts < ${new Date(now.getTime() + 12 * 3_600_000).toISOString()}::timestamptz) as mm12h,
-             sum(f.value) filter (where f.ts < ${new Date(now.getTime() + 24 * 3_600_000).toISOString()}::timestamptz) as mm24h
+      select f.source, r.run, r.forecast_ts,
+             sum(f.value) filter (where f.ts < ${h12}::timestamptz) as mm12h,
+             sum(f.value) filter (where f.ts < ${h24}::timestamptz) as mm24h
       from forecasts f
-      join latest l on l.source = f.source and l.forecast_ts = f.forecast_ts
+      join runs r on r.source = f.source and r.forecast_ts = f.forecast_ts
       where f.station_id = ${station.id} and f.variable = 'precip_mm'
-        and f.ts >= ${now.toISOString()}::timestamptz
-        and f.ts < ${new Date(now.getTime() + 24 * 3_600_000).toISOString()}::timestamptz
-      group by f.source
+        and f.ts >= ${nowIso}::timestamptz
+        and f.ts < ${h24}::timestamptz
+      group by f.source, r.run, r.forecast_ts
     `);
-  if (rows.length === 0) return [];
+  const latest = rows.filter((r) => r.run === "latest");
+  const previous = rows.filter((r) => r.run === "previous");
+  if (latest.length === 0) return [];
 
   const out: RiskComponent[] = [];
   for (const [signal, hours, pick] of [
-    ["forecast_precip_12h", 12, (r: ForecastRow) => r.mm12h],
-    ["forecast_precip_24h", 24, (r: ForecastRow) => r.mm24h],
+    ["forecast_precip_12h", 12, (r: ForecastRunRow) => r.mm12h],
+    ["forecast_precip_24h", 24, (r: ForecastRunRow) => r.mm24h],
   ] as const) {
     const t = thresholds.get(signal);
-    const values = rows
+    const values = latest
       .map((r) => (pick(r) === null ? null : Number(pick(r))))
       .filter((v): v is number => v !== null);
     const med = median(values);
@@ -390,6 +543,7 @@ async function rainForecastComponents(
     const level = levelFor(round(med), t);
     if (!level) continue;
     const max = round(Math.max(...values));
+    const trend = forecastTrend(round(med), previous, pick);
     out.push({
       kind: "rain_forecast",
       level,
@@ -397,10 +551,54 @@ async function rainForecastComponents(
       unit: "mm",
       threshold: thresholdValue(level, t),
       source: `${values.length} fuentes`,
-      detail: `mediana de ${round(med)} mm en ${hours} h entre ${values.length} fuentes (máximo ${max} mm)`,
+      detail:
+        `mediana de ${round(med)} mm en ${hours} h entre ${values.length} fuentes (máximo ${max} mm)` +
+        (trend ? `; ${trendPhrase(trend, now)}` : ""),
+      trend,
     });
   }
   return out;
+}
+
+/**
+ * Tendencia de la mediana frente a las corridas anteriores. Solo se comparan fuentes que tienen
+ * ambas corridas, para que la diferencia no venga de que un modelo haya entrado o salido.
+ */
+export function forecastTrend(
+  current: number,
+  previousRows: ForecastRunRow[],
+  pick: (r: ForecastRunRow) => number | string | null,
+): ForecastTrend | null {
+  const prevValues = previousRows
+    .map((r) => (pick(r) === null ? null : Number(pick(r))))
+    .filter((v): v is number => v !== null);
+  const prev = median(prevValues);
+  if (prev === null) return null;
+  const delta = round(current - round(prev));
+  // Apreciable: al menos 2 mm y un 20 % del mayor de los dos. Bailar entre 0,4 y 0,6 mm
+  // no es una tendencia, es ruido.
+  const notable = Math.abs(delta) >= Math.max(2, 0.2 * Math.max(current, prev));
+  const newest = previousRows
+    .map((r) => new Date(r.forecast_ts).getTime())
+    .reduce((a, b) => Math.max(a, b), 0);
+  return {
+    previous: round(prev),
+    delta,
+    direction: !notable ? "estable" : delta > 0 ? "sube" : "baja",
+    previous_forecast_ts: new Date(newest).toISOString(),
+    sources: prevValues.length,
+  };
+}
+
+export function trendPhrase(trend: ForecastTrend, now: Date): string {
+  const ageH = Math.max(
+    1,
+    Math.round((now.getTime() - new Date(trend.previous_forecast_ts).getTime()) / 3_600_000),
+  );
+  const antes = `las corridas de hace ${ageH} h daban ${trend.previous} mm`;
+  if (trend.direction === "sube") return `al alza: ${antes}`;
+  if (trend.direction === "baja") return `a la baja: ${antes}`;
+  return `estable: ${antes}`;
 }
 
 /** Avisos vigentes de la zona. Solo los de inundación elevan el nivel. */

@@ -196,7 +196,7 @@ Decisiones que conviene no deshacer sin motivo:
 - **Sin framework de CSS ni librería de gráficos**: variables CSS y SVG a medida. Una comparativa de líneas no justifica arrastrar un árbol de dependencias.
 - El estilo del mapa (teselas de OpenStreetMap) se define en el propio código: sin clave ni servicio de terceros que pueda caerse. `NEXT_PUBLIC_MAP_STYLE` lo sobrescribe.
 
-Pendiente: radar de AEMET sobre el mapa (necesita la clave) y WebSocket para empujar cambios de nivel; hoy la vía de aviso inmediato es ntfy.
+Pendiente: radar de AEMET sobre el mapa (necesita la clave) y WebSocket para empujar cambios de nivel; hoy la vía de aviso inmediato es ntfy y Web Push.
 
 ## 6. Despliegue
 
@@ -258,3 +258,13 @@ Las estaciones de AVAMET a menos de `AVAMET_RADIUS_KM` (8 km) de una localidad c
 ### Calibración (fase 9)
 
 `pnpm --filter @talaia/collector-saih backfill <desde>` descarga histórico por ventanas de 30 días y `pnpm --filter @talaia/scheduler calibrate` informa, por sensor vigilado: percentiles, horas por encima de cada umbral, mayores episodios y un veredicto sobre si el umbral separa lo normal de lo excepcional. **No ajusta nada solo**: decide una persona.
+
+### Anticipación con los datos propios (fase 13)
+
+Dos señales que miran hacia delante sin añadir ninguna fuente:
+
+**Caudal anticipado** (`flow_projected`). El aforo de Riba‑roja avisa cuando el agua ya está a media hora de Albal; la lluvia en Chiva, Siete Aguas y Turís llega unas dos horas antes. La tabla `runoff_models` guarda, por aforo, la relación empírica `Q = a·P^b` entre la lluvia **media** de cabecera acumulada en `window_hours` y el caudal que apareció `lag_minutes` después, con su procedencia en `meta`. Cuando ha llovido al menos `min_rain_mm` de media en la ventana, el semáforo proyecta el caudal, lo evalúa contra los umbrales de la CHJ del propio aforo y lo explica ("la lluvia en cabecera anticipa ~85 m³/s en Riba‑roja dentro de ~120 min"). Reglas: la proyección **nunca da rojo** (como mucho naranja: el rojo exige agua medida) y **sin modelo no hay componente**. Se calibra con `pnpm --filter @talaia/scheduler calibrate-runoff [localización] [--window 3] [--apply]`: estima el retardo por correlación cruzada, ajusta en log‑log sobre las horas con lluvia apreciable y respuesta del aforo, filtra antes los artefactos del SAIH con la misma regla que el semáforo, e informa de episodios, r² y veredicto; solo escribe con `--apply` y si el ajuste cumple lo mínimo: `RUNOFF_MIN_EVENTS` horas, r² ≥ 0,5 y que el aforo haya alcanzado su primer umbral en las horas con respuesta (un buen r² sobre el goteo no dice nada sobre llegar a 30 m³/s).
+
+Lo que dijo el histórico (2025‑01 → 2026‑09): **el Poyo no ha corrido**. En el episodio más lluvioso del periodo (97 mm en Siete Aguas el 05‑03‑2025, a menos de 11 mm/h) el aforo de Riba‑roja marcó entre 0,0 y 0,3 m³/s; con 85 mm en un día sobre el propio aforo (28‑12‑2025), 1,9. La rambla solo responde a convección intensa y no ha habido ninguna desde que el SAIH publica. Por eso la tabla **no lleva semilla**: sin respuesta medida no hay relación que ajustar e inventar coeficientes sería peor que no tener la señal. La infraestructura queda lista para el primer episodio real: backfill, `calibrate-runoff --apply`, y el semáforo empieza a anticipar.
+
+**Tendencia entre corridas**. Cada emisión de cada modelo se guarda con su `forecast_ts`, así que sabemos qué preveían los mismos modelos hace medio día para estas mismas horas. El componente de lluvia prevista compara su mediana con la de las corridas anteriores (la última emisión de cada fuente al menos `RISK_TREND_GAP_HOURS` antes, solo fuentes con ambas corridas) y lo dice en el detalle ("al alza: las corridas de hace 7 h daban 24 mm"). Un cambio menor de 2 mm o del 20 % es "estable". La tendencia **informa, no decide**: elevar el nivel porque sube penalizaría a los modelos por corregirse. `GET /api/v1/forecast-runs` devuelve la serie de corridas por modelo y la mediana por tramo de antigüedad, y el detalle de localidad la muestra como tabla.

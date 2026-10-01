@@ -79,7 +79,15 @@ export const KIND_LABEL: Record<string, string> = {
   reservoir: "Embalse",
   rain_observed: "Lluvia observada",
   rain_forecast: "Lluvia prevista",
+  flow_projected: "Caudal anticipado",
   alert: "Aviso oficial",
+};
+
+/** Flecha de tendencia para las corridas de los modelos. */
+export const TREND_ARROW: Record<string, string> = {
+  sube: "↗",
+  baja: "↘",
+  estable: "→",
 };
 
 export const VARIABLE_LABEL: Record<string, string> = {

@@ -54,7 +54,11 @@ export class StatusController {
       const disabled = aemetOff && r.source.startsWith("aemet");
       return {
         ...r,
-        stale: disabled ? false : r.age_seconds === null ? r.last_success_at === null : r.age_seconds > thr,
+        stale: disabled
+          ? false
+          : r.age_seconds === null
+            ? r.last_success_at === null
+            : r.age_seconds > thr,
         threshold_seconds: thr,
       };
     });

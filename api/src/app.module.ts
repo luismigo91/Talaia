@@ -5,6 +5,7 @@ import { StatusController } from "./status/status.controller.js";
 import { StationsController } from "./stations/stations.controller.js";
 import { CompareController } from "./compare/compare.controller.js";
 import { CompareService } from "./compare/compare.service.js";
+import { ForecastRunsController } from "./compare/runs.controller.js";
 import { SensorsController } from "./sensors/sensors.controller.js";
 import { ObservationsController } from "./observations/observations.controller.js";
 import { RiskController } from "./risk/risk.controller.js";
@@ -25,6 +26,7 @@ import { RiskService } from "./risk/risk.service.js";
     StatusController,
     StationsController,
     CompareController,
+    ForecastRunsController,
     SensorsController,
     ObservationsController,
     RiskController,

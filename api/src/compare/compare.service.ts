@@ -12,6 +12,22 @@ type Row = {
   unit: string;
 };
 
+export interface RunSeries {
+  source: string;
+  name: string;
+  runs: { forecast_ts: string; total: number; hours_covered: number }[];
+  /** Diferencia entre la última corrida y la primera del periodo, en mm. */
+  delta: number | null;
+}
+
+type RunRow = {
+  source: string;
+  name: string | null;
+  forecast_ts: string | Date;
+  total: number | string;
+  hours_covered: number | string;
+};
+
 export interface CompareSeries {
   source: string;
   name: string;
@@ -99,9 +115,95 @@ export class CompareService {
       },
     };
   }
+
+  /**
+   * Evolución corrida a corrida de la lluvia prevista para la **misma** ventana futura.
+   *
+   * Se guarda cada emisión con su `forecast_ts`, así que se puede preguntar qué decía cada
+   * modelo hace 6, 12 o 24 h para estas mismas horas. Una corrida antigua puede no cubrir la
+   * ventana entera (AEMET solo llega a 48 h): `hours_covered` lo delata y el frontend lo marca.
+   */
+  async runs(opts: { station?: string; horizonHours: 12 | 24; lookbackHours: number; now?: Date }) {
+    const db = this.db;
+    const stations = await loadVirtualStations(db);
+    const station = opts.station
+      ? stations.find((s) => s.id === opts.station)
+      : (stations.find((s) => s.primary) ?? stations[0]);
+    if (!station)
+      throw new NotFoundException(`estación desconocida: ${opts.station ?? "(ninguna)"}`);
+
+    const now = opts.now ?? new Date();
+    const from = truncToHour(now);
+    const to = addHours(from, opts.horizonHours);
+    const since = addHours(now, -opts.lookbackHours);
+    const rows = await db.execute<RunRow>(sql`
+      select f.source, s.name, f.forecast_ts,
+             sum(f.value) as total, count(distinct f.ts)::int as hours_covered
+      from forecasts f
+      left join sources s on s.id = f.source
+      where f.station_id = ${station.id} and f.variable = 'precip_mm'
+        and f.forecast_ts >= ${since.toISOString()}::timestamptz
+        and f.ts >= ${from.toISOString()}::timestamptz and f.ts < ${to.toISOString()}::timestamptz
+      group by f.source, s.name, f.forecast_ts
+      order by f.source, f.forecast_ts
+    `);
+
+    const bySource = new Map<string, RunSeries>();
+    for (const r of rows) {
+      let s = bySource.get(r.source);
+      if (!s) {
+        s = { source: r.source, name: r.name ?? r.source, runs: [], delta: null };
+        bySource.set(r.source, s);
+      }
+      s.runs.push({
+        forecast_ts: new Date(r.forecast_ts).toISOString(),
+        total: round(Number(r.total)),
+        hours_covered: Number(r.hours_covered),
+      });
+    }
+    const series = [...bySource.values()].map((s) => ({
+      ...s,
+      delta: s.runs.length >= 2 ? round(s.runs.at(-1)!.total - s.runs[0]!.total) : null,
+    }));
+
+    // Mediana entre fuentes por tramo de antigüedad de la corrida, para leer la tendencia del
+    // conjunto sin que la marque un modelo solo. Los tramos son de 6 h porque es la cadencia
+    // más común de emisión.
+    const buckets = new Map<number, number[]>();
+    for (const s of series) {
+      // Por fuente y tramo, la corrida más reciente: dos emisiones en el mismo tramo no cuentan doble.
+      const seen = new Map<number, number>();
+      for (const r of s.runs) {
+        const ageH = (now.getTime() - new Date(r.forecast_ts).getTime()) / 3_600_000;
+        const bucket = Math.floor(ageH / 6) * 6;
+        seen.set(bucket, r.total);
+      }
+      for (const [b, v] of seen) buckets.set(b, [...(buckets.get(b) ?? []), v]);
+    }
+    const medians = [...buckets.entries()]
+      .sort((a, b) => b[0] - a[0])
+      .map(([age_hours, values]) => ({
+        age_hours,
+        sources: values.length,
+        median: round(median(values)),
+      }));
+
+    return {
+      station: { id: station.id, name: station.name, lat: station.lat, lon: station.lon },
+      variable: "precip_mm",
+      unit: "mm",
+      horizon_hours: opts.horizonHours,
+      from: from.toISOString(),
+      to: to.toISOString(),
+      lookback_hours: opts.lookbackHours,
+      series,
+      medians,
+    };
+  }
 }
 
 const round = (n: number) => Math.round(n * 100) / 100;
+
 function median(xs: number[]): number {
   const s = [...xs].sort((a, b) => a - b);
   const mid = Math.floor(s.length / 2);

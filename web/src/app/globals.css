@@ -704,3 +704,35 @@ section.block {
 .legend-inline .delta {
   margin-left: 0;
 }
+
+/* Corridas de los modelos: cambio entre la primera y la última emisión */
+.delta.up {
+  background: var(--rojo-bg);
+  color: var(--rojo);
+}
+.delta.down {
+  background: var(--verde-bg);
+  color: var(--verde);
+}
+.delta.flat {
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+.runs {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.run-sep {
+  color: var(--text-dim);
+}
+.median-row td {
+  border-top: 2px solid var(--border);
+}
+.trend {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  margin-left: 0.3rem;
+  color: var(--text-dim);
+}

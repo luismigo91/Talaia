@@ -17,7 +17,7 @@ Albal es la localización principal (el semáforo se calibra primero ahí). El M
 
 ## Estado actual
 
-Nueve incrementos implementados y verificados contra las fuentes reales (25–26‑08‑2026). Los tres primeros están **archivados** (`openspec/specs/`, once capacidades vigentes); el resto sigue en `openspec/changes/` pendiente de archivar.
+Trece incrementos implementados y verificados contra las fuentes reales (25‑08 → 11‑09‑2026), los doce primeros **archivados** en `openspec/specs/`. El decimotercero (`openspec/changes/anticipacion-hidrologica/`) está implementado y pendiente de archivar.
 
 | # | Incremento | Qué aporta |
 |---|---|---|
@@ -32,8 +32,12 @@ Nueve incrementos implementados y verificados contra las fuentes reales (25–26
 | 9 | Calibración y AVAMET | Backfill e informe de umbrales; estaciones amateur para el hueco del Horteta |
 | 10 | GVA Emergències | Fases del plan de Protección Civil (Situación 0‑3) como cuarta señal de aviso |
 | 11 | PWA móvil | Instalable, offline, Web Push del cambio de nivel y endpoint de insignia para widgets |
+| 12 | Profundidad web | Verificación predicción vs. pluviómetros, embalses, método, historia |
+| 13 | Anticipación | Tendencia entre corridas de los modelos; caudal anticipado desde la lluvia de cabecera (`runoff_models`, sin semilla: ver hallazgo) |
 
 **Hallazgo de la calibración**: el histórico del Poyo trae **picos espurios** —de 0,1 a 855 m³/s en cinco minutos, sostenidos media hora y de vuelta a cero, con `estado` normal—. El semáforo usa ahora la última lectura *creíble* (`lastPlausible`): un salto mayor de 250 m³/s queda en cuarentena y solo se acepta si se sostiene una hora. Sin eso habría dado rojo cinco veces en año y medio sin llover.
+
+**Hallazgo de la anticipación (11‑09‑2026)**: en el histórico que publica el SAIH (2025‑01 → 2026‑09) **el Poyo no ha corrido nunca**: 0,0–0,3 m³/s en Riba‑roja con 97 mm en Siete Aguas (05‑03‑2025). Sin respuesta medida no se puede ajustar la relación lluvia‑caudal, así que `runoff_models` va **sin semilla** y el componente `flow_projected` no se emite hasta que haya un episodio real y se ejecute `calibrate-runoff --apply`. Todos los "episodios" de caudal del histórico son artefactos (mesetas de 1–5 h con cero antes y después).
 
 **Pendiente**:
 
@@ -41,6 +45,7 @@ Nueve incrementos implementados y verificados contra las fuentes reales (25–26
 - `AEMET_API_KEY` real: sin ella no entran la predicción municipal ni la observación de AEMET, y las fixtures de AEMET siguen sin ser capturas reales (ver final de `openspec/specs/collector-aemet/spec.md`).
 - `NTFY_URL` si se quieren recibir las notificaciones; sin ella las transiciones solo se registran.
 - Capturar una respuesta real de la GVA con emergencias activas (`z2` poblado) en el próximo episodio, para confirmar la fixture de test.
+- Tras el primer episodio con caudal real en el Poyo: `backfill` + `calibrate-runoff --apply` para activar el caudal anticipado.
 
 ## Estructura del monorepo
 
@@ -91,7 +96,7 @@ source, station_id, variable, value, unit, ts, geom [, forecast_ts]
 - `forecast_ts`: instante de emisión de la predicción (NULL en observaciones). Permite comparar a posteriori el error de cada modelo.
 - Variables canónicas: `precip_mm`, `precip_prob_pct`, `precip_rate_mmh`, `precip_1h_mm`, `precip_12h_mm`, `precip_24h_mm`, `precip_day_mm`, `temp_c`, `rh_pct`, `wind_ms`, `gust_ms`, `river_level_m`, `river_flow_m3s`, `reservoir_hm3`, `reservoir_level_m`, `reservoir_pct`.
 - Unidades canónicas: mm, mm/h, %, °C, m/s, m, m³/s, hm³. Se convierte en el normalizador, nunca en el frontend.
-- Tablas: `push_subscriptions`, `observations`, `forecasts` (hypertables con compresión a 30 días; observaciones 3 años, predicciones 365 días), `stations`, `sensors`, `watch_points`, `thresholds`, `risk_state`, `risk_events`, `sources`, `source_status`, `alerts`.
+- Tablas: `runoff_models`, `push_subscriptions`, `observations`, `forecasts` (hypertables con compresión a 30 días; observaciones 3 años, predicciones 365 días), `stations`, `sensors`, `watch_points`, `thresholds`, `risk_state`, `risk_events`, `sources`, `source_status`, `alerts`.
 - `sensors` = catálogo de sensores externos (sensor de la fuente → variable canónica, unidad y umbrales oficiales). Añadir un sensor es una fila, no un despliegue. Los sensores **derivados** (`meta.derived_from`) los calcula el collector y `loadSensors()` los excluye por defecto para no pedirlos al portal.
 - `watch_points` = qué sensores vigila cada localización objetivo y con qué rol; `thresholds` = umbrales de lluvia (los de caudal ya vienen de la CHJ en `sensors`).
 
@@ -135,6 +140,7 @@ pnpm --filter @talaia/collector-meteoalarm run-once             # avisos oficial
 pnpm --filter @talaia/collector-avamet run-once                 # estaciones amateur (l'Horta Sud)
 pnpm --filter @talaia/collector-saih backfill 2025-01-01        # histórico para calibrar
 pnpm --filter @talaia/scheduler calibrate                       # informe de umbrales vs histórico
+pnpm --filter @talaia/scheduler calibrate-runoff [--apply]      # relación lluvia-caudal de cabecera (sin --apply solo informa)
 pnpm --filter @talaia/scheduler risk-once                       # fuerza una evaluación del semáforo
 pnpm --filter @talaia/api dev        # API en :3000 con recarga
 API_URL=http://127.0.0.1:3000 pnpm --filter @talaia/web dev   # frontend en :3001

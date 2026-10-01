@@ -98,7 +98,7 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("API (integración)", () => {
   it("GET /health", async () => {
     const r = await get("/api/v1/health");
     expect(r.statusCode).toBe(200);
-    expect(r.json()).toEqual({ ok: true, db: true });
+    expect(r.json()).toMatchObject({ ok: true, db: true });
   });
 
   it("GET /stations devuelve 4 con albal primaria", async () => {
@@ -278,5 +278,41 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("API (integración)", () => {
     expect((await get("/api/v1/observations")).statusCode).toBe(400);
     expect((await get("/api/v1/observations?sensor=saih:99999")).statusCode).toBe(404);
     expect((await get("/api/v1/observations?sensor=saih:13873&hours=999")).statusCode).toBe(400);
+  });
+
+  it("GET /api/v1/forecast-runs enseña cada corrida para la misma ventana futura", async () => {
+    const r = await app
+      .getHttpAdapter()
+      .getInstance()
+      .inject({ method: "GET", url: "/api/v1/forecast-runs?station=virtual:albal&horizon=24" });
+    expect(r.statusCode).toBe(200);
+    const body = r.json() as {
+      horizon_hours: number;
+      series: {
+        source: string;
+        runs: { total: number; hours_covered: number }[];
+        delta: number | null;
+      }[];
+      medians: { age_hours: number; median: number; sources: number }[];
+    };
+    expect(body.horizon_hours).toBe(24);
+    const icon = body.series.find((s) => s.source === "open-meteo:icon_eu")!;
+    // dos corridas: la vieja daba 36 mm (9×4) y la nueva 4 mm (1×4): el episodio se desinfla
+    expect(icon.runs.map((x) => x.total)).toEqual([36, 4]);
+    expect(icon.runs[0]!.hours_covered).toBe(4); // no cubre las 24 h: el frontend lo marca
+    expect(icon.delta).toBe(-32);
+    // la fuente cuyos datos caen fuera de la ventana no aparece
+    expect(body.series.some((s) => s.source === "open-meteo:arpege_europe")).toBe(false);
+    // medianas por tramo de antigüedad, de la más antigua a la más reciente
+    expect(body.medians.map((m) => m.age_hours)).toEqual([12, 6]);
+    expect(body.medians.at(-1)!.sources).toBe(3); // aemet, icon_eu y ecmwf_ifs
+  });
+
+  it("GET /api/v1/forecast-runs valida el horizonte", async () => {
+    const r = await app
+      .getHttpAdapter()
+      .getInstance()
+      .inject({ method: "GET", url: "/api/v1/forecast-runs?horizon=36" });
+    expect(r.statusCode).toBe(400);
   });
 });

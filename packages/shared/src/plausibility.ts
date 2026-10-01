@@ -63,3 +63,46 @@ export function lastPlausible(
   discarded += quarantine.length;
   return { sample: baseline, discarded };
 }
+
+/**
+ * Versión de `lastPlausible` para series completas: devuelve todas las muestras creíbles, en
+ * orden, con los escalones en cuarentena eliminados. Misma regla; sirve para calibrar sobre
+ * histórico sin que los artefactos del SAIH cuenten como crecidas.
+ */
+export function plausibleSeries(
+  samples: Sample[],
+  opts: { maxJump: number; sustainedSamples?: number },
+): Sample[] {
+  const sustained = opts.sustainedSamples ?? 12;
+  const ordered = [...samples].sort((a, b) => a.ts.getTime() - b.ts.getTime());
+  const accepted: Sample[] = [];
+  let baseline: Sample | undefined;
+  let quarantine: Sample[] = [];
+
+  for (const sample of ordered) {
+    if (!baseline) {
+      baseline = sample;
+      accepted.push(sample);
+      continue;
+    }
+    const reference = quarantine.length > 0 ? quarantine[quarantine.length - 1]! : baseline;
+    const jumpsFromBaseline = Math.abs(sample.value - baseline.value) > opts.maxJump;
+    const closeToQuarantine =
+      quarantine.length > 0 && Math.abs(sample.value - reference.value) <= opts.maxJump;
+
+    if (jumpsFromBaseline && (quarantine.length === 0 || closeToQuarantine)) {
+      quarantine.push(sample);
+      if (quarantine.length >= sustained) {
+        // Sostenido una hora: era real, y lo que estaba en cuarentena también.
+        accepted.push(...quarantine);
+        baseline = sample;
+        quarantine = [];
+      }
+      continue;
+    }
+    quarantine = [];
+    baseline = sample;
+    accepted.push(sample);
+  }
+  return accepted;
+}

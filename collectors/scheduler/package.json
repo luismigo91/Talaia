@@ -9,7 +9,8 @@
     "start": "node dist/main.js",
     "dev": "tsx src/main.ts",
     "risk-once": "tsx src/risk-cli.ts",
-    "calibrate": "tsx src/calibrate-cli.ts"
+    "calibrate": "tsx src/calibrate-cli.ts",
+    "calibrate-runoff": "tsx src/calibrate-runoff-cli.ts"
   },
   "dependencies": {
     "@talaia/collector-aemet": "workspace:*",

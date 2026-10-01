@@ -100,7 +100,6 @@ describe("colorFor", () => {
   });
 });
 
-
 describe("marcas del eje X según la ventana", () => {
   it("una ventana de 24 h no amontona marcas (<= 9)", () => {
     const scale = buildScale([{ points: [{ ts: FROM, value: 1 }] }], FROM, TO, BOX);
