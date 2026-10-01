@@ -55,25 +55,35 @@ describe("StationCard", () => {
     expect(screen.getByText(/dato sin actualizar/)).toBeDefined();
   });
 
-  it("muestra los avisos vigentes de la zona", () => {
+  it("solo muestra lo que manda, no todas las señales (el desglose vive en el detalle)", () => {
     render(
       <StationCard
         risk={risk({
-          alerts: [
+          components: [
             {
-              id: "x",
-              source: "meteoalarm",
+              kind: "flow",
+              level: "naranja",
+              value: 80,
+              unit: "m³/s",
+              threshold: 70,
+              source: "saih:13873",
+              detail: "80 m³/s ≥ 70 m³/s (naranja) en MC RAMBLA POYO N-III",
+            },
+            {
+              kind: "rain_forecast",
               level: "amarillo",
-              event: "Aviso de lluvias de nivel amarillo",
-              event_code: "PR",
-              expires: "2026-08-26T00:00:00Z",
-              counts: true,
+              value: 40,
+              unit: "mm",
+              threshold: 20,
+              source: "3 fuentes",
+              detail: "mediana de 40 mm en 24 h entre 3 fuentes",
             },
           ],
         })}
       />,
     );
-    expect(screen.getByText(/Aviso de lluvias/)).toBeDefined();
+    expect(screen.getByText(/RAMBLA POYO/)).toBeDefined();
+    expect(screen.queryByText(/mediana de 40 mm/)).toBeNull();
   });
 
   it("indica la hora de cálculo en local, en el pie", () => {

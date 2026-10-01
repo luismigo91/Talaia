@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { RiskComponent, StationRisk } from "@/lib/api";
-import { dateTimeMadrid, KIND_LABEL, label, rank, timeMadrid } from "@/lib/format";
+import { dateTimeMadrid, timeMadrid } from "@/lib/format";
 import { LevelBadge } from "./LevelBadge";
 
 /** El componente que determina el nivel (o, en calma, el caudal principal). */
@@ -15,17 +15,12 @@ function leading(risk: StationRisk): RiskComponent | undefined {
 }
 
 /**
- * Vista de un vistazo: el nivel, lo que manda y lo que preocupa. El desglose completo de las
- * señales vive en la página de detalle; aquí solo el titular, para poder comparar las cuatro
- * localizaciones de golpe.
+ * Vista de un vistazo: el nivel y lo que lo manda, nada más. Si el máximo es rojo,
+ * se ve rojo con su motivo; el desglose completo de señales vive en la página de
+ * detalle, para poder comparar las cuatro localizaciones de golpe sin ruido.
  */
 export function StationCard({ risk }: { risk: StationRisk }) {
   const lead = leading(risk);
-  // Lo que hay que mirar: las señales por encima de verde (las que no son el titular).
-  const drivers = risk.components.filter(
-    (c) => c.level !== "verde" && c !== lead && rank(c.level) >= rank("amarillo"),
-  );
-  const avisos = risk.alerts.filter((a) => a.counts);
 
   return (
     <article className="card">
@@ -46,27 +41,10 @@ export function StationCard({ risk }: { risk: StationRisk }) {
           </p>
         )}
 
-        {drivers.length > 0 && (
-          <ul className="drivers">
-            {drivers.map((c, i) => (
-              <li key={`${c.kind}-${c.source ?? i}`}>
-                <LevelBadge level={c.level} />{" "}
-                <span className="kind-inline">{label(KIND_LABEL, c.kind)}</span> {c.detail}
-              </li>
-            ))}
-          </ul>
-        )}
-
         {risk.warnings.length > 0 && (
           <p className="hint">
             ⚠ {risk.warnings.length}{" "}
             {risk.warnings.length === 1 ? "dato sin actualizar" : "datos sin actualizar"}
-          </p>
-        )}
-
-        {avisos.length > 0 && (
-          <p className="hint">
-            Aviso oficial: {avisos.map((a) => a.event ?? a.event_code ?? "aviso").join(" · ")}
           </p>
         )}
 

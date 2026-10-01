@@ -5,7 +5,7 @@
 ## ADDED Requirements
 
 ### Requirement: Pantalla de inicio con las cuatro localizaciones
-La página `/` DEBE mostrar una tarjeta por localización objetivo, con su nombre, su nivel y el desglose de componentes que lo justifica, ordenadas con la principal primero y las de mayor riesgo antes que las de menor.
+La página `/` DEBE mostrar una tarjeta por localización objetivo, con su nombre, su nivel y la señal que lo determina (si el máximo es rojo, rojo con su motivo), ordenadas con la principal primero y las de mayor riesgo antes que las de menor. El desglose completo de componentes vive en `/l/{id}`, enlazado desde la tarjeta con el número de señales.
 
 #### Scenario: Orden por riesgo
 - **Dado** Albal en `verde` y Benaguasil en `naranja`
@@ -23,7 +23,10 @@ Cada nivel DEBE mostrarse con su **nombre en texto** además del color, y la tar
 - **Entonces** en la tarjeta aparece la palabra "naranja", no solo el color.
 
 ### Requirement: Explicación visible
-Cada componente del riesgo DEBE mostrar su `detail` en español, y las advertencias de frescura DEBEN ser visibles, no ocultarse tras un desplegable.
+El detalle por localidad (`/l/{id}`) DEBE mostrar cada componente del riesgo con
+su `detail` en español, y las advertencias de frescura DEBEN ser visibles, no
+ocultarse tras un desplegable. La tarjeta de inicio muestra solo la señal que
+manda; el resto no se duplica en la home.
 
 #### Scenario: Datos obsoletos
 - **Dado** una localización con advertencias de datos obsoletos
