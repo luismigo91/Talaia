@@ -10,6 +10,7 @@ import {
 } from "@/lib/api";
 import {
   ago,
+  dateTimeMadrid,
   formatValue,
   KIND_LABEL,
   label,
@@ -98,6 +99,13 @@ export default async function LocalidadPage({
           ¿Aciertan los modelos aquí? →
         </Link>
       </p>
+      {station.next_change && (
+        <p className="subtitle">
+          Próximo cambio previsto (por avisos): {station.next_change.direction} a{" "}
+          <LevelBadge level={station.next_change.level} /> el{" "}
+          {dateTimeMadrid(station.next_change.at)}.
+        </p>
+      )}
 
       <section className="block">
         <h1>Por qué está en este nivel</h1>

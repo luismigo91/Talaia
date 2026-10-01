@@ -91,19 +91,40 @@ export interface ForecastTrend {
   sources: number;
 }
 
+export interface StationAlert {
+  id: string;
+  source: string;
+  level: string;
+  event: string | null;
+  event_code: string | null;
+  expires: string;
+  counts: boolean;
+}
+
+export interface UpcomingAlert extends StationAlert {
+  onset: string;
+}
+
+/**
+ * Primer instante futuro en que los avisos dejan el nivel actual distinto.
+ * Informa, no decide: no mueve `level`, no genera eventos ni notifica.
+ */
+export interface NextChange {
+  at: string;
+  level: RiskLevel;
+  direction: "sube" | "baja";
+  reason: "aviso oficial";
+}
+
 export interface StationRisk {
   station: { id: string; name: string; lat: number; lon: number; primary: boolean };
   level: RiskLevel;
   components: RiskComponent[];
-  alerts: {
-    id: string;
-    source: string;
-    level: string;
-    event: string | null;
-    event_code: string | null;
-    expires: string;
-    counts: boolean;
-  }[];
+  alerts: StationAlert[];
+  /** Avisos de la zona que aún no han empezado (`onset` futuro), ordenados por inicio. */
+  upcoming_alerts: UpcomingAlert[];
+  /** Próxima escalada o desescalada por avisos, o `null` si no hay ninguna a la vista. */
+  next_change: NextChange | null;
   warnings: string[];
   stale: boolean;
   computed_at: string;
@@ -191,6 +212,20 @@ async function riskFor(db: Db, station: VirtualStation, now: Date): Promise<Stat
     warnings.push("sin datos evaluables: el verde no significa que no haya riesgo");
   }
 
+  const level = worstLevel(components.map((c) => c.level));
+  // Suelo sin avisos: lo peor que miden caudal y lluvia ahora mismo. El preaviso supone que
+  // se queda así; si el agua sube por su cuenta, el semáforo lo dirá en su momento.
+  const floor = worstLevel(components.filter((c) => c.kind !== "alert").map((c) => c.level));
+  const upcoming = await upcomingAlertsFor(db, station, now);
+  const windows: AlertWindow[] = [
+    ...alerts
+      .filter((a) => a.counts)
+      .map((a) => ({ level: a.level as RiskLevel, onset: a.onset, expires: a.expires })),
+    ...upcoming
+      .filter((a) => a.counts)
+      .map((a) => ({ level: a.level as RiskLevel, onset: a.onset, expires: a.expires })),
+  ];
+
   return {
     station: {
       id: station.id,
@@ -199,9 +234,11 @@ async function riskFor(db: Db, station: VirtualStation, now: Date): Promise<Stat
       lon: station.lon,
       primary: station.primary,
     },
-    level: worstLevel(components.map((c) => c.level)),
+    level,
     components,
     alerts,
+    upcoming_alerts: upcoming,
+    next_change: nextAlertChange(level, floor, windows, now, nextChangeHorizonHours()),
     warnings,
     stale: flow.anyFresh === false && hydro.length > 0,
     computed_at: now.toISOString(),
@@ -606,7 +643,7 @@ async function alertsFor(
   db: Db,
   station: VirtualStation,
   now: Date,
-): Promise<StationRisk["alerts"]> {
+): Promise<(StationAlert & { onset: string })[]> {
   // Zonas que afectan a esta localización: la de aviso de AEMET y las de emergencia de la GVA
   // (comarca + comodín provincial). Los códigos no colisionan entre sistemas (774602 vs 28).
   const zones = [station.aemetZone, ...station.gvaZones].filter((z): z is string => !!z);
@@ -636,9 +673,102 @@ async function alertsFor(
     level: a.level,
     event: a.event,
     event_code: a.event_code,
+    onset: new Date(a.onset).toISOString(),
     expires: new Date(a.expires).toISOString(),
     counts: FLOOD_EVENT_CODES.has((a.event_code ?? "").toUpperCase()),
   }));
+}
+
+/**
+ * Avisos de la zona que aún no han empezado. No tocan el nivel: alimentan el preaviso.
+ */
+async function upcomingAlertsFor(
+  db: Db,
+  station: VirtualStation,
+  now: Date,
+): Promise<UpcomingAlert[]> {
+  const zones = [station.aemetZone, ...station.gvaZones].filter((z): z is string => !!z);
+  if (zones.length === 0) return [];
+  const rows = await db.execute<AlertRow>(sql`
+      select id, source, area_code, level, event, event_code, onset, expires from alerts
+      where area_code in ${sql`(${sql.join(
+        zones.map((z) => sql`${z}`),
+        sql`, `,
+      )})`}
+        and onset > ${now.toISOString()}::timestamptz
+        and expires > ${now.toISOString()}::timestamptz
+      order by onset
+      limit 20
+    `);
+  const unique = dedupeAlerts(
+    rows.map((r) => ({
+      ...r,
+      areaCode: r.area_code,
+      eventCode: r.event_code,
+    })),
+  );
+  return unique.map((a) => ({
+    id: a.id,
+    source: a.source,
+    level: a.level,
+    event: a.event,
+    event_code: a.event_code,
+    onset: new Date(a.onset).toISOString(),
+    expires: new Date(a.expires).toISOString(),
+    counts: FLOOD_EVENT_CODES.has((a.event_code ?? "").toUpperCase()),
+  }));
+}
+
+export interface AlertWindow {
+  level: RiskLevel;
+  onset: string;
+  expires: string;
+}
+
+/** Horizonte del preaviso: más allá es ruido. */
+export function nextChangeHorizonHours(env: NodeJS.ProcessEnv = process.env): number {
+  const raw = Number(env.RISK_NEXT_CHANGE_HOURS ?? 72);
+  return Number.isFinite(raw) && raw > 0 ? raw : 72;
+}
+
+/**
+ * Primer instante futuro en que los avisos dejan el nivel actual distinto,
+ * suponiendo caudal y lluvia constantes en `floor` (su máximo actual). Puro y
+ * testeable: la DB solo aporta las ventanas.
+ */
+export function nextAlertChange(
+  current: RiskLevel,
+  floor: RiskLevel,
+  alerts: AlertWindow[],
+  now: Date,
+  horizonHours = 72,
+): NextChange | null {
+  const t0 = now.getTime();
+  const horizon = t0 + horizonHours * 3_600_000;
+  const times = [
+    ...new Set(alerts.flatMap((a) => [new Date(a.onset).getTime(), new Date(a.expires).getTime()])),
+  ]
+    .filter((t) => t > t0 && t <= horizon)
+    .sort((a, b) => a - b);
+  for (const t of times) {
+    const iso = new Date(t).toISOString();
+    let top: RiskLevel | null = null;
+    for (const a of alerts) {
+      if (a.onset <= iso && iso < a.expires && (top === null || rank(a.level) > rank(top))) {
+        top = a.level;
+      }
+    }
+    const projected = top === null ? floor : rank(top) > rank(floor) ? top : floor;
+    if (projected !== current) {
+      return {
+        at: iso,
+        level: projected,
+        direction: rank(projected) > rank(current) ? "sube" : "baja",
+        reason: "aviso oficial",
+      };
+    }
+  }
+  return null;
 }
 
 const RANK = { verde: 0, amarillo: 1, naranja: 2, rojo: 3 } as const;

@@ -7,6 +7,8 @@ const station = (name: string, level: StationRisk["level"], primary = false): St
   level,
   components: [],
   alerts: [],
+  upcoming_alerts: [],
+  next_change: null,
   warnings: [],
   stale: false,
   computed_at: "2026-08-25T18:00:00Z",

@@ -20,6 +20,8 @@ const risk = (over: Partial<StationRisk> = {}): StationRisk => ({
     },
   ],
   alerts: [],
+  upcoming_alerts: [],
+  next_change: null,
   warnings: [],
   stale: false,
   computed_at: "2026-08-25T18:00:00Z",
@@ -77,5 +79,22 @@ describe("StationCard", () => {
   it("indica la hora de cálculo en local, en el pie", () => {
     render(<StationCard risk={risk()} />);
     expect(screen.getByText("20:00")).toBeDefined();
+  });
+
+  it("muestra el preaviso de escalada con hora local, sin tocar el nivel", () => {
+    render(
+      <StationCard
+        risk={risk({
+          next_change: {
+            at: "2026-10-01T16:00:00Z",
+            level: "rojo",
+            direction: "sube",
+            reason: "aviso oficial",
+          },
+        })}
+      />,
+    );
+    expect(screen.getByText(/Próximo/)).toBeDefined();
+    expect(screen.getByText(/01\/10 18:00/)).toBeDefined();
   });
 });

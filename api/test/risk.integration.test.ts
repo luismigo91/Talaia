@@ -325,6 +325,29 @@ describe.skipIf(!process.env.TALAIA_INTEGRATION)("semáforo de riesgo (integraci
     expect(r.level).toBe("verde");
   });
 
+  it("un aviso futuro no sube el nivel pero aparece como preaviso de subida", async () => {
+    await pg`insert into alerts (id, source, area_code, event_code, event, level, severity, onset, expires, sent, raw)
+             values ('futuro', 'meteoalarm', '774602', 'PR', 'Aviso', 'rojo', 'Severe',
+                     now() + interval '4 hours', now() + interval '10 hours', now(), '{}'::jsonb)`;
+    const r = await albal();
+    expect(r.level).toBe("verde");
+    expect(r.upcoming_alerts).toHaveLength(1);
+    expect(r.upcoming_alerts[0]).toMatchObject({ id: "futuro", level: "rojo" });
+    expect(r.upcoming_alerts[0]!.onset).toBeDefined();
+    expect(r.next_change).toMatchObject({ level: "rojo", direction: "sube" });
+  });
+
+  it("al vencer el rojo el preaviso anuncia la bajada al naranja vigente", async () => {
+    await pg`insert into alerts (id, source, area_code, event_code, event, level, severity, onset, expires, sent, raw)
+             values ('rojo-ahora', 'meteoalarm', '774602', 'PR', 'Aviso', 'rojo', 'Severe',
+                     now() - interval '1 hour', now() + interval '2 hours', now(), '{}'::jsonb),
+                    ('naranja-largo', 'meteoalarm', '774602', 'PR', 'Aviso', 'naranja', 'Severe',
+                     now() - interval '1 hour', now() + interval '10 hours', now(), '{}'::jsonb)`;
+    const r = await albal();
+    expect(r.level).toBe("rojo");
+    expect(r.next_change).toMatchObject({ level: "naranja", direction: "baja" });
+  });
+
   it("Albal y Benetússer comparten el aforo del Poyo", async () => {
     await upsertObservations(db, [flow("saih:227", 80)]);
     const all = await service.risk({ now });

@@ -268,3 +268,17 @@ Dos señales que miran hacia delante sin añadir ninguna fuente:
 Lo que dijo el histórico (2025‑01 → 2026‑09): **el Poyo no ha corrido**. En el episodio más lluvioso del periodo (97 mm en Siete Aguas el 05‑03‑2025, a menos de 11 mm/h) el aforo de Riba‑roja marcó entre 0,0 y 0,3 m³/s; con 85 mm en un día sobre el propio aforo (28‑12‑2025), 1,9. La rambla solo responde a convección intensa y no ha habido ninguna desde que el SAIH publica. Por eso la tabla **no lleva semilla**: sin respuesta medida no hay relación que ajustar e inventar coeficientes sería peor que no tener la señal. La infraestructura queda lista para el primer episodio real: backfill, `calibrate-runoff --apply`, y el semáforo empieza a anticipar.
 
 **Tendencia entre corridas**. Cada emisión de cada modelo se guarda con su `forecast_ts`, así que sabemos qué preveían los mismos modelos hace medio día para estas mismas horas. El componente de lluvia prevista compara su mediana con la de las corridas anteriores (la última emisión de cada fuente al menos `RISK_TREND_GAP_HOURS` antes, solo fuentes con ambas corridas) y lo dice en el detalle ("al alza: las corridas de hace 7 h daban 24 mm"). Un cambio menor de 2 mm o del 20 % es "estable". La tendencia **informa, no decide**: elevar el nivel porque sube penalizaría a los modelos por corregirse. `GET /api/v1/forecast-runs` devuelve la serie de corridas por modelo y la mediana por tramo de antigüedad, y el detalle de localidad la muestra como tabla.
+
+### Preaviso de escalada (fase 14)
+
+El nivel es la foto actual, pero los avisos oficiales ya traen fecha de inicio:
+un rojo que empieza a las 18:00 está en `alerts` horas antes. `GET /api/v1/risk`
+devuelve por eso, además de los vigentes, `upcoming_alerts` (inicio futuro,
+ordenados por inicio) y `next_change`: el primer instante (≤
+`RISK_NEXT_CHANGE_HOURS`, 72 h) en que el máximo de avisos deja el nivel
+distinto —`{ at, level, direction: sube|baja }`—, suponiendo caudal y lluvia
+constantes en su máximo actual. Vale en las dos direcciones: el rojo que viene
+y el rojo que vence dejando un naranja. Solo cuentan los avisos de inundación
+(`PR`/`TO`/`IN`); el preaviso **no mueve el nivel, no genera eventos y no
+notifica** —es pantalla, no alarma—. La tarjeta de la home y el detalle lo
+muestran ("Próximo: sube a rojo · 01/10 18:00", hora de Madrid).

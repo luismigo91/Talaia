@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { RiskComponent, StationRisk } from "@/lib/api";
-import { KIND_LABEL, label, rank, timeMadrid } from "@/lib/format";
+import { dateTimeMadrid, KIND_LABEL, label, rank, timeMadrid } from "@/lib/format";
 import { LevelBadge } from "./LevelBadge";
 
 /** El componente que determina el nivel (o, en calma, el caudal principal). */
@@ -67,6 +67,13 @@ export function StationCard({ risk }: { risk: StationRisk }) {
         {avisos.length > 0 && (
           <p className="hint">
             Aviso oficial: {avisos.map((a) => a.event ?? a.event_code ?? "aviso").join(" · ")}
+          </p>
+        )}
+
+        {risk.next_change && (
+          <p className="hint">
+            Próximo: {risk.next_change.direction} a <LevelBadge level={risk.next_change.level} /> ·{" "}
+            {dateTimeMadrid(risk.next_change.at)}
           </p>
         )}
 

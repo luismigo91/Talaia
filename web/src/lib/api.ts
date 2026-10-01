@@ -47,6 +47,24 @@ export interface StationRisk {
     expires: string;
     counts: boolean;
   }[];
+  /** Avisos de la zona que aún no han empezado. No mueven el nivel: alimentan el preaviso. */
+  upcoming_alerts: {
+    id: string;
+    source: string;
+    level: string;
+    event: string | null;
+    event_code: string | null;
+    onset: string;
+    expires: string;
+    counts: boolean;
+  }[];
+  /** Próxima escalada o desescalada por avisos, o null si no hay ninguna a la vista. */
+  next_change: {
+    at: string;
+    level: Level;
+    direction: "sube" | "baja";
+    reason: "aviso oficial";
+  } | null;
   warnings: string[];
   stale: boolean;
   computed_at: string;
