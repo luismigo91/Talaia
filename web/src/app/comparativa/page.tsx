@@ -43,6 +43,7 @@ export default async function ComparativaPage({
       <p className="subtitle">
         Qué dice cada fuente para las próximas 24 horas en {station.name}. Cada una con su última
         emisión: cuando discrepan, esa discrepancia <em>es</em> la información.
+        {acumulada && " La curva es lluvia acumulada: termina en el total de la tabla."}
       </p>
 
       <div className="controls">
@@ -77,7 +78,7 @@ export default async function ComparativaPage({
         </p>
       ) : (
         <>
-          <CompareChart data={compare.data} />
+          <CompareChart data={compare.data} cumulative={acumulada} />
           <div className="table-scroll">
             <table style={{ marginTop: "1.25rem" }}>
               <thead>

@@ -28,3 +28,13 @@ La tabla de la comparativa DEBE mostrar, por fuente, el total previsto (o el má
 #### Scenario: Emisiones distintas
 - **Dado** fuentes con distinta hora de emisión
 - **Entonces** cada fila muestra la suya.
+
+### Requirement: Precipitación acumulada en el gráfico
+Para `precip_mm`, el gráfico DEBE dibujar la lluvia acumulada por fuente (suma
+corriente ordenada por instante), no los valores horarios sueltos: la curva
+DEBE terminar en el total de 24 h que muestra la tabla. El resto de variables
+(temperatura, viento, probabilidad) se dibujan con sus valores instantáneos.
+
+#### Scenario: Un modelo desatado
+- **Dado** AROME con 137 mm en 24 h y pico horario de 53,8 mm
+- **Entonces** su curva termina en 137, no en 54.

@@ -1,5 +1,5 @@
 import type { Compare } from "@/lib/api";
-import { buildScale, colorFor, formatTick, pathOf, type ChartBox } from "@/lib/chart";
+import { accumulate, buildScale, colorFor, formatTick, pathOf, type ChartBox } from "@/lib/chart";
 import { timeMadrid } from "@/lib/format";
 
 const BOX: ChartBox = {
@@ -9,8 +9,17 @@ const BOX: ChartBox = {
 };
 
 /** Comparativa entre fuentes en SVG: una línea por fuente, con leyenda nominal. */
-export function CompareChart({ data }: { data: Compare }) {
-  const scale = buildScale(data.series, data.from, data.to, BOX);
+export function CompareChart({
+  data,
+  cumulative = false,
+}: {
+  data: Compare;
+  cumulative?: boolean;
+}) {
+  const series = cumulative
+    ? data.series.map((s) => ({ ...s, points: accumulate(s.points) }))
+    : data.series;
+  const scale = buildScale(series, data.from, data.to, BOX);
   const baseY = scale.y(0);
 
   return (
@@ -68,7 +77,7 @@ export function CompareChart({ data }: { data: Compare }) {
           strokeOpacity={0.35}
         />
 
-        {data.series.map((s, i) => (
+        {series.map((s, i) => (
           <path
             key={s.source}
             d={pathOf(s.points, scale)}
@@ -82,7 +91,7 @@ export function CompareChart({ data }: { data: Compare }) {
       </svg>
 
       <p className="chart-legend">
-        {data.series.map((s, i) => (
+        {series.map((s, i) => (
           <span key={s.source}>
             <span className="swatch" style={{ background: colorFor(i) }} />
             {s.name}

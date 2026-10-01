@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  accumulate,
   buildScale,
   colorFor,
   formatTick,
@@ -123,5 +124,26 @@ describe("formatTick", () => {
   });
   it("sin decimales cuando el techo es grande", () => {
     expect(formatTick(50, 100)).toBe("50");
+  });
+});
+
+describe("accumulate", () => {
+  it("la curva acumulada termina en el total (un AROME de 137 mm no se queda en 54)", () => {
+    const out = accumulate([
+      { ts: "2026-10-01T02:00:00Z", value: 53.8 },
+      { ts: "2026-10-01T00:00:00Z", value: 30 },
+      { ts: "2026-10-01T01:00:00Z", value: 53.2 },
+    ]);
+    expect(out.map((p) => p.ts)).toEqual([
+      "2026-10-01T00:00:00Z",
+      "2026-10-01T01:00:00Z",
+      "2026-10-01T02:00:00Z",
+    ]);
+    expect(out.at(-1)!.value).toBeCloseTo(137, 5);
+    expect(out[0]!.value).toBeCloseTo(30, 5);
+  });
+
+  it("serie vacía, suma vacía", () => {
+    expect(accumulate([])).toEqual([]);
   });
 });

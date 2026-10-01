@@ -86,6 +86,22 @@ export function pathOf(points: Point[], scale: Scale): string {
 }
 
 /**
+ * Suma acumulada ordenada por instante. La comparativa dibuja la precipitación
+ * acumulada y no por horas: la curva termina en el total de 24 h que da la tabla
+ * (si dibujara valores horarios, un AROME de 137 mm en 24 h con pico de 54 mm/h
+ * parecería quedarse "entre 50 y 60"). La pendiente marca cuándo cae el agua.
+ */
+export function accumulate(points: Point[]): Point[] {
+  let sum = 0;
+  return [...points]
+    .sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime())
+    .map((p) => {
+      sum = Math.round((sum + p.value) * 100) / 100;
+      return { ts: p.ts, value: sum };
+    });
+}
+
+/**
  * Paleta categórica de la comparativa. Colores distinguibles entre sí y sobre ambos temas;
  * el gráfico lleva además leyenda con el nombre de cada fuente, no solo color.
  */
